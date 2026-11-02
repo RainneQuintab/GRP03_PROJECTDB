@@ -1,1 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HealthBridge Patient Portal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231470D9%22/%3E%3Cpath%20d%3D%22M5%2023c3-9%207-12%2011-12s8%203%2011%2012M4%2023h24%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v7M12.5%2017.5h7%22%20fill%3D%22none%22%20stroke%3D%22%239BE3FF%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F5F8;--card:#fff;--ink:#17212B;--mute:#5F6C7B;--line:#DCE2E9;--pri:#0B5CAD;--prih:#094A8C;--on:#fff;--side:#0E2A47;--ok:#17803D;--okbg:#E2F4E8;--warn:#9A5B00;--warnbg:#FFF1D6;--bad:#B42318;--badbg:#FDE7E5;--info:#0B5CAD;--infobg:#E1EEFB;--hov:#F0F4F8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B141D;--card:#121E2A;--ink:#E5ECF3;--mute:#8CA0B3;--line:#243445;--pri:#4F9BE8;--prih:#78B3F0;--on:#06121D;--side:#08121B;--ok:#6BD08F;--okbg:#10301D;--warn:#F2C46D;--warnbg:#38290B;--bad:#F59D94;--badbg:#3C1814;--info:#7FB6F4;--infobg:#12304F;--hov:#172636}}
+:root[data-theme="dark"]{--bg:#0B141D;--card:#121E2A;--ink:#E5ECF3;--mute:#8CA0B3;--line:#243445;--pri:#4F9BE8;--prih:#78B3F0;--on:#06121D;--side:#08121B;--ok:#6BD08F;--okbg:#10301D;--warn:#F2C46D;--warnbg:#38290B;--bad:#F59D94;--badbg:#3C1814;--info:#7FB6F4;--infobg:#12304F;--hov:#172636}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{margin:0;letter-spacing:-.015em}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pri);outline-offset:1px}
+.app{display:grid;grid-template-columns:232px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+aside{grid-row:1/3;background:var(--side);color:#C9D6E4;padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:17px;padding:2px 8px 18px}
+.logo svg{width:34px;height:34px;fill:none;stroke:none;stroke-width:0}.logo i{width:30px;height:30px;border-radius:7px;background:#fff;display:grid;place-items:center}
+aside button{display:flex;align-items:center;gap:11px;border:0;background:none;color:inherit;padding:9px 10px;border-radius:6px;cursor:pointer;font-weight:500;text-align:left;white-space:nowrap}
+aside button:hover{background:#ffffff14}
+aside button[aria-current=page]{background:#ffffff24;color:#fff;box-shadow:inset 3px 0 0 #6DB4FF}
+aside svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.sf{margin-top:auto;font-size:12px;color:#8DA2B8;padding:8px}
+.bar{background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 28px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+.srch{flex:1;min-width:180px;max-width:380px}
+.clock{margin-left:auto;color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums}
+.roles{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.roles button{border:0;background:var(--card);padding:6px 13px;cursor:pointer;font-weight:500;color:var(--mute);border-left:1px solid var(--line)}
+.roles button:first-child{border:0}
+.roles button[aria-pressed=true]{background:var(--pri);color:var(--on)}
+main{padding:26px 28px 70px;max-width:1180px;width:100%}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:24px;font-weight:700}
+.sub{color:var(--mute);margin:3px 0 0}
+h2{font-size:15px;font-weight:600;margin:0 0 10px}
+.sec{margin-top:26px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:8px}
+.pad{padding:16px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--pri);border-radius:8px;padding:12px 16px}
+.kpi b{display:block;font-size:26px;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--mute);font-size:13px}
+.kpi.w{border-left-color:#D98A00}.kpi.g{border-left-color:var(--ok)}
+.two{display:grid;grid-template-columns:3fr 2fr;gap:16px;align-items:start}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;font-weight:600;color:var(--mute);padding:9px 14px;background:var(--bg);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 14px;border-top:1px solid var(--line);vertical-align:middle}
+tr:first-child td{border-top:0}
+tbody tr:hover td{background:var(--hov)}
+.n{font-weight:600}
+.id{color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
+.meta{color:var(--mute);font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:1px 9px;border-radius:4px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.Pending{background:var(--warnbg);color:var(--warn)}.Scheduled{background:var(--infobg);color:var(--info)}.Completed{background:var(--okbg);color:var(--ok)}.Cancelled{background:var(--badbg);color:var(--bad)}
+.btn{border:1px solid var(--line);background:var(--card);padding:6px 13px;border-radius:6px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--hov)}
+.btn.p{background:var(--pri);color:var(--on);border-color:var(--pri)}
+.btn.p:hover{background:var(--prih)}
+.btn.d{color:var(--bad)}
+.acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+label{display:block;font-weight:500;font-size:13px;margin-bottom:4px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+.bar input,.bar select{width:auto}
+textarea{min-height:90px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid .full{grid-column:1/-1}
+.empty{padding:34px;text-align:center;color:var(--mute)}
+.gridt td,.gridt th{min-width:150px}
+.gridt td:first-child,.gridt th:first-child{min-width:100px;color:var(--mute)}
+.cell{border-radius:5px;padding:5px 8px;font-size:13px;font-weight:500;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.free{color:var(--mute);opacity:.55}
+.sbar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line);margin:4px 0 12px}
+.sbar i{display:block}
+.leg div{display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid var(--line)}
+.log{list-style:none;margin:0;padding:0}
+.log li{display:flex;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.log li:first-child{border:0}
+.log time{color:var(--mute);width:44px;flex:none}
+.cg{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+.pb{position:sticky;top:70px}
+.pb h2{font-size:18px;margin:0}
+.pb dl{margin:12px 0 0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
+.pb dt{color:var(--mute)}.pb dd{margin:0}
+.hx{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;font-size:13px}
+.hx div{padding:6px 0}
+.rec{margin-bottom:12px;overflow:hidden}
+.rh{display:flex;justify-content:space-between;gap:10px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.rx{margin-top:10px;border:1px solid var(--line);border-radius:6px}
+.rx div{padding:8px 12px}.rx div+div{border-top:1px solid var(--line)}
+.mrow{display:grid;grid-template-columns:1.4fr 1fr 2fr auto;gap:8px;margin-bottom:8px}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+#modal{position:fixed;inset:0;background:#050d1888;display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+#modal.on{display:flex}
+.dlg{background:var(--card);border-radius:10px;padding:22px;width:min(520px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 50px #0004}
+.dlg h3{font-size:18px;margin-bottom:12px}
+#toast{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:6px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+#toast.on{opacity:1}
+.hl{display:none;align-items:center;gap:10px;font-weight:700;font-size:17px;margin-right:14px;color:var(--ink)}
+.hl svg{width:32px;height:32px;fill:none;stroke:none}
+#pnav{display:none;gap:4px;flex-wrap:wrap}
+#pnav button{border:0;background:none;padding:7px 13px;border-radius:6px;cursor:pointer;color:var(--mute);font-weight:500;white-space:nowrap}
+#pnav button:hover{background:var(--hov)}
+#pnav button[aria-current=page]{background:var(--infobg);color:var(--pri)}
+.portal .app{grid-template-columns:1fr}
+.portal aside,.portal .roles,.portal .clock{display:none}
+.portal .hl,.portal #pnav{display:flex}
+.portal main{margin:0 auto}
+.avl{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dc{padding:16px}
+.dc .tp{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.av{width:42px;height:42px;border-radius:50%;background:var(--infobg);color:var(--pri);display:grid;place-items:center;font-weight:700;flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:12px;font-variant-numeric:tabular-nums}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.steps li:first-child{border:0}
+.steps li:before{counter-increment:s;content:counter(s);width:24px;height:24px;border-radius:50%;background:var(--pri);color:var(--on);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.okbox{border-left:4px solid var(--ok);background:var(--okbg)}
+.big{font-size:30px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+@media (max-width:700px){.avl{grid-template-columns:1fr}}
+@media (max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}aside{grid-row:auto;position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.sf{display:none}.logo{padding:0 10px 0 4px}.logo span{display:none}.bar{padding:10px 14px;position:static}main{padding:20px 14px 60px}.kpis{grid-template-columns:1fr 1fr}.two,.cg{grid-template-columns:1fr}.pb{position:static}.grid{grid-template-columns:1fr}.mrow{grid-template-columns:1fr 1fr}.clock{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside><div class="logo"><svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><rect width="32" height="32" rx="8" fill="#1470D9"/><path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/></svg><span>HealthBridge</span></div><nav id="nav" style="display:contents" aria-label="Main"></nav><div class="sf">grp03_projectdb<br>PostgreSQL 17</div></aside>
+<header class="bar"><div class="hl"><svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><rect width="32" height="32" rx="8" fill="#1470D9"/><path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/></svg>HealthBridge</div><nav id="pnav" aria-label="Main"></nav><input class="srch" id="q" type="search" placeholder="Search patients by name or ID" aria-label="Search patients"><div id="who" class="acts"></div><div class="roles" id="roles" role="group" aria-label="View as"></div><div class="clock" id="clock"></div></header>
+<main id="main"></main>
+</div>
+<div id="modal" role="dialog" aria-modal="true"></div>
+<div id="toast" role="status"></div>
+<script>
+const SLOTS=['08:00–09:00','09:00–10:00','10:00–11:00','11:00–12:00','13:00–14:00','14:00–15:00','15:00–16:00','16:00–17:00'];
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const day=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+const T=day(0),dt=d=>new Date(d+'T00:00');
+const fmt=d=>dt(d).toLocaleDateString('en-PH',{weekday:'short',month:'short',day:'numeric'});
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MODE='client';
+const seed=()=>({
+ sp:[{id:1,name:'General Practice'},{id:2,name:'Pediatrics'},{id:3,name:'Cardiology'},{id:4,name:'Dermatology'}],
+ dr:[{id:1,sp:1,fn:'Maria',ln:'Santos',em:'m.santos@healthbridge.ph',on:1},{id:2,sp:2,fn:'Paolo',ln:'Reyes',em:'p.reyes@healthbridge.ph',on:1},{id:3,sp:3,fn:'Ana',ln:'Villanueva',em:'a.villanueva@healthbridge.ph',on:1}],
+ pt:[{id:1,fn:'Juan',ln:'dela Cruz',ph:'0917 555 0142',ad:'San Pedro, Laguna'},{id:2,fn:'Liza',ln:'Mendoza',ph:'0928 555 0187',ad:'Biñan, Laguna'},{id:3,fn:'Carlo',ln:'Bautista',ph:'0935 555 0120',ad:'Cabuyao, Laguna'}],
+ ap:[{id:1,pt:1,dr:1,date:T,slot:SLOTS[1],st:'Scheduled',sym:'Fever and sore throat for two days'},{id:2,pt:2,dr:1,date:T,slot:SLOTS[3],st:'Scheduled',sym:'Follow-up on blood pressure'},{id:3,pt:3,dr:null,date:day(1),slot:null,st:'Pending',sym:'Persistent dry cough, worse at night'},{id:4,pt:2,dr:null,date:day(2),slot:null,st:'Pending',sym:'Skin rash on both arms'},{id:5,pt:1,dr:1,date:day(-14),slot:SLOTS[0],st:'Completed',sym:'Persistent headache'}],
+ nt:[{id:1,ap:5,dx:'Tension-type headache',ob:'BP 118/76. No neurological findings. Advised hydration and sleep.'}],
+ rx:[{id:1,ap:5,med:'Paracetamol',dose:'500 mg',ins:'Take every 6 hours as needed, after meals'}]
+});
+const KEY='healthbridge_demo_v1';
+let DB,nid=100;
+const S={role:'staff',view:'req',did:1,cid:0,sd:T,q:'',me:0,done:null,fd:day(1),fs:0,log:[]};
+const L0=()=>[{t:'08:05',m:'Dr. Maria Santos added to General Practice'},{t:'08:12',m:'Carlo Bautista submitted a request'}];
+function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.DB){DB=j.DB;nid=j.nid;S.log=j.log;return}}catch(e){}DB=seed();nid=100;S.log=L0()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({DB,nid,log:S.log.slice(0,40)}))}catch(e){}}
+const NAV={admin:[['ov','Overview'],['docs','Doctors'],['spec','Specialties'],['pts','Patients']],staff:[['req','Requests'],['sched','Schedule'],['pts','Patients'],['docs','Doctors'],['spec','Specialties']],doctor:[['queue','My queue']],patient:[['visit','Request a visit'],['avail','Available doctors'],['mine','My appointment']]};
+const ROLES={client:[],staff:[['staff','Staff'],['doctor','Doctor']],admin:[['patient','Patient'],['doctor','Doctor'],['staff','Staff'],['admin','Admin']]}[MODE];
+const START={client:{role:'patient',view:'visit'},staff:{role:'staff',view:'req'},admin:{role:'admin',view:'ov'}}[MODE];
+const IC={ov:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',docs:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',spec:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',pts:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M16 4.5a3.5 3.5 0 010 7M18 14c2.5.8 4 2.5 4 6"/>',req:'<path d="M5 5h14l2 8v6H3v-6z"/><path d="M3 13h5l1 3h6l1-3h5"/>',sched:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',queue:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',book:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',rec:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/>'};
+const $=s=>document.querySelector(s);
+const P=id=>DB.pt.find(x=>x.id==id),D=id=>DB.dr.find(x=>x.id==id),SP=id=>DB.sp.find(x=>x.id==id),AP=id=>DB.ap.find(x=>x.id==id);
+const mrn=id=>'HB-'+String(id).padStart(5,'0');
+const pn=id=>{const p=P(id);return p?p.fn+' '+p.ln:'—'};
+const dn=id=>{const d=D(id);return d?'Dr. '+d.fn+' '+d.ln:'Unassigned'};
+const pc=id=>`<div class="n">${esc(pn(id))}</div><div class="id">${mrn(id)}</div>`;
+const taken=(dr,date,slot,skip)=>DB.ap.some(a=>a.dr==dr&&a.date===date&&a.slot===slot&&a.st!=='Cancelled'&&a.id!==skip);
+const pill=s=>`<span class="pill ${s}">${s}</span>`;
+const L=m=>S.log.unshift({t:new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:false}),m});
+const cmp=(a,b)=>(a.date+a.slot).localeCompare(b.date+b.slot);
+const activeDr=()=>DB.dr.filter(d=>d.on);
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2400)}
+function modal(h){const m=$('#modal');m.innerHTML=h?`<div class="dlg">${h}</div>`:'';m.classList.toggle('on',!!h)}
+const head=(t,s,x='')=>`<div class="head"><div><h1>${t}</h1><p class="sub">${s}</p></div>${x}</div>`;
+const empty=t=>`<div class="empty">${t}</div>`;
+const tbl=(h,rows,msg)=>rows.length?`<div class="wrap"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`:`<div class="panel">${empty(msg)}</div>`;
+const kpi=(n,l,c='')=>`<div class="kpi ${c}"><b>${n}</b><span>${l}</span></div>`;
+
+function chrome(){
+ const cur=S.view==='consult'?'queue':S.view,nav=NAV[S.role],ic=k=>IC[k]||IC[{visit:'book',avail:'docs',mine:'rec'}[k]];
+ $('#roles').innerHTML=ROLES.map(([k,l])=>`<button data-a="role" data-k="${k}" aria-pressed="${S.role===k}">${l}</button>`).join('');
+ $('#who').innerHTML=S.role==='doctor'?`<select aria-label="Doctor" data-a="pick" data-t="did">${activeDr().map(d=>`<option value="${d.id}" ${d.id==S.did?'selected':''}>${esc(dn(d.id))}</option>`).join('')}</select>`:'';
+ $('#nav').innerHTML=nav.map(([k,l])=>`<button data-a="view" data-k="${k}" ${cur===k?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${ic(k)}</svg>${l}</button>`).join('');
+ $('#pnav').innerHTML=nav.map(([k,l])=>`<button data-a="view" data-k="${k}" ${cur===k?'aria-current="page"':''}>${l}</button>`).join('');
+ $('#q').style.display=['admin','staff'].includes(S.role)?'':'none';
+}
+const V={
+ov(){
+ const c=s=>DB.ap.filter(a=>a.st===s).length,n=DB.ap.length||1,col={Pending:'#D98A00',Scheduled:'#0B5CAD',Completed:'#17803D',Cancelled:'#B42318'};
+ const td=DB.ap.filter(a=>a.date===T&&a.st!=='Cancelled').length;
+ return head('Overview','Clinic activity at a glance.','<button class="btn" data-a="reset">Reset demo data</button>')+
+ `<div class="kpis">${kpi(DB.pt.length,'Registered patients')}${kpi(activeDr().length,'Active doctors','g')}${kpi(td,'Appointments today')}${kpi(c('Pending'),'Requests waiting','w')}</div>`+
+ `<div class="two"><div><h2>Doctor workload</h2>${tbl(['Doctor','Specialty','Today','Upcoming'],DB.dr.map(d=>`<tr><td class="n">${esc(dn(d.id))}</td><td>${esc(SP(d.sp).name)}</td><td>${DB.ap.filter(a=>a.dr===d.id&&a.date===T&&a.st!=='Cancelled').length}</td><td>${DB.ap.filter(a=>a.dr===d.id&&a.date>T&&a.st==='Scheduled').length}</td></tr>`),'No doctors yet.')}</div>`+
+ `<div><h2>Appointments by status</h2><div class="panel pad"><div class="sbar" role="img" aria-label="Status breakdown">${Object.keys(col).map(s=>`<i style="width:${c(s)/n*100}%;background:${col[s]}"></i>`).join('')}</div><div class="leg">${Object.keys(col).map(s=>`<div><span>${s}</span><b>${c(s)}</b></div>`).join('')}</div></div></div></div>`+
+ `<div class="sec"><h2>Recent activity</h2><div class="panel pad"><ul class="log">${S.log.slice(0,8).map(x=>`<li><time>${x.t}</time><span>${esc(x.m)}</span></li>`).join('')}</ul></div></div>`;
+},
+docs(){
+ return head('Doctors','Manage doctor profiles and who can receive appointments.')+
+ `<form class="panel pad grid" data-f="doc"><div><label for="d1">First name</label><input id="d1" name="fn" required></div><div><label for="d2">Last name</label><input id="d2" name="ln" required></div><div><label for="d3">Email</label><input id="d3" name="em" type="email" required></div><div><label for="d4">Specialty</label><select id="d4" name="sp">${DB.sp.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div><div class="full acts"><button class="btn p">Add doctor</button><span class="err" id="e"></span></div></form>`+
+ `<div class="sec">${tbl(['Doctor','Specialty','Email','Status',''],DB.dr.map(d=>`<tr><td class="n">${esc(dn(d.id))}</td><td>${esc(SP(d.sp).name)}</td><td>${esc(d.em)}</td><td>${d.on?'Active':'<span class="meta">Inactive</span>'}</td><td><div class="acts"><button class="btn" data-a="editdr" data-id="${d.id}">Edit</button><button class="btn" data-a="tog" data-id="${d.id}">${d.on?'Deactivate':'Activate'}</button></div></td></tr>`))}</div>`;
+},
+spec(){
+ return head('Specialties','Every doctor belongs to exactly one specialty.')+
+ `<form class="panel pad acts" data-f="spec" style="align-items:flex-end"><div style="flex:1;min-width:200px"><label for="s1">New specialty</label><input id="s1" name="name" required placeholder="Example: Orthopedics"></div><button class="btn p">Add specialty</button><span class="err" id="e" style="width:100%"></span></form>`+
+ `<div class="sec">${tbl(['Specialty','Doctors',''],DB.sp.map(s=>{const n=DB.dr.filter(d=>d.sp===s.id).length;return `<tr><td class="n">${esc(s.name)}</td><td>${n}</td><td>${n?'<span class="meta">In use. Reassign its doctors to remove it.</span>':`<button class="btn d" data-a="delsp" data-id="${s.id}">Delete</button>`}</td></tr>`}))}</div>`;
+},
+pts(){
+ const q=S.q.trim().toLowerCase(),l=DB.pt.filter(p=>!q||(pn(p.id)+' '+mrn(p.id)).toLowerCase().includes(q));
+ return head('Patients',`${l.length} of ${DB.pt.length} shown.`)+tbl(['Patient','Phone','Address','Completed visits',''],l.map(p=>`<tr><td>${pc(p.id)}</td><td>${esc(p.ph||'—')}</td><td>${esc(p.ad||'—')}</td><td>${DB.ap.filter(a=>a.pt===p.id&&a.st==='Completed').length}</td><td><button class="btn" data-a="editpt" data-id="${p.id}">Edit</button></td></tr>`),'No patients match your search.');
+},
+req(){
+ const l=DB.ap.filter(a=>a.st==='Pending').sort((a,b)=>a.date.localeCompare(b.date));
+ return head('Appointment requests',l.length?`${l.length} waiting for a doctor and a time slot.`:'All requests have been handled.','<button class="btn p" data-a="walkin">Book walk-in</button>')+
+ tbl(['Preferred date','Patient','Reason for visit','Status',''],l.map(a=>`<tr><td>${fmt(a.date)}</td><td>${pc(a.pt)}</td><td>${esc(a.sym)}</td><td>${pill('Pending')}</td><td><div class="acts"><button class="btn p" data-a="assign" data-id="${a.id}">Assign doctor</button><button class="btn d" data-a="cancel" data-id="${a.id}">Decline</button></div></td></tr>`),'No requests waiting. New ones from patients appear here.');
+},
+sched(){
+ const dr=activeDr();
+ return head('Schedule',fmt(S.sd)+'. One column per doctor.',`<div class="acts"><button class="btn" data-a="day" data-n="-1">Previous</button><input type="date" value="${S.sd}" data-a="setday" aria-label="Date" style="width:auto"><button class="btn" data-a="day" data-n="1">Next</button></div>`)+
+ `<div class="wrap"><table class="gridt"><thead><tr><th>Time</th>${dr.map(d=>`<th>${esc(dn(d.id))} <span style="font-weight:400">· ${esc(SP(d.sp).name)}</span></th>`).join('')}</tr></thead><tbody>${SLOTS.map(s=>`<tr><td>${s}</td>${dr.map(d=>{const a=DB.ap.find(x=>x.dr===d.id&&x.date===S.sd&&x.slot===s&&x.st!=='Cancelled');return `<td>${a?`<div class="cell ${a.st}"><span>${esc(pn(a.pt))}</span>${a.st==='Scheduled'?`<button class="btn d" style="padding:0 7px;font-size:12px" data-a="cancel" data-id="${a.id}">Cancel</button>`:''}</div>`:'<span class="free">Open</span>'}</td>`}).join('')}</tr>`).join('')}</tbody></table></div>`;
+},
+queue(){
+ const mine=DB.ap.filter(a=>a.dr===S.did),sc=mine.filter(a=>a.st==='Scheduled').sort(cmp),tod=sc.filter(a=>a.date<=T),up=sc.filter(a=>a.date>T),done=mine.filter(a=>a.st!=='Scheduled').sort(cmp).reverse();
+ const rows=(l,act,num)=>l.map((a,i)=>`<tr><td>${num?`<b>${i+1}</b>`:fmt(a.date)}</td><td>${a.slot}</td><td>${pc(a.pt)}</td><td>${esc(a.sym)}</td><td>${pill(a.st)}</td><td>${act?`<div class="acts"><button class="btn p" data-a="note" data-id="${a.id}">Open chart</button><button class="btn d" data-a="cancel" data-id="${a.id}">Cancel</button></div>`:''}</td></tr>`);
+ const H=f=>[f,'Time','Patient','Reason for visit','Status',''];
+ return head(dn(S.did),SP(D(S.did).sp).name)+
+ `<div class="kpis" style="grid-template-columns:repeat(3,1fr)">${kpi(tod.length,'Waiting today','w')}${kpi(mine.filter(a=>a.date===T&&a.st==='Completed').length,'Seen today','g')}${kpi(up.length,'Upcoming')}</div>`+
+ `<h2>Today’s queue</h2>${tbl(H('No.'),rows(tod,1,1),'No patients in the queue today.')}`+
+ (up.length?`<div class="sec"><h2>Upcoming</h2>${tbl(H('Date'),rows(up,1,0))}</div>`:'')+
+ (done.length?`<div class="sec"><h2>Closed visits</h2>${tbl(H('Date'),rows(done,0,0))}</div>`:'');
+},
+consult(){
+ const a=AP(S.cid),p=P(a.pt),hx=DB.ap.filter(x=>x.pt===a.pt&&x.st==='Completed').sort(cmp).reverse();
+ return head('Consultation',`${fmt(a.date)} · ${a.slot}`,'<button class="btn" data-a="view" data-k="queue">Back to queue</button>')+
+ `<div class="cg"><div class="panel pad pb"><h2>${esc(pn(a.pt))}</h2><div class="id">${mrn(a.pt)}</div><dl><dt>Phone</dt><dd>${esc(p.ph||'—')}</dd><dt>Address</dt><dd>${esc(p.ad||'—')}</dd><dt>Reason</dt><dd>${esc(a.sym)}</dd></dl><div class="hx"><b>Previous visits</b>${hx.length?hx.map(x=>{const n=DB.nt.find(y=>y.ap===x.id);return `<div>${fmt(x.date)}<br><span class="meta">${esc(n?n.dx:'No note')}</span></div>`}).join(''):'<div class="meta">None on record.</div>'}</div></div>`+
+ `<form class="panel pad" data-f="note" data-id="${a.id}"><div class="grid"><div class="full"><label for="n1">Diagnosis</label><input id="n1" name="dx" required></div><div class="full"><label for="n2">Clinical observations</label><textarea id="n2" name="ob"></textarea></div></div><h2 style="margin-top:18px">Prescriptions</h2><div id="meds">${medRow()}</div><div class="acts" style="margin-top:8px"><button type="button" class="btn" data-a="addmed">Add medication</button></div><div class="acts" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line)"><button class="btn p">Save and complete visit</button></div></form></div>`;
+},
+visit(){
+ if(S.done){const p=P(S.done.p),a=AP(S.done.a);return head('Request received','Clinic staff will review it and assign your doctor.')+`<div class="panel pad okbox"><div class="meta">Your patient ID</div><div class="big">${mrn(p.id)}</div><p style="margin:8px 0 0">Keep this ID. You need it with your last name to check your appointment.</p></div><div class="panel pad" style="margin-top:14px"><h2>Request details</h2><div class="meta">Preferred date</div><div>${fmt(a.date)}</div><div class="meta" style="margin-top:8px">Reason for visit</div><div>${esc(a.sym)}</div></div><div class="acts" style="margin-top:16px"><button class="btn p" data-a="view" data-k="mine">Check my appointment</button><button class="btn" data-a="again">Make another request</button></div>`}
+ return head('Request a visit','Tell us about yourself and when you’d like to come in.')+
+ `<div class="two"><form class="panel pad grid" data-f="visit"><div><label for="v1">First name</label><input id="v1" name="fn" required autocomplete="given-name"></div><div><label for="v2">Last name</label><input id="v2" name="ln" required autocomplete="family-name"></div><div><label for="v3">Mobile number</label><input id="v3" name="ph" type="tel" required autocomplete="tel" placeholder="0917 000 0000"></div><div><label for="v4">Preferred date</label><input id="v4" name="date" type="date" min="${T}" value="${day(1)}" required></div><div class="full"><label for="v5">Address <span class="meta">(optional)</span></label><input id="v5" name="ad" autocomplete="street-address"></div><div class="full"><label for="v6">Symptoms or reason for visit</label><textarea id="v6" name="sym" required placeholder="Example: fever and cough for three days"></textarea></div><div class="full acts"><button class="btn p">Send request</button><span class="meta">Only clinic staff and your doctor can see this.</span></div></form><div class="panel pad"><h2>What happens next</h2><ol class="steps"><li>Clinic staff review your request.</li><li>They assign a doctor and confirm your time.</li><li>Open “My appointment” with your patient ID to see the date, time and doctor.</li></ol></div></div>`;
+},
+avail(){
+ const dr=activeDr().filter(d=>!S.fs||d.sp==S.fs);
+ return head('Available doctors','Open time slots for the day you choose. This page is for viewing only.',`<div class="acts"><input type="date" value="${S.fd}" min="${T}" data-a="fday" aria-label="Date" style="width:auto"><select data-a="fspec" aria-label="Specialty" style="width:auto"><option value="0">All specialties</option>${DB.sp.map(s=>`<option value="${s.id}" ${s.id==S.fs?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>`)+
+ (dr.length?`<div class="avl">${dr.map(d=>{const o=SLOTS.filter(s=>!taken(d.id,S.fd,s));return `<div class="panel dc"><div class="tp"><div class="av">${esc(d.fn[0]+d.ln[0])}</div><div><div class="n">${esc(dn(d.id))}</div><div class="meta">${esc(SP(d.sp).name)}</div></div><div style="margin-left:auto">${o.length?`<span class="pill Completed">${o.length} open</span>`:'<span class="pill Cancelled">Fully booked</span>'}</div></div><div class="chips">${o.map(s=>`<span class="chip">${s}</span>`).join('')}</div></div>`}).join('')}</div><p class="meta" style="margin-top:14px">To book, send a request. Clinic staff will confirm your doctor and time.</p>`:`<div class="panel">${empty('No doctors match this specialty.')}</div>`);
+},
+mine(){
+ const p=S.me&&P(S.me),l=p?DB.ap.filter(a=>a.pt===p.id).sort((a,b)=>b.date.localeCompare(a.date)):[];
+ return head('My appointment','Enter your patient ID and last name to see your appointment.')+
+ `<form class="panel pad acts" data-f="look" style="align-items:flex-end"><div style="flex:1;min-width:160px"><label for="k1">Patient ID</label><input id="k1" name="id" required placeholder="HB-00001" value="${p?mrn(p.id):''}"></div><div style="flex:1;min-width:160px"><label for="k2">Last name</label><input id="k2" name="ln" required value="${p?esc(p.ln):''}"></div><button class="btn p">Check</button><span class="err" id="e" style="width:100%"></span></form>`+
+ (p?`<div class="sec"><h2>${esc(pn(p.id))} <span class="id">${mrn(p.id)}</span></h2>${l.length?l.map(a=>`<div class="panel rec"><div class="rh"><span><b>${fmt(a.date)}</b> <span class="meta">${a.slot||'Time to be confirmed'}</span></span>${pill(a.st)}</div><div class="pad"><div class="meta">Doctor</div><b>${a.dr?esc(dn(a.dr)):'To be assigned by the clinic'}</b>${a.dr?` <span class="meta">${esc(SP(D(a.dr).sp).name)}</span>`:''}<div class="meta" style="margin-top:10px">Reason for visit</div>${esc(a.sym)}${a.st==='Pending'?'<div class="meta" style="margin-top:10px">Clinic staff are reviewing your request.</div>':''}${a.st==='Cancelled'?'<div class="meta" style="margin-top:10px">This appointment was cancelled. You can send a new request.</div>':''}</div></div>`).join(''):`<div class="panel">${empty('No appointments yet.')}</div>`}</div>`:'');
+}
+};
+function main(){$('#main').innerHTML=V[S.view]()}
+function render(){chrome();main();save()}
+function go(r){S.role=r;S.view=NAV[r][0][0];render()}
+const slotOpts=(dr,date,skip)=>SLOTS.map(s=>{const t=taken(dr,date,s,skip);return `<option value="${s}" ${t?'disabled':''}>${s}${t?' (booked)':''}</option>`}).join('');
+function assignModal(id){
+ const a=id?AP(id):null,w=!a;
+ modal(`<h3>${w?'Book a walk-in':'Assign '+esc(pn(a.pt))}</h3>${w?'':`<p class="meta" style="margin:0 0 12px">${esc(a.sym)}</p>`}<form data-f="assign" data-id="${id}" class="grid">${w?`<div class="full"><label for="m0">Patient</label><select id="m0" name="pt">${DB.pt.map(p=>`<option value="${p.id}">${esc(pn(p.id))} (${mrn(p.id)})</option>`).join('')}</select></div><div class="full"><label for="m4">Reason for visit</label><input id="m4" name="sym" required></div>`:''}<div class="full"><label for="m1">Doctor</label><select id="m1" name="dr" data-a="slots">${DB.sp.map(s=>({s,l:activeDr().filter(d=>d.sp===s.id)})).filter(x=>x.l.length).map(x=>`<optgroup label="${esc(x.s.name)}">${x.l.map(d=>`<option value="${d.id}">${esc(dn(d.id))}</option>`).join('')}</optgroup>`).join('')}</select></div><div><label for="m2">Date</label><input id="m2" name="date" type="date" min="${T}" value="${a?a.date:T}" data-a="slots" required></div><div><label for="m3">Time slot</label><select id="m3" name="slot"></select></div><div class="full acts"><button class="btn p">Confirm appointment</button><button type="button" class="btn" data-a="close">Close</button></div><div class="full err" id="e"></div></form>`);
+ refreshSlots();
+}
+function refreshSlots(){const f=$('form[data-f=assign]');if(!f)return;const s=f.slot,cur=s.value;s.innerHTML=slotOpts(f.dr.value,f.date.value,+f.dataset.id);const o=s.querySelector(`option[value="${cur}"]`);if(cur&&o&&!o.disabled)s.value=cur;else{const x=[...s.options].find(o=>!o.disabled);if(x)s.value=x.value}}
+const medRow=()=>`<div class="mrow"><input name="med" placeholder="Medication" aria-label="Medication"><input name="dose" placeholder="Dosage" aria-label="Dosage"><input name="ins" placeholder="Instructions" aria-label="Instructions"><button type="button" class="btn d" data-a="rmmed">Remove</button></div>`;
+const editPt=id=>{const p=P(id);modal(`<h3>Edit patient ${mrn(p.id)}</h3><form data-f="editpt" data-id="${p.id}" class="grid"><div><label for="e1">First name</label><input id="e1" name="fn" required value="${esc(p.fn)}"></div><div><label for="e2">Last name</label><input id="e2" name="ln" required value="${esc(p.ln)}"></div><div><label for="e3">Phone</label><input id="e3" name="ph" value="${esc(p.ph)}"></div><div><label for="e4">Address</label><input id="e4" name="ad" value="${esc(p.ad)}"></div><div class="full acts"><button class="btn p">Save changes</button><button type="button" class="btn" data-a="close">Close</button></div></form>`)};
+const editDr=id=>{const d=D(id);modal(`<h3>Edit ${esc(dn(d.id))}</h3><form data-f="editdr" data-id="${d.id}" class="grid"><div><label for="x1">First name</label><input id="x1" name="fn" required value="${esc(d.fn)}"></div><div><label for="x2">Last name</label><input id="x2" name="ln" required value="${esc(d.ln)}"></div><div><label for="x3">Email</label><input id="x3" name="em" type="email" required value="${esc(d.em)}"></div><div><label for="x4">Specialty</label><select id="x4" name="sp">${DB.sp.map(s=>`<option value="${s.id}" ${s.id===d.sp?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div><div class="full acts"><button class="btn p">Save changes</button><button type="button" class="btn" data-a="close">Close</button><span class="err" id="e"></span></div></form>`)};
+const A={
+ role:d=>go(d.k),view:d=>{S.view=d.k;S.done=null;render()},close:()=>modal(''),walkin:()=>assignModal(0),assign:d=>assignModal(d.id),again:()=>{S.done=null;render()},editpt:d=>editPt(d.id),editdr:d=>editDr(d.id),reset:()=>{try{localStorage.removeItem(KEY)}catch(e){}load();render();toast('Demo data reset')},slots:refreshSlots,
+ note:d=>{S.cid=+d.id;S.view='consult';render();scrollTo(0,0)},
+ addmed:()=>$('#meds').insertAdjacentHTML('beforeend',medRow()),
+ rmmed:(d,t)=>{if($('#meds').children.length>1)t.parentElement.remove();else t.parentElement.querySelectorAll('input').forEach(i=>i.value='')},
+ day:d=>{const x=dt(S.sd);x.setDate(x.getDate()+ +d.n);S.sd=iso(x);render()},
+ cancel:d=>{const a=AP(d.id);a.st='Cancelled';L(`Appointment for ${pn(a.pt)} cancelled`);render();toast('Appointment cancelled')},
+ tog:d=>{const x=D(d.id);x.on=x.on?0:1;L(`${dn(x.id)} ${x.on?'activated':'deactivated'}`);render()},
+ delsp:d=>{const s=SP(d.id);DB.sp=DB.sp.filter(x=>x.id!=d.id);L(`Specialty ${s.name} deleted`);render();toast('Specialty deleted')}
+};
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t||/^(SELECT|INPUT)$/.test(t.tagName))return;const f=A[t.dataset.a];if(f)f(t.dataset,t)});
+document.addEventListener('change',e=>{const t=e.target,a=t.dataset.a;if(a==='pick'){S[t.dataset.t]=+t.value;render()}else if(a==='slots')refreshSlots();else if(a==='setday'&&t.value){S.sd=t.value;render()}else if(a==='fday'&&t.value){S.fd=t.value;render()}else if(a==='fspec'){S.fs=+t.value;render()}});
+$('#q').addEventListener('input',e=>{S.q=e.target.value;if(S.view!=='pts'){S.view='pts';render()}else main()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')modal('')});
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')modal('')});
+document.addEventListener('submit',e=>{
+ e.preventDefault();const f=e.target,k=f.dataset.f,v=Object.fromEntries(new FormData(f)),err=$('#e');
+ if(k==='visit'){const fn=v.fn.trim(),ln=v.ln.trim(),dg=x=>String(x||'').replace(/\D/g,'');let p=DB.pt.find(x=>x.fn.toLowerCase()===fn.toLowerCase()&&x.ln.toLowerCase()===ln.toLowerCase()&&dg(x.ph)===dg(v.ph));
+  if(p){if(v.ad.trim())p.ad=v.ad.trim()}else{p={id:++nid,fn,ln,ph:v.ph.trim(),ad:v.ad.trim()};DB.pt.push(p)}
+  const a={id:++nid,pt:p.id,dr:null,date:v.date,slot:null,st:'Pending',sym:v.sym.trim()};DB.ap.push(a);S.me=p.id;S.done={p:p.id,a:a.id};L(`${pn(p.id)} submitted a request`);render();scrollTo(0,0)}
+ if(k==='look'){const p=P(parseInt(String(v.id).replace(/\D/g,''),10));if(!p||p.ln.toLowerCase()!==v.ln.trim().toLowerCase()){err.textContent='We couldn’t find a patient with that ID and last name. Check both and try again.';return}S.me=p.id;render()}
+ if(k==='editpt'){Object.assign(P(f.dataset.id),{fn:v.fn.trim(),ln:v.ln.trim(),ph:v.ph.trim(),ad:v.ad.trim()});L(`Patient ${mrn(+f.dataset.id)} updated`);modal('');render();toast('Patient updated')}
+ if(k==='editdr'){const x=D(f.dataset.id);if(DB.dr.some(d=>d.id!==x.id&&d.em.toLowerCase()===v.em.trim().toLowerCase())){err.textContent='That email already belongs to another doctor.';return}Object.assign(x,{fn:v.fn.trim(),ln:v.ln.trim(),em:v.em.trim(),sp:+v.sp});L(`${dn(x.id)} updated`);modal('');render();toast('Doctor updated')}
+ if(k==='doc'){if(DB.dr.some(d=>d.em.toLowerCase()===v.em.toLowerCase())){err.textContent='That email already belongs to another doctor.';return}DB.dr.push({id:++nid,sp:+v.sp,fn:v.fn.trim(),ln:v.ln.trim(),em:v.em.trim(),on:1});L(`Dr. ${v.fn} ${v.ln} added to ${SP(+v.sp).name}`);render();toast('Doctor added')}
+ if(k==='spec'){if(DB.sp.some(s=>s.name.toLowerCase()===v.name.trim().toLowerCase())){err.textContent='That specialty already exists.';return}DB.sp.push({id:++nid,name:v.name.trim()});L(`Specialty ${v.name.trim()} added`);render();toast('Specialty added')}
+ if(k==='assign'){let a=+f.dataset.id?AP(f.dataset.id):null;if(!v.slot||taken(v.dr,v.date,v.slot,a?a.id:0)){err.textContent='That doctor already has an appointment in this slot. Choose another time.';return}if(!a){a={id:++nid,pt:+v.pt,sym:v.sym.trim()};DB.ap.push(a)}Object.assign(a,{dr:+v.dr,date:v.date,slot:v.slot,st:'Scheduled'});L(`${pn(a.pt)} scheduled with ${dn(a.dr)}`);modal('');render();toast('Appointment scheduled')}
+ if(k==='note'){const id=+f.dataset.id,a=AP(id);DB.nt.push({id:++nid,ap:id,dx:v.dx.trim(),ob:v.ob.trim()});
+  f.querySelectorAll('.mrow').forEach(r=>{const[m,d,i]=r.querySelectorAll('input');if(m.value.trim())DB.rx.push({id:++nid,ap:id,med:m.value.trim(),dose:d.value.trim(),ins:i.value.trim()})});
+  a.st='Completed';L(`${dn(a.dr)} completed a visit with ${pn(a.pt)}`);S.view='queue';render();toast('Visit completed and saved')}
+});
+const tick=()=>$('#clock').textContent=new Date().toLocaleString('en-PH',{weekday:'long',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+load();Object.assign(S,START);if(MODE==='client')document.body.classList.add('portal');
+tick();setInterval(tick,3e4);render();
+window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.activeElement;if($('#modal').classList.contains('on')||(f&&/^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName)))return;load();chrome();main()});
+</script>
+</body>
+</html>
 
