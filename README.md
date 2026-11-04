@@ -5,7 +5,7 @@
 **Members:** 
 - Lazarte, Andrei Miguel
 - Opiña, Kisha Mae
-- Quintab, Rainne T.[cite: 4, 28]  
+- Quintab, Rainne T.
 
 **Tech Stack:** HTML5, CSS3, JavaScript, PHP (PDO), PostgreSQL 17[cite: 6, 23, 24, 25]
 
