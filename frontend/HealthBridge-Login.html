@@ -130,6 +130,9 @@
   input::placeholder { color: var(--mute); opacity: .75; }
   input:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pri) 28%, transparent); }
   input[aria-invalid=true] { border-color: var(--err); }
+  /* Hide the browser's own show-password eye (Edge) so only our Show/Hide button appears */
+  input[type=password]::-ms-reveal, input[type=password]::-ms-clear { display: none; }
+  input[type=password]::-webkit-credentials-auto-fill-button { visibility: hidden; position: absolute; right: 0; }
   .pwbox { position: relative; }
   .pwbox input { padding-right: 64px; }
   .pwtoggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--mute); font-size: 12px; font-weight: 600; cursor: pointer; }
@@ -212,7 +215,7 @@
 
 <script>
   // ===== Settings (keep both files in the same folder with exactly these names; edit PORTAL_URL if you rename the portal file) =====
-  const PORTAL_URL = 'HealthBridge-Patient-calendar-fixed.html';
+  const PORTAL_URL = 'HealthBridge-Patient.html';
   const STORAGE_KEY = 'healthbridge_demo_v2';   // same data the portal uses
   const SESSION_KEY = 'healthbridge_session_v2'; // the portal reads this to know who is logged in
   const REMEMBER_KEY = 'healthbridge_remember_id';
