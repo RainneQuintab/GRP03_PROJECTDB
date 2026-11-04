@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HealthBridge Login</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231470D9%22/%3E%3Cpath%20d%3D%22M5%2023c3-9%207-12%2011-12s8%203%2011%2012M4%2023h24%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v7M12.5%2017.5h7%22%20fill%3D%22none%22%20stroke%3D%22%239BE3FF%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Theme tokens: sky (light) and dusk (dark, follows the OS) ── */
+  :root {
+    --sky1: #6BA6E8;
+    --sky2: #9CC8F2;
+    --sky3: #D3E6F9;
+    --cloud: rgba(255,255,255,.92);
+    --ring: rgba(255,255,255,.45);
+    --glass: rgba(255,255,255,.40);
+    --glass-edge: rgba(255,255,255,.88);
+    --field: rgba(255,255,255,.62);
+    --field-edge: rgba(14,42,71,.16);
+    --ink: #10263D;
+    --mute: #48607A;
+    --pri: #0B5CAD;
+    --btn: #0E2A47;
+    --btn-hover: #16406B;
+    --btn-ink: #fff;
+    --err: #B42318;
+    --warn: #B26B00;
+    --ok: #17803D;
+    --okbg: rgba(226,244,232,.9);
+    --shadow: 0 24px 60px rgba(16,60,110,.28);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --sky1: #08121F;
+      --sky2: #11284A;
+      --sky3: #1E4373;
+      --cloud: rgba(110,150,215,.22);
+      --ring: rgba(150,190,255,.18);
+      --glass: rgba(13,27,45,.58);
+      --glass-edge: rgba(255,255,255,.22);
+      --field: rgba(255,255,255,.07);
+      --field-edge: rgba(255,255,255,.22);
+      --ink: #E5ECF3;
+      --mute: #9DB1C6;
+      --pri: #4F9BE8;
+      --btn: #4F9BE8;
+      --btn-hover: #78B3F0;
+      --btn-ink: #06121D;
+      --err: #F59D94;
+      --warn: #F2C14E;
+      --ok: #6BD08F;
+      --okbg: rgba(16,48,29,.85);
+      --shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    color: var(--ink);
+    font: 400 14px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 48%, var(--sky3) 100%) fixed;
+    overflow-x: hidden;
+  }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--pri); outline-offset: 2px; }
+
+  /* ── Sky: soft clouds and faint rings behind the card ── */
+  .sky { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .ring { position: absolute; left: 50%; top: 46%; border: 1px solid var(--ring); border-radius: 50%; transform: translate(-50%,-50%); }
+  .r1 { width: 640px; height: 640px; }
+  .r2 { width: 940px; height: 940px; }
+  .r3 { width: 1280px; height: 1280px; }
+  .cloud { position: absolute; background: var(--cloud); border-radius: 50%; filter: blur(30px); animation: drift 38s ease-in-out infinite alternate; }
+  .c1 { width: 46vw; height: 190px; left: -8vw; bottom: -60px; }
+  .c2 { width: 40vw; height: 220px; left: 26vw; bottom: -90px; animation-duration: 46s; }
+  .c3 { width: 48vw; height: 200px; right: -10vw; bottom: -50px; animation-duration: 42s; animation-direction: alternate-reverse; }
+  .c4 { width: 30vw; height: 130px; left: 4vw; bottom: 150px; opacity: .8; animation-duration: 52s; }
+  .c5 { width: 34vw; height: 120px; right: 2vw; bottom: 190px; opacity: .75; animation-duration: 58s; animation-direction: alternate-reverse; }
+  .c6 { width: 38vw; height: 110px; left: 8vw; top: 6vh; opacity: .55; animation-duration: 64s; }
+  .c7 { width: 30vw; height: 90px; right: 10vw; top: 12vh; opacity: .5; animation-duration: 70s; animation-direction: alternate-reverse; }
+  @keyframes drift { from { transform: translateX(-24px); } to { transform: translateX(28px); } }
+
+  /* ── Glass card ── */
+  .card {
+    position: relative;
+    z-index: 1;
+    width: min(400px, 100%);
+    padding: 30px 28px 24px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(20px) saturate(1.35);
+    backdrop-filter: blur(20px) saturate(1.35);
+    border: 3px solid var(--glass-edge);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+  }
+  .logo {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 6px 18px rgba(16,60,110,.22);
+  }
+  .logo svg { width: 32px; height: 32px; }
+  h1 { margin: 0; text-align: center; font-size: 21px; font-weight: 700; letter-spacing: -.015em; }
+  .lead { margin: 4px 0 20px; text-align: center; color: var(--mute); font-size: 13px; }
+
+  label { display: block; margin: 0 0 5px; font-size: 13px; font-weight: 600; }
+  .field { margin-bottom: 14px; }
+  input[type=text], input[type=tel], input[type=email], input[type=password] {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    background: var(--field);
+    border: 1px solid var(--field-edge);
+    border-radius: 12px;
+    color: var(--ink);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input::placeholder { color: var(--mute); opacity: .75; }
+  input:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pri) 28%, transparent); }
+  input[aria-invalid=true] { border-color: var(--err); }
+  /* Hide the browser's own show-password eye (Edge) so only our Show/Hide button appears */
+  input[type=password]::-ms-reveal, input[type=password]::-ms-clear { display: none; }
+  input[type=password]::-webkit-credentials-auto-fill-button { visibility: hidden; position: absolute; right: 0; }
+  .pwbox { position: relative; }
+  .pwbox input { padding-right: 64px; }
+  .pwtoggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--mute); font-size: 12px; font-weight: 600; cursor: pointer; }
+  .pwtoggle:hover { color: var(--ink); }
+  .demo { margin: 0 0 14px; padding: 10px 12px; border: 1px dashed var(--warn); border-radius: 12px; color: var(--warn); font-size: 12px; line-height: 1.5; }
+  .demo b { font-size: 17px; letter-spacing: .2em; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .links { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; }
+  .link[disabled] { opacity: .6; cursor: default; text-decoration: none; }
+  .fmsg { margin: 5px 0 0; color: var(--err); font-size: 12px; line-height: 1.4; }
+  .hint { margin: 5px 0 0; color: var(--mute); font-size: 12px; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card.wide { width: min(460px, 100%); }
+  .phonebox { display: flex; }
+  .phonebox input { flex: 1; min-width: 0; border-radius: 0 12px 12px 0; }
+  .prefix { display: flex; align-items: center; gap: 8px; padding: 0 12px; background: var(--field); border: 1px solid var(--field-edge); border-right: 0; border-radius: 12px 0 0 12px; color: var(--mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .prefix svg { width: 22px; height: 15px; border-radius: 2px; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 2px 0 16px; font-size: 13px; }
+  .check { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-weight: 500; cursor: pointer; }
+  .check input { appearance: none; -webkit-appearance: none; width: 16px; height: 16px; margin: 0; border: 1.5px solid var(--mute); border-radius: 4px; background: var(--field); display: grid; place-content: center; cursor: pointer; }
+  .check input:checked { background: var(--pri); border-color: var(--pri); }
+  .check input:checked::after { content: ""; width: 4px; height: 8px; border: solid var(--btn-ink); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+  .link { border: 0; background: none; padding: 0; color: var(--mute); font-size: 13px; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .link:hover { color: var(--ink); }
+
+  .primary {
+    width: 100%;
+    height: 46px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--btn);
+    color: var(--btn-ink);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .05s;
+  }
+  .primary:hover { background: var(--btn-hover); }
+  .primary:active { transform: translateY(1px); }
+  .primary[disabled] { opacity: .6; cursor: default; }
+
+  .or { display: flex; align-items: center; gap: 12px; margin: 18px 0 14px; color: var(--mute); font-size: 12px; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--field-edge); }
+  .ghost {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--field-edge);
+    border-radius: 12px;
+    background: var(--field);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .ghost:hover { background: color-mix(in srgb, var(--field) 70%, var(--pri) 18%); }
+  .foot { margin: 16px 0 0; text-align: center; color: var(--mute); font-size: 12px; }
+
+  .msg { min-height: 20px; margin: -4px 0 10px; color: var(--err); font-size: 13px; }
+  .found { margin: 0 0 16px; padding: 14px; text-align: center; background: var(--okbg); border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent); border-radius: 12px; }
+  .found .big { display: block; font-size: 26px; font-weight: 700; letter-spacing: .03em; color: var(--ok); font-variant-numeric: tabular-nums; }
+  .who { margin: 0 0 16px; padding: 12px 14px; text-align: center; background: var(--field); border: 1px solid var(--field-edge); border-radius: 12px; }
+  .who b { display: block; font-size: 15px; }
+  .back { display: block; margin: 14px auto 0; }
+
+  @media (max-width: 440px) { .card { padding: 26px 20px 20px; border-radius: 24px; } .r2, .r3 { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .cloud { animation: none; } * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+    <span class="cloud c4"></span><span class="cloud c5"></span><span class="cloud c6"></span><span class="cloud c7"></span>
+  </div>
+
+  <main class="card" id="card" aria-live="polite"></main>
+
+<script>
+  // ===== Settings (keep both files in the same folder with exactly these names; edit PORTAL_URL if you rename the portal file) =====
+  const PORTAL_URL = 'HealthBridge-Patient.html';
+  const STORAGE_KEY = 'healthbridge_demo_v2';   // same data the portal uses
+  const SESSION_KEY = 'healthbridge_session_v2'; // the portal reads this to know who is logged in
+  const REMEMBER_KEY = 'healthbridge_remember_id';
+  const SIGNUP_KEY = 'healthbridge_signup_v1';  // handed to the portal, which assigns the patient ID and creates the record
+  const CREDS_KEY = 'healthbridge_creds_v1';   // DEMO ONLY: { [patientId]: { em, salt, hash } }. Replace with server-side auth when the backend is connected.
+  const MAX_TRIES = 5, LOCK_MS = 30000;
+  // Verification codes. DEMO: there is no server to send SMS/email, so the code is shown on screen.
+  // Set DEMO_SHOW_CODE to false once a real backend sends the code.
+  const DEMO_SHOW_CODE = true;
+  const CODE_TTL = 5 * 60 * 1000, RESEND_MS = 30000, MAX_CODE_TRIES = 5;
+  let reset = null;      // { pid, code, exp, tries, via, target, label, sentAt, verified }
+  let codeTimer = null;
+
+  // ===== Helpers =====
+  const $ = s => document.querySelector(s);
+  const card = $('#card');
+  const escapeHtml = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const mrn = id => 'HB-' + String(id).padStart(5, '0');
+  const sameText = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+    del(k) { try { localStorage.removeItem(k); } catch (e) { } }
+  };
+  const patients = () => {
+    try {
+      const j = JSON.parse(store.get(STORAGE_KEY));
+      return (j && j.DB && j.DB.pt) || [];
+    } catch (e) {
+      return [];
+    }
+  };
+  const phoneDigits = raw => {
+    let d = String(raw || '').replace(/\D/g, '');
+    if (d.startsWith('63') && d.length > 10) { d = d.slice(2); }
+    return d.replace(/^0+/, '').slice(0, 10);
+  };
+  const creds = () => { try { return JSON.parse(store.get(CREDS_KEY)) || {}; } catch (e) { return {}; } };
+  const saveCred = (id, c) => { const all = creds(); all[id] = c; return store.set(CREDS_KEY, JSON.stringify(all)); };
+  // Patient ID must look exactly like HB-00001: capital HB, a dash, then digits
+  const idFormatError = v => {
+    if (!/^hb/i.test(v)) { return 'Patient IDs start with HB, for example HB-00001. Or sign in with your email.'; }
+    if (!v.startsWith('HB')) { return 'Type HB in capital letters, for example HB-00001.'; }
+    if (v.charAt(2) !== '-') { return 'Add a dash after HB, for example HB-00001.'; }
+    if (!/^HB-\d{5}$/.test(v)) { return 'After the dash, enter 5 digits, for example HB-00001.'; }
+    return '';
+  };
+  // Catches typos such as gmail.co / gmial.com. It can't prove a mailbox exists; that needs a verification email from the server.
+  const PROVIDERS = {
+    gmail: ['gmail.com'], googlemail: ['googlemail.com'],
+    yahoo: ['yahoo.com', 'yahoo.com.ph', 'yahoo.co.uk', 'yahoo.co.jp', 'yahoo.co.in', 'yahoo.ca', 'yahoo.fr', 'yahoo.de', 'yahoo.com.sg', 'yahoo.com.au'],
+    hotmail: ['hotmail.com', 'hotmail.co.uk', 'hotmail.fr', 'hotmail.de', 'hotmail.it', 'hotmail.es'],
+    outlook: ['outlook.com', 'outlook.ph', 'outlook.com.ph'], icloud: ['icloud.com'], live: ['live.com', 'live.com.ph'], proton: ['proton.me'], protonmail: ['protonmail.com']
+  };
+  const MISSPELLED = { gmial: 'gmail', gmai: 'gmail', gmal: 'gmail', gnail: 'gmail', gmaill: 'gmail', yaho: 'yahoo', yahooo: 'yahoo', hotmal: 'hotmail', hotmial: 'hotmail', outlok: 'outlook', outloook: 'outlook' };
+  function emailProblem(v) {
+    const m = /^([^\s@]+)@([^\s@]+)$/.exec(v);
+    const generic = 'Enter a complete email address, like name@gmail.com.';
+    if (!m) { return generic; }
+    const [, local, domainRaw] = m, domain = domainRaw.toLowerCase();
+    if (local.startsWith('.') || local.endsWith('.') || local.includes('..')) { return generic; }
+    const labels = domain.split('.');
+    if (labels.length < 2 || labels.some(l => !/^[a-z0-9-]+$/.test(l) || l.startsWith('-') || l.endsWith('-')) || !/^[a-z]{2,}$/.test(labels[labels.length - 1])) { return generic; }
+    const first = MISSPELLED[labels[0]] || labels[0];
+    if (PROVIDERS[first] && !PROVIDERS[first].includes(domain)) {
+      return `Did you mean ${local}@${PROVIDERS[first][0]}? Check the part after the @.`;
+    }
+    return '';
+  }
+  const newCode = () => String(crypto.getRandomValues(new Uint32Array(1))[0] % 1000000).padStart(6, '0');
+  const maskEmail = e => e.replace(/^([^@])[^@]*(@.*)$/, '$1•••$2');
+  const maskPhone = d => `+63 ${d.slice(0, 3)} ••• ${d.slice(6)}`;
+  const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+  const emailTaken = (em, exceptId) => Object.entries(creds()).some(([id, c]) => String(id) !== String(exceptId) && sameText(c.em, em));
+  const newSalt = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
+  async function hashPw(pw, salt) {
+    const data = new TextEncoder().encode(salt + ':' + pw);
+    if (window.crypto && crypto.subtle) {
+      const buf = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+    }
+    let h = 2166136261; for (const b of data) { h ^= b; h = Math.imul(h, 16777619); } return 'f' + (h >>> 0).toString(16);
+  }
+  const lock = { get() { return +store.get('healthbridge_lock') || 0; }, set(t) { store.set('healthbridge_lock', String(t)); }, tries() { return +store.get('healthbridge_tries') || 0; }, setTries(n) { store.set('healthbridge_tries', String(n)); } };
+  // Only the most obvious passwords are refused (password1, 12345678, ...); there is no strength meter or character rules
+  const COMMON_PW = ['password', 'qwerty', 'qwertyuiop', 'iloveyou', 'admin', 'letmein', 'welcome', 'monkey', 'dragon', 'login', 'healthbridge', 'abcdefgh', 'abc123', '12345678', '123456789', '1234567890', '11111111', '00000000'];
+  const isCommonPw = pw => { const l = pw.toLowerCase(); return COMMON_PW.includes(l) || COMMON_PW.includes(l.replace(/\d+$/, '')); };
+  // Live (inline) validation: the field turns red and says why as soon as the problem is clear
+  function liveField(input, check, { early = () => false, after } = {}) {
+    const note = document.createElement('div');
+    note.className = 'fmsg'; note.setAttribute('role', 'alert');
+    (input.closest('.phonebox, .pwbox') || input).after(note);
+    input.dataset.live = '1';
+    let touched = false;
+    const show = text => {
+      note.textContent = text || '';
+      if (text) { input.setAttribute('aria-invalid', 'true'); } else { input.removeAttribute('aria-invalid'); }
+    };
+    const run = typing => {
+      const text = input.value ? check(input.value) : '';
+      if (!text) { return show(''); }
+      if (!typing || touched || early(text)) { show(text); }
+    };
+    input.addEventListener('blur', () => { touched = true; run(false); });
+    input.addEventListener('input', () => run(true));
+    input._flag = text => { touched = true; show(text); };
+    input._run = () => run(true);
+  }
+  const pwField = (id, label, auto, hint) => `<div class="field"><label for="${id}">${label}</label><div class="pwbox"><input id="${id}" type="password" autocomplete="${auto}" placeholder="${auto === 'current-password' ? 'Enter your password' : ''}"><button type="button" class="pwtoggle" data-toggle="${id}" aria-label="Show password">Show</button></div>${hint ? `<p class="hint">${hint}</p>` : ''}</div>`;
+  const capitalizeWords = t => t.replace(/(^|[\s'-])([a-z])/g, (m, lead, ch) => lead + ch.toUpperCase());
+  const LOGO = '<svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><rect width="32" height="32" rx="8" fill="#1470D9"/><path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  const FLAG = '<svg viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="8" fill="#0038A8"/><rect y="8" width="24" height="8" fill="#CE1126"/><path d="M0 0L13.9 8 0 16z" fill="#fff"/><circle cx="4.2" cy="8" r="1.6" fill="#FCD116"/><circle cx="1.2" cy="2.6" r=".9" fill="#FCD116"/><circle cx="1.2" cy="13.4" r=".9" fill="#FCD116"/><circle cx="9" cy="8" r=".9" fill="#FCD116"/></svg>';
+  const head = (title, lead) => { card.classList.remove('wide'); clearInterval(codeTimer); return headHtml(title, lead); };
+  const headHtml = (title, lead) => `<div class="logo">${LOGO}</div><h1>${title}</h1><p class="lead">${lead}</p>`;
+
+  // Buttons are handled on click and Enter ourselves, so this also works where the browser blocks form submits
+  function wire(form, handler) {
+    const run = e => { e.preventDefault(); handler(form); };
+    form.addEventListener('submit', run);
+    const btn = form.querySelector('button[type=submit]');
+    if (btn) { btn.addEventListener('click', run); }
+  }
+  function setError(input, text) {
+    const msg = $('#msg');
+    if (input && input._flag && text) { if (msg) { msg.textContent = ''; } input._flag(text); input.focus(); return; }
+    if (msg) { msg.textContent = text || ''; }
+    document.querySelectorAll('input[aria-invalid]').forEach(i => i.removeAttribute('aria-invalid'));
+    if (text && input) { input.setAttribute('aria-invalid', 'true'); input.focus(); }
+  }
+
+  // ===== Views =====
+  const views = {
+    login(prefill = {}) {
+      const remembered = prefill.id ?? store.get(REMEMBER_KEY) ?? '';
+      card.innerHTML = head('Welcome back', 'Please enter your details to sign in.') +
+        `<form id="f" novalidate>
+          <div class="field"><label for="pid">Patient ID or email</label><input id="pid" type="text" placeholder="HB-00001 or name@email.com" autocomplete="username" autocapitalize="off" spellcheck="false" value="${escapeHtml(remembered)}"></div>
+          ${pwField('pw', 'Password', 'current-password')}
+          <div class="row"><label class="check"><input type="checkbox" id="rem" ${remembered ? 'checked' : ''}>Remember me</label><button type="button" class="link" data-go="recover">Forgot ID or password?</button></div>
+          <div class="msg" id="msg" role="alert"></div>
+          <button type="submit" class="primary">Sign in</button>
+        </form>
+        <div class="or">OR</div>
+        <button type="button" class="ghost" data-go="signup">Create an account</button>
+        <p class="foot">New here? Your patient ID is created when you sign up.</p>`;
+      wire($('#f'), async f => {
+        const idInput = $('#pid'), pwInput = $('#pw'), btn = f.querySelector('button[type=submit]');
+        const who = idInput.value.trim();
+        if (!who) { return setError(idInput, 'Enter your patient ID (HB-00001) or the email on your account.'); }
+        const idErr = who.includes('@') ? '' : idFormatError(who);
+        if (idErr) { return setError(idInput, idErr); }
+        if (who.includes('@') && !emailOk(who)) { return setError(idInput, 'That email address doesn’t look right. Check it and try again.'); }
+        if (!pwInput.value) { return setError(pwInput, 'Please enter your password.'); }
+        if (Date.now() < lock.get()) { return setError(null, `Too many attempts. Try again in ${Math.ceil((lock.get() - Date.now()) / 1000)} seconds.`); }
+        btn.disabled = true;
+        // Find the patient by email or by patient ID
+        let p = null, c = null;
+        if (who.includes('@')) {
+          const hit = Object.entries(creds()).find(([, x]) => sameText(x.em, who));
+          if (hit) { p = patients().find(x => String(x.id) === String(hit[0])); c = hit[1]; }
+        } else {
+          p = patients().find(x => x.id === parseInt(who.slice(3), 10));
+          c = p && creds()[p.id];
+        }
+        const good = p && c && (await hashPw(pwInput.value, c.salt)) === c.hash;
+        if (!good) {
+          const n = lock.tries() + 1;
+          if (n >= MAX_TRIES) { lock.set(Date.now() + LOCK_MS); lock.setTries(0); } else { lock.setTries(n); }
+          btn.disabled = false;
+          return setError(pwInput, 'Incorrect ID/email or password. First time signing in? Use “Forgot ID or password?” to set one up.');
+        }
+        lock.setTries(0);
+        if (!store.set(SESSION_KEY, String(p.id))) {
+          btn.disabled = false;
+          return setError(null, 'Your browser blocked saving the login. Allow site data for this page and try again.');
+        }
+        if ($('#rem').checked) { store.set(REMEMBER_KEY, who); } else { store.del(REMEMBER_KEY); }
+        $('#msg').style.color = 'var(--ok)';
+        $('#msg').textContent = `Welcome, ${p.fn}. Opening your appointments…`;
+        setTimeout(() => { location.href = PORTAL_URL; }, 600);
+      });
+      idInput_focus();
+    },
+    signup() {
+      card.innerHTML = head('Create your account', 'Your patient ID is created for you once you sign up.') +
+        `<form id="f" novalidate>
+          <div class="cols">
+            <div class="field"><label for="sfn">First name</label><input id="sfn" type="text" autocomplete="given-name" autocapitalize="words"></div>
+            <div class="field"><label for="sln">Last name</label><input id="sln" type="text" autocomplete="family-name" autocapitalize="words"></div>
+          </div>
+          <div class="field"><label for="sph">Mobile number</label><div class="phonebox"><span class="prefix">${FLAG}+63</span><input id="sph" type="tel" inputmode="numeric" placeholder="9171234567" autocomplete="tel-national"></div></div>
+          <div class="field"><label for="sad">Address</label><input id="sad" type="text" autocomplete="street-address"></div>
+          <div class="field"><label for="sem">Email</label><input id="sem" type="email" autocomplete="email" spellcheck="false" placeholder="name@email.com"></div>
+          ${pwField('sp1', 'Password', 'new-password', 'At least 8 characters.')}
+          ${pwField('sp2', 'Confirm password', 'new-password')}
+          <div class="msg" id="msg" role="alert"></div>
+          <button type="submit" class="primary">Create account</button>
+        </form>
+        <button type="button" class="link back" data-go="login">Already have an account? Sign in</button>`;
+      card.classList.add('wide');
+      $('#sfn').addEventListener('input', e => { e.target.value = capitalizeWords(e.target.value); });
+      $('#sln').addEventListener('input', e => { e.target.value = capitalizeWords(e.target.value); });
+      $('#sph').addEventListener('input', e => { e.target.value = phoneDigits(e.target.value); });
+      wire($('#f'), async f => {
+        const g = id => $('#' + id);
+        const fn = g('sfn'), ln = g('sln'), ph = g('sph'), ad = g('sad'), em = g('sem'), p1 = g('sp1'), p2 = g('sp2');
+        if (!fn.value.trim()) { return setError(fn, 'Please enter your first name.'); }
+        if (!ln.value.trim()) { return setError(ln, 'Please enter your last name.'); }
+        if (!/^9\d{9}$/.test(ph.value)) { return setError(ph, 'Enter a 10-digit mobile number starting with 9, for example 9171234567.'); }
+        if (!ad.value.trim()) { return setError(ad, 'Please enter your address.'); }
+        const emErr = emailProblem(em.value.trim());
+        if (emErr) { return setError(em, emErr); }
+        if (emailTaken(em.value.trim(), null)) { return setError(em, 'That email already has an account. Try signing in instead.'); }
+        if (p1.value.length < 8) { return setError(p1, 'Use at least 8 characters for your password.'); }
+        if (isCommonPw(p1.value)) { return setError(p1, 'That password is too common. Choose something harder to guess.'); }
+        if (p1.value !== p2.value) { return setError(p2, 'The two passwords don’t match.'); }
+        const exists = patients().find(x => sameText(x.fn, fn.value) && sameText(x.ln, ln.value) && phoneDigits(x.ph) === ph.value);
+        if (exists) { return setError(fn, 'A patient with this name and mobile number already exists. Use “Forgot ID or password?” on the sign-in page to set up your password.'); }
+        const salt = newSalt();
+        const rec = { fn: fn.value.trim(), ln: ln.value.trim(), ph: ph.value, ad: ad.value.trim(), em: em.value.trim(), salt, hash: await hashPw(p1.value, salt) };
+        if (!store.set(SIGNUP_KEY, JSON.stringify(rec))) { return setError(null, 'Your browser blocked saving. Allow site data for this page and try again.'); }
+        f.querySelector('button[type=submit]').disabled = true;
+        $('#msg').style.color = 'var(--ok)';
+        $('#msg').textContent = 'Creating your account…';
+        setTimeout(() => { location.href = PORTAL_URL; }, 500);
+      });
+      const early = t => t.startsWith('Did you mean');
+      liveField($('#sem'), v => emailProblem(v.trim()) || (emailTaken(v.trim(), null) ? 'That email already has an account. Try signing in instead.' : ''), { early });
+      liveField($('#sph'), v => (/^9\d{9}$/.test(v) ? '' : 'Enter a 10-digit mobile number starting with 9, for example 9171234567.'));
+      liveField($('#sp2'), v => (v === $('#sp1').value ? '' : 'The two passwords don’t match.'));
+      $('#sp1').addEventListener('input', () => { if ($('#sp2').value) { $('#sp2')._run(); } });
+      $('#sfn').focus();
+    },
+    recover() {
+      reset = null;
+      card.innerHTML = head('Forgot your ID or password?', 'Enter the email or mobile number on your account and we’ll send you a code.') +
+        `<form id="f" novalidate>
+          <div class="field"><label for="rid">Email or mobile number</label><input id="rid" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="name@email.com or 9171234567"><p class="hint">Mobile numbers: 10 digits, starting with 9.</p></div>
+          <div class="msg" id="msg" role="alert"></div>
+          <button type="submit" class="primary">Send code</button>
+        </form>
+        <button type="button" class="link back" data-go="login">Back to sign in</button>`;
+      $('#rid').addEventListener('input', e => { if (/^[\d\s+()-]*$/.test(e.target.value)) { e.target.value = phoneDigits(e.target.value); } });
+      wire($('#f'), () => {
+        const rid = $('#rid'), v = rid.value.trim();
+        if (!v) { return setError(rid, 'Enter the email or mobile number on your account.'); }
+        let via, p = null, label;
+        if (v.includes('@')) {
+          const err = emailProblem(v);
+          if (err) { return setError(rid, err); }
+          via = 'email'; label = maskEmail(v);
+          const hit = Object.entries(creds()).find(([, x]) => sameText(x.em, v));
+          p = hit && patients().find(x => String(x.id) === String(hit[0]));
+        } else {
+          const d = phoneDigits(v);
+          if (!/^9\d{9}$/.test(d)) { return setError(rid, 'Enter a 10-digit mobile number starting with 9, or your email.'); }
+          via = 'phone'; label = maskPhone(d);
+          p = patients().find(x => phoneDigits(x.ph) === d);
+        }
+        // Same screen whether or not an account matches, so the page doesn't reveal who is registered
+        reset = { pid: p ? p.id : null, code: newCode(), exp: Date.now() + CODE_TTL, tries: 0, via, target: v, label, sentAt: Date.now(), verified: false };
+        views.verify();
+      });
+      $('#rid').focus();
+    },
+    verify(note) {
+      if (!reset) { return views.recover(); }
+      card.innerHTML = head('Enter your code', `We sent a 6-digit code to ${escapeHtml(reset.label)}. It expires in 5 minutes.`) +
+        (DEMO_SHOW_CODE ? `<div class="demo">Demo only: ${reset.pid ? `your code is <b>${reset.code}</b>. A real system sends this by SMS or email.` : 'no account matches that email or number. A real system would not say so.'}</div>` : '') +
+        `<form id="f" novalidate>
+          <div class="field"><label for="otp">Verification code</label><input id="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" style="text-align:center;font-size:20px;letter-spacing:.4em"></div>
+          <div class="msg" id="msg" role="alert"></div>
+          <button type="submit" class="primary">Verify</button>
+        </form>
+        <div class="links"><button type="button" class="link" id="resend"></button><button type="button" class="link" data-go="recover">Use a different email or number</button></div>`;
+      if (note) { $('#msg').style.color = 'var(--ok)'; $('#msg').textContent = note; }
+      const otp = $('#otp'), resend = $('#resend');
+      const check = () => {
+        if (Date.now() > reset.exp) { return setError(otp, 'This code expired. Tap “Resend code” to get a new one.'); }
+        if (reset.tries >= MAX_CODE_TRIES) { return setError(otp, 'Too many wrong codes. Tap “Resend code” to get a new one.'); }
+        if (otp.value.length !== 6) { return setError(otp, 'Enter the 6-digit code.'); }
+        if (!reset.pid || otp.value !== reset.code) { reset.tries++; otp.select(); return setError(otp, 'That code isn’t right. Check it and try again.'); }
+        reset.verified = true;
+        views.setup(patients().find(x => x.id === reset.pid));
+      };
+      wire($('#f'), check);
+      otp.addEventListener('input', () => { otp.value = otp.value.replace(/\D/g, '').slice(0, 6); if (otp.value.length === 6) { check(); } });
+      const tick = () => {
+        const left = Math.ceil((RESEND_MS - (Date.now() - reset.sentAt)) / 1000);
+        if (left > 0) { resend.disabled = true; resend.textContent = `Resend code in ${left}s`; } else { resend.disabled = false; resend.textContent = 'Resend code'; clearInterval(codeTimer); }
+      };
+      tick(); codeTimer = setInterval(tick, 1000);
+      resend.addEventListener('click', () => {
+        Object.assign(reset, { code: newCode(), exp: Date.now() + CODE_TTL, tries: 0, sentAt: Date.now() });
+        views.verify('A new code was sent.');
+      });
+      otp.focus();
+    },
+    setup(p) {
+      // Only reachable after the code was verified
+      if (!p || !reset || !reset.verified || reset.pid !== p.id) { return views.recover(); }
+      const c = creds()[p.id];
+      const needEmail = !(c && c.em);
+      card.innerHTML = head('Set a new password', 'You’re verified. Your patient ID is below. Sign in with it or your email.') +
+        `<div class="found"><span class="hint">Your patient ID</span><span class="big">${mrn(p.id)}</span></div>
+        <form id="f" novalidate>
+          ${needEmail ? '<div class="field"><label for="em">Email</label><input id="em" type="email" autocomplete="email" spellcheck="false" placeholder="name@email.com"><p class="hint">Add an email so you can sign in with it too.</p></div>' : ''}
+          ${pwField('np', 'New password', 'new-password', 'At least 8 characters.')}
+          ${pwField('np2', 'Confirm password', 'new-password')}
+          <div class="msg" id="msg" role="alert"></div>
+          <button type="submit" class="primary">Save and sign in</button>
+        </form>`;
+      wire($('#f'), async f => {
+        const em = $('#em'), np = $('#np'), np2 = $('#np2');
+        let email = c ? c.em : '';
+        if (needEmail) {
+          const emErr = emailProblem(em.value.trim());
+          if (emErr) { return setError(em, emErr); }
+          if (emailTaken(em.value.trim(), p.id)) { return setError(em, 'That email is already used by another patient.'); }
+          email = em.value.trim();
+        }
+        if (np.value.length < 8) { return setError(np, 'Use at least 8 characters for your password.'); }
+        if (isCommonPw(np.value)) { return setError(np, 'That password is too common. Choose something harder to guess.'); }
+        if (np.value !== np2.value) { return setError(np2, 'The two passwords don’t match.'); }
+        const salt = newSalt();
+        const ok = saveCred(p.id, { em: email, salt, hash: await hashPw(np.value, salt) }) && store.set(SESSION_KEY, String(p.id));
+        if (!ok) { return setError(null, 'Your browser blocked saving. Allow site data for this page and try again.'); }
+        store.set(REMEMBER_KEY, mrn(p.id));
+        reset = null; lock.setTries(0);
+        $('#msg').style.color = 'var(--ok)';
+        $('#msg').textContent = 'Password saved. Opening your appointments…';
+        f.querySelector('button[type=submit]').disabled = true;
+        setTimeout(() => { location.href = PORTAL_URL; }, 700);
+      });
+      if (needEmail) {
+        liveField($('#em'), v => emailProblem(v.trim()) || (emailTaken(v.trim(), p.id) ? 'That email is already used by another patient.' : ''), { early: t => t.startsWith('Did you mean') });
+      }
+      liveField($('#np2'), v => (v === $('#np').value ? '' : 'The two passwords don’t match.'));
+      $('#np').addEventListener('input', () => { if ($('#np2').value) { $('#np2')._run(); } });
+      (needEmail ? $('#em') : $('#np')).focus();
+    },
+    resume(p) {
+      card.innerHTML = head('You’re signed in', 'Welcome back to HealthBridge.') +
+        `<div class="who"><b>${escapeHtml(p.fn + ' ' + p.ln)}</b><span class="hint">${mrn(p.id)}</span></div>
+        <a class="primary" id="cont" href="#" style="display:grid;place-items:center;text-decoration:none">Continue to my appointments</a>
+        <button type="button" class="link back" data-go="switch">Not you? Sign out</button>`;
+      $('#cont').href = PORTAL_URL;
+    }
+  };
+  const idInput_focus = () => { const i = $('#pid'); if (i && !i.value) { i.focus(); } else if ($('#pw')) { $('#pw').focus(); } };
+
+  // ===== Events =====
+  card.addEventListener('click', e => {
+    const go = e.target.closest('[data-go]');
+    const tg = e.target.closest('[data-toggle]');
+    if (tg) {
+      const i = document.getElementById(tg.dataset.toggle), show = i.type === 'password';
+      i.type = show ? 'text' : 'password';
+      tg.textContent = show ? 'Hide' : 'Show';
+      tg.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    } else if (go) {
+      if (go.dataset.go === 'switch') { store.del(SESSION_KEY); views.login(); } else { views[go.dataset.go](); }
+    }
+  });
+  card.addEventListener('input', e => {
+    if (!e.target.closest('#f')) { return; }
+    if (!e.target.dataset.live) { e.target.removeAttribute('aria-invalid'); }
+    const m = $('#msg'); if (m) { m.textContent = ''; m.style.color = ''; }
+  });
+
+  // ===== Start: already signed in? offer to continue =====
+  const current = patients().find(x => String(x.id) === store.get(SESSION_KEY));
+  if (location.hash === '#recover') { views.recover(); } else if (current) { views.resume(current); } else { views.login(); }
+</script>
+</body>
+</html>

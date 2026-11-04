@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HealthBridge Patient Portal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231470D9%22/%3E%3Cpath%20d%3D%22M5%2023c3-9%207-12%2011-12s8%203%2011%2012M4%2023h24%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v7M12.5%2017.5h7%22%20fill%3D%22none%22%20stroke%3D%22%239BE3FF%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+  /* ── Theme tokens (light) ── */
+  :root {
+    --bg: #F3F5F8;
+    --card: #fff;
+    --ink: #17212B;
+    --mute: #5F6C7B;
+    --line: #DCE2E9;
+    --pri: #0B5CAD;
+    --prih: #094A8C;
+    --on: #fff;
+    --side: #0E2A47;
+    --ok: #17803D;
+    --okbg: #E2F4E8;
+    --warn: #9A5B00;
+    --warnbg: #FFF1D6;
+    --bad: #B42318;
+    --badbg: #FDE7E5;
+    --info: #0B5CAD;
+    --infobg: #E1EEFB;
+    --hov: #F0F4F8;
+  }
+
+  /* Dark theme: follows the OS, or forced with data-theme="dark" */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B141D;
+      --card: #121E2A;
+      --ink: #E5ECF3;
+      --mute: #8CA0B3;
+      --line: #243445;
+      --pri: #4F9BE8;
+      --prih: #78B3F0;
+      --on: #06121D;
+      --side: #08121B;
+      --ok: #6BD08F;
+      --okbg: #10301D;
+      --warn: #F2C46D;
+      --warnbg: #38290B;
+      --bad: #F59D94;
+      --badbg: #3C1814;
+      --info: #7FB6F4;
+      --infobg: #12304F;
+      --hov: #172636;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0B141D;
+    --card: #121E2A;
+    --ink: #E5ECF3;
+    --mute: #8CA0B3;
+    --line: #243445;
+    --pri: #4F9BE8;
+    --prih: #78B3F0;
+    --on: #06121D;
+    --side: #08121B;
+    --ok: #6BD08F;
+    --okbg: #10301D;
+    --warn: #F2C46D;
+    --warnbg: #38290B;
+    --bad: #F59D94;
+    --badbg: #3C1814;
+    --info: #7FB6F4;
+    --infobg: #12304F;
+    --hov: #172636;
+  }
+
+  /* ── Base ── */
+  html {
+    padding-top: env(safe-area-inset-top,0px);
+    padding-bottom: env(safe-area-inset-bottom,0px);
+    scroll-padding-top: env(safe-area-inset-top,0px);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+
+  h1, h2, h3 {
+    margin: 0;
+    letter-spacing: -.015em;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--pri);
+    outline-offset: 1px;
+  }
+
+  /* ── App shell & sidebar ── */
+  .app {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+  }
+
+  aside {
+    grid-row: 1/3;
+    background: var(--side);
+    color: #C9D6E4;
+    padding: 18px 12px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 17px;
+    padding: 2px 8px 18px;
+  }
+
+  .logo svg {
+    width: 34px;
+    height: 34px;
+    stroke: none;
+  }
+
+  aside button {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border: 0;
+    background: none;
+    color: inherit;
+    padding: 9px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  aside button:hover {
+    background: #ffffff14;
+  }
+
+  aside button[aria-current=page] {
+    background: #ffffff24;
+    color: #fff;
+    box-shadow: inset 3px 0 0 #6DB4FF;
+  }
+
+  aside svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex: none;
+  }
+
+  .sf {
+    margin-top: auto;
+    font-size: 12px;
+    color: #8DA2B8;
+    padding: 8px;
+  }
+
+  /* ── Top bar ── */
+  .bar {
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 28px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .srch {
+    flex: 1;
+    min-width: 180px;
+    max-width: 380px;
+  }
+
+  .clock {
+    margin-left: auto;
+    color: var(--mute);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .roles {
+    display: flex;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .roles button {
+    border: 0;
+    background: var(--card);
+    padding: 6px 13px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--mute);
+    border-left: 1px solid var(--line);
+  }
+
+  .roles button:first-child {
+    border: 0;
+  }
+
+  .roles button[aria-pressed=true] {
+    background: var(--pri);
+    color: var(--on);
+  }
+
+  /* ── Page layout & typography ── */
+  main {
+    padding: 26px 28px 70px;
+    max-width: 1180px;
+    width: 100%;
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .sub {
+    color: var(--mute);
+    margin: 3px 0 0;
+  }
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+
+  .sec {
+    margin-top: 26px;
+  }
+
+  /* ── Panels & KPI cards ── */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  .pad {
+    padding: 16px;
+  }
+
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--pri);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+
+  .kpi b {
+    display: block;
+    font-size: 26px;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi span {
+    color: var(--mute);
+    font-size: 13px;
+  }
+
+  .kpi.w {
+    border-left-color: #D98A00;
+  }
+
+  .kpi.g {
+    border-left-color: var(--ok);
+  }
+
+  .two {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .wrap {
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mute);
+    padding: 9px 14px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-top: 1px solid var(--line);
+    vertical-align: middle;
+  }
+
+  tr:first-child td {
+    border-top: 0;
+  }
+
+  tbody tr:hover td {
+    background: var(--hov);
+  }
+
+  .n {
+    font-weight: 600;
+  }
+
+  .id {
+    color: var(--mute);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .meta {
+    color: var(--mute);
+    font-size: 13px;
+  }
+
+  /* ── Status pills ── */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 1px 9px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .pill:before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .Pending {
+    background: var(--warnbg);
+    color: var(--warn);
+  }
+
+  .Scheduled {
+    background: var(--infobg);
+    color: var(--info);
+  }
+
+  .Completed {
+    background: var(--okbg);
+    color: var(--ok);
+  }
+
+  .Cancelled {
+    background: var(--badbg);
+    color: var(--bad);
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    border: 1px solid var(--line);
+    background: var(--card);
+    padding: 6px 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Patient header: account info and Sign out sit at the far right, away from the navigation */
+  .portal #who {
+    margin-left: auto;
+    gap: 14px;
+  }
+
+  .btn.signout {
+    color: var(--bad);
+    border-color: var(--bad);
+    background: transparent;
+  }
+
+  .btn.signout:hover {
+    background: var(--bad);
+    color: var(--card);
+  }
+
+  a.btn {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  a.btn.p {
+    color: var(--on);
+  }
+
+  main a:not(.btn) {
+    color: var(--pri);
+  }
+
+  .btn:hover {
+    background: var(--hov);
+  }
+
+  .btn.p {
+    background: var(--pri);
+    color: var(--on);
+    border-color: var(--pri);
+  }
+
+  .btn.p:hover {
+    background: var(--prih);
+  }
+
+  .btn.d {
+    color: var(--bad);
+  }
+
+  .acts {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* ── Forms ── */
+  label {
+    display: block;
+    font-weight: 500;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--card);
+  }
+
+  .bar input, .bar select {
+    width: auto;
+  }
+
+  textarea {
+    min-height: 90px;
+    resize: vertical;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .grid .full {
+    grid-column: 1/-1;
+  }
+
+  .empty {
+    padding: 34px;
+    text-align: center;
+    color: var(--mute);
+  }
+
+  /* ── Schedule grid & overview widgets ── */
+  .gridt td, .gridt th {
+    min-width: 150px;
+  }
+
+  .gridt td:first-child, .gridt th:first-child {
+    min-width: 100px;
+    color: var(--mute);
+  }
+
+  .cell {
+    border-radius: 5px;
+    padding: 5px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .free {
+    color: var(--mute);
+    opacity: .55;
+  }
+
+  .sbar {
+    display: flex;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    background: var(--line);
+    margin: 4px 0 12px;
+  }
+
+  .sbar i {
+    display: block;
+  }
+
+  .leg div {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .log li {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+
+  .log li:first-child {
+    border: 0;
+  }
+
+  .log time {
+    color: var(--mute);
+    width: 44px;
+    flex: none;
+  }
+
+  /* ── Consultation view ── */
+  .cg {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .pb {
+    position: sticky;
+    top: 70px;
+  }
+
+  .pb h2 {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  .pb dl {
+    margin: 12px 0 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    font-size: 13px;
+  }
+
+  .pb dt {
+    color: var(--mute);
+  }
+
+  .pb dd {
+    margin: 0;
+  }
+
+  .hx {
+    border-top: 1px solid var(--line);
+    margin-top: 14px;
+    padding-top: 12px;
+    font-size: 13px;
+  }
+
+  .hx div {
+    padding: 6px 0;
+  }
+
+  .rec {
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .rh {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+
+  .mrow {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 2fr auto;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .err {
+    color: var(--bad);
+    font-size: 13px;
+    min-height: 18px;
+  }
+
+  /* ── Modal & toast ── */
+  #modal {
+    position: fixed;
+    inset: 0;
+    background: #050d1888;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 20;
+  }
+
+  #modal.on {
+    display: flex;
+  }
+
+  .dlg {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 22px;
+    width: min(520px,100%);
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: 0 20px 50px #0004;
+  }
+
+  .dlg h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  #toast {
+    position: fixed;
+    bottom: calc(22px + env(safe-area-inset-bottom,0px));
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+    z-index: 30;
+  }
+
+  #toast.on {
+    opacity: 1;
+  }
+
+  /* ── Patient portal mode ── */
+  .hl {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 17px;
+    margin-right: 14px;
+    color: var(--ink);
+  }
+
+  .hl svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  #nav {
+    display: contents;
+  }
+
+  #pnav {
+    display: none;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  #pnav button {
+    border: 0;
+    background: none;
+    padding: 7px 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--mute);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  #pnav button:hover {
+    background: var(--hov);
+  }
+
+  #pnav button[aria-current=page] {
+    background: var(--infobg);
+    color: var(--pri);
+  }
+
+  .portal .app {
+    grid-template-columns: 1fr;
+  }
+
+  .portal aside, .portal .roles, .portal .clock {
+    display: none;
+  }
+
+  .portal .hl, .portal #pnav {
+    display: flex;
+  }
+
+  .portal main {
+    margin: 0 auto;
+  }
+
+  /* ── Patient views ── */
+  .avl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .dc {
+    padding: 16px;
+  }
+
+  .dc .tp {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .av {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--infobg);
+    color: var(--pri);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    flex: none;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: s;
+  }
+
+  .steps li {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .steps li:first-child {
+    border: 0;
+  }
+
+  .steps li:before {
+    counter-increment: s;
+    content: counter(s);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--pri);
+    color: var(--on);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex: none;
+  }
+
+  .okbox {
+    border-left: 4px solid var(--ok);
+    background: var(--okbg);
+  }
+
+  .big {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width:700px) {
+    .avl {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width:900px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto 1fr;
+    }
+    aside {
+      grid-row: auto;
+      position: static;
+      height: auto;
+      flex-direction: row;
+      overflow-x: auto;
+      padding: 8px;
+    }
+    .sf {
+      display: none;
+    }
+    .logo {
+      padding: 0 10px 0 4px;
+    }
+    .logo span {
+      display: none;
+    }
+    .bar {
+      padding: 10px 14px;
+      position: static;
+    }
+    main {
+      padding: 20px 14px 60px;
+    }
+    .kpis {
+      grid-template-columns: 1fr 1fr;
+    }
+    .two, .cg {
+      grid-template-columns: 1fr;
+    }
+    .pb {
+      position: static;
+    }
+    .grid {
+      grid-template-columns: 1fr;
+    }
+    .mrow {
+      grid-template-columns: 1fr 1fr;
+    }
+    .clock {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion:reduce) {
+    * {
+      transition: none!important;
+    }
+  }
+
+    /* ── Request form: phone, date, validation ── */
+    .phonebox { display: flex; }
+    .phonebox input { flex: 1; min-width: 0; border-radius: 0 6px 6px 0; }
+    .phone-prefix { display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-right: 0; border-radius: 6px 0 0 6px; background: var(--bg); color: var(--mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .phone-prefix svg { width: 22px; height: 15px; border-radius: 2px; }
+    .datebox { position: relative; }
+    .datebox .datetext { padding-right: 42px; }
+    .datebtn { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; border: 0; background: none; padding: 6px; border-radius: 6px; color: var(--mute); cursor: pointer; }
+    .datebtn:hover { background: var(--hov); color: var(--ink); }
+    input[aria-invalid=true], textarea[aria-invalid=true] { border-color: var(--bad); }
+    .phonebox:has(input[aria-invalid=true]) .phone-prefix { border-color: var(--bad); }
+    .cal { position: absolute; top: calc(100% + 6px); left: 0; z-index: 15; width: min(310px, calc(100vw - 32px)); padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 30px #0005; }
+    .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
+    .cal-title { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 6px 8px; border-radius: 6px; color: var(--ink); font-weight: 700; font-size: 15px; cursor: pointer; }
+    .cal-title:hover { background: var(--hov); }
+    .cal-title svg { width: 10px; height: 10px; }
+    .cal-arrows { display: flex; gap: 2px; }
+    .cal-nav { width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 6px; background: none; color: var(--ink); cursor: pointer; }
+    .cal-nav svg { width: 16px; height: 16px; }
+    .cal-nav:hover:not(:disabled) { background: var(--hov); }
+    .cal-nav:disabled { opacity: .3; cursor: default; }
+    .cal-week, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+    .cal-week span { padding: 4px 0; color: var(--mute); font-size: 12px; font-weight: 600; }
+    .cal-grid.pick { grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 4px 0 8px; }
+    .cal-day, .cal-cell { height: 38px; border: 0; border-radius: 6px; background: none; color: var(--ink); cursor: pointer; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .cal-grid.pick .cal-cell { height: 46px; font-size: 15px; }
+    .cal-day:hover:not(:disabled), .cal-cell:hover:not(:disabled) { background: var(--hov); }
+    .cal-day:disabled, .cal-cell:disabled { opacity: .3; cursor: default; }
+    .cal-day.other { color: var(--mute); }
+    .cal-day.is-today, .cal-cell.is-today { box-shadow: inset 0 0 0 2px var(--pri); font-weight: 700; }
+    .cal-day.is-selected, .cal-cell.is-selected { background: var(--pri); color: var(--on); font-weight: 700; }
+    .cal-foot { display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+    .cal-foot button { border: 0; background: none; padding: 6px 10px; border-radius: 6px; color: var(--pri); font-weight: 600; cursor: pointer; }
+    .cal-foot button:hover { background: var(--hov); }
+    .datetext { cursor: pointer; }
+    .field-msg { margin-top: 4px; color: var(--bad); font-size: 12px; }
+    .rxl { margin: 6px 0 0; padding-left: 18px; }
+  .rxl li { margin: 5px 0; }
+  @media print {
+    body * { visibility: hidden !important; }
+    .rcpt, .rcpt * { visibility: visible !important; color: #000 !important; }
+    .rcpt { position: fixed; left: 0; top: 0; width: 100%; padding: 24px; background: #fff !important; }
+    .noprint { display: none !important; }
+  }
+</style>
+</head>
+<body>
+  <!-- Shared logo artwork, referenced twice below -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="logo-mark" viewBox="0 0 32 32">
+      <rect width="32" height="32" rx="8" fill="#1470D9"/>
+      <path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/>
+    </symbol>
+  </svg>
+
+  <div class="app">
+    <aside>
+      <div class="logo"><svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><use href="#logo-mark"/></svg><span>HealthBridge</span></div>
+      <nav id="nav" aria-label="Main"></nav>
+      <div class="sf">grp03_projectdb<br>PostgreSQL 17</div>
+    </aside>
+
+    <header class="bar">
+      <div class="hl"><svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><use href="#logo-mark"/></svg>HealthBridge</div>
+      <nav id="pnav" aria-label="Main"></nav>
+      <input class="srch" id="q" type="search" placeholder="Search patients by name or ID" aria-label="Search patients">
+      <div id="who" class="acts"></div>
+      <div class="roles" id="roles" role="group" aria-label="View as"></div>
+      <div class="clock" id="clock"></div>
+    </header>
+
+    <main id="main"></main>
+  </div>
+
+  <div id="modal" role="dialog" aria-modal="true"></div>
+  <div id="toast" role="status"></div>
+
+  <script>
+    // ===== Constants & date utilities =====
+    const SLOTS = ['08:00–09:00', '09:00–10:00', '10:00–11:00', '11:00–12:00', '13:00–14:00', '14:00–15:00', '15:00–16:00', '16:00–17:00'];
+    const toIsoDate = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+    const day = n => {
+      const d = new Date();
+      d.setDate(d.getDate() + n);
+      return toIsoDate(d);
+    };
+    const TODAY = day(0);
+    const parseDay = d => new Date(d + 'T00:00');
+    const formatDate = d => parseDay(d).toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' });
+    const toDmy = iso => iso.split('-').reverse().join('/');
+    const parseDmy = text => {
+      const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text.trim());
+      if (!m) {
+        return '';
+      }
+      const [, dd, mm, yyyy] = m;
+      const check = new Date(+yyyy, +mm - 1, +dd);
+      const real = check.getFullYear() === +yyyy && check.getMonth() === +mm - 1 && check.getDate() === +dd;
+      return real ? `${yyyy}-${mm}-${dd}` : '';
+    };
+    const escapeHtml = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    // ===== App mode, navigation & icons =====
+    const MODE = 'client';
+    const LOGIN_URL = 'HealthBridge-Login.html';   // keep both files in the same folder
+    const SESSION_KEY = 'healthbridge_session_v2'; // written by the login page
+    const SIGNUP_KEY = 'healthbridge_signup_v1';   // new account handed over by the login page
+    const CREDS_KEY = 'healthbridge_creds_v1';
+    const NAV = {
+      admin: [['ov', 'Overview'], ['docs', 'Doctors'], ['spec', 'Specialties'], ['pts', 'Patients']],
+      staff: [['req', 'Requests'], ['sched', 'Schedule'], ['pts', 'Patients'], ['docs', 'Doctors'], ['spec', 'Specialties']],
+      doctor: [['queue', 'My queue']],
+      patient: [['visit', 'Request a visit'], ['mine', 'My appointment']]
+    };
+    const MODES = {
+      client: { roles: [], start: { role: 'patient', view: 'visit' } },
+      staff: { roles: [['staff', 'Staff'], ['doctor', 'Doctor']], start: { role: 'staff', view: 'req' } },
+      admin: { roles: [['patient', 'Patient'], ['doctor', 'Doctor'], ['staff', 'Staff'], ['admin', 'Admin']], start: { role: 'admin', view: 'ov' } }
+    };
+    const { roles: ROLES, start: START } = MODES[MODE];
+    const ICONS = {
+      ov: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+      docs: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+      spec: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+      pts: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M16 4.5a3.5 3.5 0 010 7M18 14c2.5.8 4 2.5 4 6"/>',
+      req: '<path d="M5 5h14l2 8v6H3v-6z"/><path d="M3 13h5l1 3h6l1-3h5"/>',
+      sched: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+      queue: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+      book: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',
+      rec: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/>'
+    };
+
+    // ===== Seed data =====
+    const seed = () => ({
+      sp: [{ id: 1, name: 'General Practice' }, { id: 2, name: 'Pediatrics' }, { id: 3, name: 'Cardiology' }, { id: 4, name: 'Dermatology' }],
+      dr: [{ id: 1, sp: 1, fn: 'Maria', ln: 'Santos', em: 'm.santos@healthbridge.ph', on: 1 }, { id: 2, sp: 2, fn: 'Paolo', ln: 'Reyes', em: 'p.reyes@healthbridge.ph', on: 1 }, { id: 3, sp: 3, fn: 'Ana', ln: 'Villanueva', em: 'a.villanueva@healthbridge.ph', on: 1 }],
+      pt: [],
+      ap: [],
+      nt: [],
+      rx: []
+    });
+    const seedLog = () => [{ t: '08:05', m: 'Dr. Maria Santos added to General Practice' }];
+
+    // ===== State & persistence =====
+    const STORAGE_KEY = 'healthbridge_demo_v2';
+    let DB;
+    let nid = 100;
+    const state = {
+      role: 'staff',
+      view: 'req',
+      did: 1,
+      cid: 0,
+      sd: TODAY,
+      q: '',
+      me: 0,
+      auth: false,
+      welcome: 0,
+      done: null,
+      fd: day(1),
+      fs: 0,
+      log: []
+    };
+    // Patients who signed in see only their own page; the nav shrinks to one tab
+    const navFor = r => (MODE === 'client' && state.auth && r === 'patient') ? [['mine', 'My appointment']] : NAV[r];
+    function load() {
+      try {
+        const j = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (j && j.DB) {
+          DB = j.DB;
+          nid = j.nid;
+          state.log = j.log;
+          return;
+        }
+      } catch (e) {
+      }
+      DB = seed();
+      nid = 100;
+      state.log = seedLog();
+    }
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ DB, nid, log: state.log.slice(0, 40) }));
+      } catch (e) {
+      }
+    }
+
+    // ===== Lookups & formatters =====
+    const $ = s => document.querySelector(s);
+    const findById = (list, id) => list.find(x => x.id === +id);
+    const patientById = id => findById(DB.pt, id);
+    const doctorById = id => findById(DB.dr, id);
+    const specialtyById = id => findById(DB.sp, id);
+    const appointmentById = id => findById(DB.ap, id);
+    const nextPatientId = () => {
+      DB.ptn = Math.max(DB.ptn || 0, ...DB.pt.map(x => x.id)) + 1;
+      return DB.ptn;
+    };
+    const mrn = id => 'HB-' + String(id).padStart(5, '0');
+    const patientName = id => {
+      const p = patientById(id);
+      return p ? p.fn + ' ' + p.ln : '—';
+    };
+    const doctorName = id => {
+      const d = doctorById(id);
+      return d ? 'Dr. ' + d.fn + ' ' + d.ln : 'Unassigned';
+    };
+    const patientCell = id => `<div class="n">${escapeHtml(patientName(id))}</div><div class="id">${mrn(id)}</div>`;
+    const taken = (dr, date, slot, skip) => DB.ap.some(a => a.dr === +dr && a.date === date && a.slot === slot && a.st !== 'Cancelled' && a.id !== skip);
+    const pill = s => `<span class="pill ${s}">${s}</span>`;
+    const money = v => v == null || v === '' ? '—' : Number(v).toLocaleString('en-PH', { style: 'currency', currency: 'PHP' });
+    const billOf = apId => { const n = DB.nt.find(y => y.ap === apId); return n && n.fee != null ? n : null; };
+    const myBilledIds = () => DB.ap.filter(x => x.pt === state.me && billOf(x.id)).map(x => x.id);
+    const logEvent = m => state.log.unshift({ t: new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', hour12: false }), m });
+    const byDateSlot = (a, b) => (a.date + a.slot).localeCompare(b.date + b.slot);
+    const activeDr = () => DB.dr.filter(d => d.on);
+
+    // ===== UI helpers =====
+    function toast(t) {
+      const e = $('#toast');
+      e.textContent = t;
+      e.classList.add('on');
+      clearTimeout(toast.t);
+      toast.t = setTimeout(() => e.classList.remove('on'), 2400);
+    }
+    function modal(h) {
+      const m = $('#modal');
+      m.innerHTML = h ? `<div class="dlg">${h}</div>` : '';
+      m.classList.toggle('on', !!h);
+    }
+    const rno = id => 'RCPT-' + String(id).padStart(5, '0');
+    const rxHtml = r => r.length ? `<ul class="rxl">${r.map(x => `<li><b>${escapeHtml(x.med)}</b>${x.dose ? ' · ' + escapeHtml(x.dose) : ''}${x.ins ? `<div class="meta">${escapeHtml(x.ins)}</div>` : ''}</li>`).join('')}</ul>` : '<div class="meta">No medication prescribed.</div>';
+    function rcptModal(id) {
+      const a = appointmentById(id);
+      const n = a && billOf(a.id);
+      if (!a || !n || !n.paid || a.pt !== state.me) return;
+      const r = DB.rx.filter(x => x.ap === a.id);
+      const d = a.dr ? doctorById(a.dr) : null;
+      const sp = d ? specialtyById(d.sp) : null;
+      modal(`<div class="rcpt"><div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div style="display:flex;align-items:center;gap:12px"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" style="flex:none;-webkit-print-color-adjust:exact;print-color-adjust:exact"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B8CFF"/><stop offset="1" stop-color="#0B5CAD"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lg)"/><path d="M8 27a12 12 0 0 1 24 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M6 28.5h28" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M20 15v9M15.5 19.5h9" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg><div><h3 style="margin:0">HealthBridge</h3><div class="meta">Visit receipt</div></div></div><div style="text-align:right"><b>${rno(a.id)}</b><div class="meta">${formatDate(a.date)}</div></div></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="grid"><div><div class="meta">Patient</div><b>${escapeHtml(patientName(a.pt))}</b><div class="meta">${mrn(a.pt)}</div></div><div><div class="meta">Doctor</div><b>${a.dr ? escapeHtml(doctorName(a.dr)) : '—'}</b><div class="meta">${sp ? escapeHtml(sp.name) : ''}</div></div><div><div class="meta">Appointment</div>${formatDate(a.date)}<div class="meta">${a.slot || ''}</div></div><div><div class="meta">Diagnosis</div>${escapeHtml(n.dx || '—')}</div></div><div class="meta" style="margin-top:14px">Prescription</div>${rxHtml(r)}<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><div style="display:flex;justify-content:space-between;font-size:18px"><b>Consultation fee</b><b>${money(n.fee)}</b></div><div class="meta" style="display:flex;justify-content:space-between;margin-top:6px"><span>Payment status</span><b>Paid</b></div><div class="acts noprint" style="margin-top:18px"><button class="btn p" data-a="prt">Print receipt</button><button class="btn" data-a="close">Close</button></div></div>`);
+    }
+    const head = (t, s, x = '') => `<div class="head"><div><h1>${t}</h1><p class="sub">${s}</p></div>${x}</div>`;
+    const empty = t => `<div class="empty">${t}</div>`;
+    const tbl = (h, rows, msg) => rows.length ? `<div class="wrap"><table><thead><tr>${h.map(x => `<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>` : `<div class="panel">${empty(msg)}</div>`;
+    const kpi = (n, l, c = '') => `<div class="kpi ${c}"><b>${n}</b><span>${l}</span></div>`;
+
+    // ===== Chrome (nav, role switcher, header) =====
+    const accountBox = () => (state.auth && patientById(state.me))
+      ? `<span class="meta">${escapeHtml(patientName(state.me))} · ${mrn(state.me)}</span><button class="btn signout" data-a="signout">Sign out</button>`
+      : `<a class="btn p" href="${LOGIN_URL}" data-login>Sign in</a>`;
+    const signInBox = p => `<div class="panel pad" style="margin-bottom:16px"><b>Check your appointment status</b><p class="meta" style="margin:6px 0 12px">${p ? `Create a password for ${mrn(p.id)} to sign in and see all your appointments.` : 'Sign in with your patient ID or email and your password.'}</p><div class="acts"><a class="btn p" href="${LOGIN_URL}" data-login>Sign in</a>${p ? `<a class="btn" href="${LOGIN_URL}#recover" data-login>Create my password</a>` : ''}</div></div>`;
+    function chrome() {
+      const cur = state.view === 'consult' ? 'queue' : state.view;
+      const nav = navFor(state.role);
+      const ic = k => ICONS[k] || ICONS[{ visit: 'book', avail: 'docs', mine: 'rec' }[k]];
+      $('#roles').innerHTML = ROLES.map(([k, l]) => `<button data-a="role" data-k="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
+      $('#who').innerHTML = state.role === 'doctor' ? `<select aria-label="Doctor" data-a="pick" data-t="did">${activeDr().map(d => `<option value="${d.id}" ${d.id === state.did ? 'selected' : ''}>${escapeHtml(doctorName(d.id))}</option>`).join('')}</select>` : (MODE === 'client' ? accountBox() : '');
+      $('#nav').innerHTML = nav.map(([k, l]) => `<button data-a="view" data-k="${k}" ${cur === k ? 'aria-current="page"' : ''}><svg viewBox="0 0 24 24" aria-hidden="true">${ic(k)}</svg>${l}</button>`).join('');
+      $('#pnav').innerHTML = nav.map(([k, l]) => `<button data-a="view" data-k="${k}" ${cur === k ? 'aria-current="page"' : ''}>${l}</button>`).join('');
+      $('#q').style.display = ['admin', 'staff'].includes(state.role) ? '' : 'none';
+    }
+
+    // ===== Form fragments =====
+    const slotOpts = (dr, date, skip) => SLOTS.map(s => {
+      const t = taken(dr, date, s, skip);
+      return `<option value="${s}" ${t ? 'disabled' : ''}>${s}${t ? ' (booked)' : ''}</option>`;
+    }).join('');
+    const medRow = () => `<div class="mrow"><input name="med" placeholder="Medication" aria-label="Medication"><input name="dose" placeholder="Dosage" aria-label="Dosage"><input name="ins" placeholder="Instructions" aria-label="Instructions"><button type="button" class="btn d" data-a="rmmed">Remove</button></div>`;
+
+    // ===== Views =====
+    const views = {
+      ov() {
+        const c = s => DB.ap.filter(a => a.st === s).length;
+        const n = DB.ap.length || 1;
+        const col = { Pending: '#D98A00', Scheduled: '#0B5CAD', Completed: '#17803D', Cancelled: '#B42318' };
+        const td = DB.ap.filter(a => a.date === TODAY && a.st !== 'Cancelled').length;
+        return head('Overview', 'Clinic activity at a glance.', '<button class="btn" data-a="reset">Reset demo data</button>') +
+          `<div class="kpis">${kpi(DB.pt.length, 'Registered patients')}${kpi(activeDr().length, 'Active doctors', 'g')}${kpi(td, 'Appointments today')}${kpi(c('Pending'), 'Requests waiting', 'w')}</div>` +
+          `<div class="two"><div><h2>Doctor workload</h2>${tbl(['Doctor', 'Specialty', 'Today', 'Upcoming'], DB.dr.map(d => `<tr><td class="n">${escapeHtml(doctorName(d.id))}</td><td>${escapeHtml(specialtyById(d.sp).name)}</td><td>${DB.ap.filter(a => a.dr === d.id && a.date === TODAY && a.st !== 'Cancelled').length}</td><td>${DB.ap.filter(a => a.dr === d.id && a.date > TODAY && a.st === 'Scheduled').length}</td></tr>`), 'No doctors yet.')}</div>` +
+          `<div><h2>Appointments by status</h2><div class="panel pad"><div class="sbar" role="img" aria-label="Status breakdown">${Object.keys(col).map(s => `<i style="width:${c(s) / n * 100}%;background:${col[s]}"></i>`).join('')}</div><div class="leg">${Object.keys(col).map(s => `<div><span>${s}</span><b>${c(s)}</b></div>`).join('')}</div></div></div></div>` +
+          `<div class="sec"><h2>Recent activity</h2><div class="panel pad"><ul class="log">${state.log.slice(0, 8).map(x => `<li><time>${x.t}</time><span>${escapeHtml(x.m)}</span></li>`).join('')}</ul></div></div>`;
+      },
+      docs() {
+        return head('Doctors', 'Manage doctor profiles and who can receive appointments.') +
+          `<form class="panel pad grid" data-f="doc"><div><label for="d1">First name</label><input id="d1" name="fn" required></div><div><label for="d2">Last name</label><input id="d2" name="ln" required></div><div><label for="d3">Email</label><input id="d3" name="em" type="email" required></div><div><label for="d4">Specialty</label><select id="d4" name="sp">${DB.sp.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}</select></div><div class="full acts"><button class="btn p">Add doctor</button><span class="err"></span></div></form>` +
+          `<div class="sec">${tbl(['Doctor', 'Specialty', 'Email', 'Status', ''], DB.dr.map(d => `<tr><td class="n">${escapeHtml(doctorName(d.id))}</td><td>${escapeHtml(specialtyById(d.sp).name)}</td><td>${escapeHtml(d.em)}</td><td>${d.on ? 'Active' : '<span class="meta">Inactive</span>'}</td><td><div class="acts"><button class="btn" data-a="editdr" data-id="${d.id}">Edit</button><button class="btn" data-a="tog" data-id="${d.id}">${d.on ? 'Deactivate' : 'Activate'}</button></div></td></tr>`))}</div>`;
+      },
+      spec() {
+        return head('Specialties', 'Every doctor belongs to exactly one specialty.') +
+          `<form class="panel pad acts" data-f="spec" style="align-items:flex-end"><div style="flex:1;min-width:200px"><label for="s1">New specialty</label><input id="s1" name="name" required placeholder="Example: Orthopedics"></div><button class="btn p">Add specialty</button><span class="err" style="width:100%"></span></form>` +
+          `<div class="sec">${tbl(['Specialty', 'Doctors', ''], DB.sp.map(s => {
+            const n = DB.dr.filter(d => d.sp === s.id).length;
+            return `<tr><td class="n">${escapeHtml(s.name)}</td><td>${n}</td><td>${n ? '<span class="meta">In use. Reassign its doctors to remove it.</span>' : `<button class="btn d" data-a="delsp" data-id="${s.id}">Delete</button>`}</td></tr>`;
+          }))}</div>`;
+      },
+      pts() {
+        const q = state.q.trim().toLowerCase();
+        const l = DB.pt.filter(p => !q || (patientName(p.id) + ' ' + mrn(p.id)).toLowerCase().includes(q));
+        return head('Patients', `${l.length} of ${DB.pt.length} shown.`) + tbl(['Patient', 'Phone', 'Address', 'Completed visits', ''], l.map(p => `<tr><td>${patientCell(p.id)}</td><td>${escapeHtml(p.ph || '—')}</td><td>${escapeHtml(p.ad || '—')}</td><td>${DB.ap.filter(a => a.pt === p.id && a.st === 'Completed').length}</td><td><div class="acts"><button class="btn" data-a="editpt" data-id="${p.id}">Edit</button><button class="btn d" data-a="delpt" data-id="${p.id}">Delete</button></div></td></tr>`), 'No patients match your search.');
+      },
+      req() {
+        const l = DB.ap.filter(a => a.st === 'Pending').sort((a, b) => a.date.localeCompare(b.date));
+        return head('Appointment requests', l.length ? `${l.length} waiting for a doctor and a time slot.` : 'All requests have been handled.', '<button class="btn p" data-a="walkin">Book walk-in</button>') +
+          tbl(['Preferred date', 'Patient', 'Reason for visit', 'Status', ''], l.map(a => `<tr><td>${formatDate(a.date)}</td><td>${patientCell(a.pt)}</td><td>${escapeHtml(a.sym)}</td><td>${pill('Pending')}</td><td><div class="acts"><button class="btn p" data-a="assign" data-id="${a.id}">Assign doctor</button><button class="btn d" data-a="cancel" data-id="${a.id}">Decline</button></div></td></tr>`), 'No requests waiting. New ones from patients appear here.');
+      },
+      sched() {
+        const dr = activeDr();
+        return head('Schedule', formatDate(state.sd) + '. One column per doctor.', `<div class="acts"><button class="btn" data-a="day" data-n="-1">Previous</button><input type="date" value="${state.sd}" data-a="setday" aria-label="Date" style="width:auto"><button class="btn" data-a="day" data-n="1">Next</button></div>`) +
+          `<div class="wrap"><table class="gridt"><thead><tr><th>Time</th>${dr.map(d => `<th>${escapeHtml(doctorName(d.id))} <span style="font-weight:400">· ${escapeHtml(specialtyById(d.sp).name)}</span></th>`).join('')}</tr></thead><tbody>${SLOTS.map(s => `<tr><td>${s}</td>${dr.map(d => {
+            const a = DB.ap.find(x => x.dr === d.id && x.date === state.sd && x.slot === s && x.st !== 'Cancelled');
+            return `<td>${a ? `<div class="cell ${a.st}"><span>${escapeHtml(patientName(a.pt))}</span>${a.st === 'Scheduled' ? `<button class="btn d" style="padding:0 7px;font-size:12px" data-a="cancel" data-id="${a.id}">Cancel</button>` : ''}</div>` : '<span class="free">Open</span>'}</td>`;
+          }).join('')}</tr>`).join('')}</tbody></table></div>`;
+      },
+      queue() {
+        const mine = DB.ap.filter(a => a.dr === state.did);
+        const sc = mine.filter(a => a.st === 'Scheduled').sort(byDateSlot);
+        const tod = sc.filter(a => a.date <= TODAY);
+        const up = sc.filter(a => a.date > TODAY);
+        const done = mine.filter(a => a.st !== 'Scheduled').sort(byDateSlot).reverse();
+        const rows = (l, act, num) => l.map((a, i) => `<tr><td>${num ? `<b>${i + 1}</b>` : formatDate(a.date)}</td><td>${a.slot}</td><td>${patientCell(a.pt)}</td><td>${escapeHtml(a.sym)}</td><td>${pill(a.st)}</td><td>${act ? `<div class="acts"><button class="btn p" data-a="note" data-id="${a.id}">Open chart</button><button class="btn d" data-a="cancel" data-id="${a.id}">Cancel</button></div>` : ''}</td></tr>`);
+        const H = f => [f, 'Time', 'Patient', 'Reason for visit', 'Status', ''];
+        return head(doctorName(state.did), specialtyById(doctorById(state.did).sp).name) +
+          `<div class="kpis" style="grid-template-columns:repeat(3,1fr)">${kpi(tod.length, 'Waiting today', 'w')}${kpi(mine.filter(a => a.date === TODAY && a.st === 'Completed').length, 'Seen today', 'g')}${kpi(up.length, 'Upcoming')}</div>` +
+          `<h2>Today’s queue</h2>${tbl(H('No.'), rows(tod, 1, 1), 'No patients in the queue today.')}` +
+          (up.length ? `<div class="sec"><h2>Upcoming</h2>${tbl(H('Date'), rows(up, 1, 0))}</div>` : '') +
+          (done.length ? `<div class="sec"><h2>Closed visits</h2>${tbl(H('Date'), rows(done, 0, 0))}</div>` : '');
+      },
+      consult() {
+        const a = appointmentById(state.cid);
+        const p = patientById(a.pt);
+        const hx = DB.ap.filter(x => x.pt === a.pt && x.st === 'Completed').sort(byDateSlot).reverse();
+        return head('Consultation', `${formatDate(a.date)} · ${a.slot}`, '<button class="btn" data-a="view" data-k="queue">Back to queue</button>') +
+          `<div class="cg"><div class="panel pad pb"><h2>${escapeHtml(patientName(a.pt))}</h2><div class="id">${mrn(a.pt)}</div><dl><dt>Phone</dt><dd>${escapeHtml(p.ph || '—')}</dd><dt>Address</dt><dd>${escapeHtml(p.ad || '—')}</dd><dt>Reason</dt><dd>${escapeHtml(a.sym)}</dd></dl><div class="hx"><b>Previous visits</b>${hx.length ? hx.map(x => {
+            const n = DB.nt.find(y => y.ap === x.id);
+            return `<div>${formatDate(x.date)}<br><span class="meta">${escapeHtml(n ? n.dx : 'No note')}</span></div>`;
+          }).join('') : '<div class="meta">None on record.</div>'}</div></div>` +
+          `<form class="panel pad" data-f="note" data-id="${a.id}"><div class="grid"><div class="full"><label for="n1">Diagnosis</label><input id="n1" name="dx" required></div><div class="full"><label for="n2">Clinical observations</label><textarea id="n2" name="ob"></textarea></div></div><h2 style="margin-top:18px">Prescriptions</h2><div id="meds">${medRow()}</div><div class="acts" style="margin-top:8px"><button type="button" class="btn" data-a="addmed">Add medication</button></div><div class="acts" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line)"><button class="btn p">Save and complete visit</button></div></form></div>`;
+      },
+      visit() {
+        if (state.done) {
+          const p = patientById(state.done.p);
+          const a = appointmentById(state.done.a);
+          return head('Request received', 'Clinic staff will review it and assign your doctor.') + `<div class="panel pad okbox"><div class="meta">Your patient ID</div><div class="big">${mrn(p.id)}</div><p style="margin:8px 0 0">Keep this ID. Create a password to sign in and check your appointment later.</p></div><div class="panel pad" style="margin-top:14px"><h2>Request details</h2><div class="meta">Preferred date</div><div>${formatDate(a.date)}</div><div class="meta" style="margin-top:8px">Reason for visit</div><div>${escapeHtml(a.sym)}</div></div><div class="acts" style="margin-top:16px"><button class="btn p" data-a="view" data-k="mine">Check my appointment</button><button class="btn" data-a="again">Make another request</button></div>`;
+        }
+        return head('Request a visit', 'Tell us about yourself and when you’d like to come in.') +
+          `<div class="two"><form class="panel pad grid" data-f="visit" novalidate><div><label for="v1">First name</label><input id="v1" name="fn" required autocapitalize="words" autocomplete="given-name"></div><div><label for="v2">Last name</label><input id="v2" name="ln" required autocapitalize="words" autocomplete="family-name"></div><div><label for="v3">Mobile number</label><div class="phonebox"><span class="phone-prefix"><svg viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="8" fill="#0038A8"/><rect y="8" width="24" height="8" fill="#CE1126"/><path d="M0 0L13.9 8 0 16z" fill="#fff"/><circle cx="4.2" cy="8" r="1.6" fill="#FCD116"/><circle cx="1.2" cy="2.6" r=".9" fill="#FCD116"/><circle cx="1.2" cy="13.4" r=".9" fill="#FCD116"/><circle cx="9" cy="8" r=".9" fill="#FCD116"/></svg>+63</span><input id="v3" name="ph" type="tel" inputmode="numeric" placeholder="9171234567" autocomplete="tel-national" required></div></div><div><label for="v4">Preferred date</label><div class="datebox"><input id="v4" class="datetext" name="date_text" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" autocomplete="off" required><button type="button" class="datebtn" data-a="pickdate" aria-label="Pick a date"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button></div></div><div class="full"><label for="v5">Address</label><input id="v5" name="ad" required autocomplete="street-address"></div><div class="full"><label for="v6">Symptoms or reason for visit</label><textarea id="v6" name="sym" required placeholder="Example: fever and cough for three days"></textarea></div><div class="full acts"><button class="btn p">Send request</button><span class="meta">Only clinic staff and your doctor can see this.</span></div></form><div class="panel pad"><h2>What happens next</h2><ol class="steps"><li>Clinic staff review your request.</li><li>They assign a doctor and confirm your time.</li><li>Sign in to “My appointment” to see the date, time and doctor.</li></ol><p class="meta" style="margin:14px 0 0">Already registered? <a href="${LOGIN_URL}" data-login>Sign in</a> to request another visit. Your patient ID stays the same.</p></div></div>`;
+      },
+      mine() {
+        const p = state.me && patientById(state.me);
+        const l = p ? DB.ap.filter(a => a.pt === p.id && (state.auth || (state.done && a.id === state.done.a))).sort((a, b) => b.date.localeCompare(a.date)) : [];
+        const moreForm = p && state.more ? `<form class="panel pad grid" data-f="more" novalidate style="margin-bottom:16px"><div class="full"><b>Book a visit</b> <span class="meta">for ${escapeHtml(patientName(p.id))} (${mrn(p.id)}).</span></div><div><label for="nv1">Preferred date</label><div class="datebox"><input id="nv1" class="datetext" name="date_text" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" autocomplete="off" required><button type="button" class="datebtn" data-a="pickdate" aria-label="Pick a date"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button></div></div><div class="full"><label for="nv2">Symptoms or reason for visit</label><textarea id="nv2" name="sym" required placeholder="Example: follow-up check, fever and cough for three days"></textarea></div><div class="full acts"><button class="btn p">Send request</button><button type="button" class="btn" data-a="cancelnew">Cancel</button></div></form>` : '';
+        const sent = state.done && patientById(state.done.p);
+        const banner = sent ? `<div class="panel pad okbox" role="status" style="margin-bottom:16px"><b>Request sent. Clinic staff will review it and assign your doctor.</b>${state.auth ? '' : `<div class="meta" style="margin-top:6px">Your patient ID</div><div class="big">${mrn(sent.id)}</div><div>Keep this ID. Create a password to sign in and check your appointment later.</div>`}</div>` : '';
+        const unpaid = state.auth ? l.filter(x => { const n = billOf(x.id); return n && !n.paid; }) : [];
+        const billBanner = unpaid.length ? `<div class="panel pad okbox" role="status" style="margin-bottom:16px"><b>${unpaid.length > 1 ? 'You have ' + unpaid.length + ' unpaid bills' : 'Your bill is ready'}</b><div>Total due: <b>${money(unpaid.reduce((t, x) => t + Number(billOf(x.id).fee), 0))}</b>. Please settle it with clinic staff.</div></div>` : '';
+        const billBlock = a => {
+          if (a.st !== 'Completed') return '';
+          const n = billOf(a.id);
+          if (!n) return '<div class="meta" style="margin-top:10px">Your bill is being prepared by clinic staff.</div>';
+          return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><div class="meta">Bill</div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>${money(n.fee)}</b>${n.paid ? '<span class="pill Completed">Paid</span>' : '<span class="pill Scheduled">Unpaid</span>'}${n.paid ? `<button class="btn" data-a="rcpt" data-id="${a.id}" style="margin-left:auto">View receipt</button>` : ''}</div></div>`;
+        };
+        return head('My appointment', state.auth ? 'Your visits and their status.' : 'Sign in to see all your appointments.') + banner + billBanner + (state.auth ? '' : signInBox(p)) +
+          (p ? `<div class="sec"><div class="acts" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">${escapeHtml(patientName(p.id))} <span class="id">${mrn(p.id)}</span></h2>${(state.more || !state.auth) ? '' : '<button class="btn p" data-a="newvisit">Book a visit</button>'}</div>${moreForm}${l.length ? l.map(a => `<div class="panel rec"><div class="rh"><span><b>${formatDate(a.date)}</b> <span class="meta">${a.slot || 'Time to be confirmed'}</span></span>${pill(a.st)}</div><div class="pad"><div class="meta">Doctor</div><b>${a.dr ? escapeHtml(doctorName(a.dr)) : 'To be assigned by the clinic'}</b>${a.dr ? ` <span class="meta">${escapeHtml(specialtyById(doctorById(a.dr).sp).name)}</span>` : ''}<div class="meta" style="margin-top:10px">Reason for visit</div>${escapeHtml(a.sym)}${a.st === 'Pending' ? '<div class="meta" style="margin-top:10px">Clinic staff are reviewing your request.</div>' : ''}${a.st === 'Cancelled' ? '<div class="meta" style="margin-top:10px">This appointment was cancelled. You can send a new request.</div>' : ''}${billBlock(a)}</div></div>`).join('') : `<div class="panel">${empty('No appointments yet. Choose “Book a visit” to send your first request.')}</div>`}</div>` : '');
+      }
+    };
+
+    // ===== Rendering & navigation =====
+    function main() {
+      if (!views[state.view]) {
+        state.view = navFor(state.role)[0][0];
+      }
+      $('#main').innerHTML = views[state.view]();
+    }
+    function render() {
+      chrome();
+      main();
+      save();
+    }
+    function go(r) {
+      state.role = r;
+      state.view = navFor(r)[0][0];
+      render();
+    }
+
+    // ===== Modals =====
+    function assignModal(id) {
+      const a = id ? appointmentById(id) : null;
+      const w = !a;
+      modal(`<h3>${w ? 'Book a walk-in' : 'Assign ' + escapeHtml(patientName(a.pt))}</h3>${w ? '' : `<p class="meta" style="margin:0 0 12px">${escapeHtml(a.sym)}</p>`}<form data-f="assign" data-id="${id}" class="grid">${w ? `<div class="full"><label for="m0">Patient</label><select id="m0" name="pt">${DB.pt.map(p => `<option value="${p.id}">${escapeHtml(patientName(p.id))} (${mrn(p.id)})</option>`).join('')}</select></div><div class="full"><label for="m4">Reason for visit</label><input id="m4" name="sym" required></div>` : ''}<div class="full"><label for="m1">Doctor</label><select id="m1" name="dr" data-a="slots">${DB.sp.map(s => ({ s, l: activeDr().filter(d => d.sp === s.id) })).filter(x => x.l.length).map(x => `<optgroup label="${escapeHtml(x.s.name)}">${x.l.map(d => `<option value="${d.id}">${escapeHtml(doctorName(d.id))}</option>`).join('')}</optgroup>`).join('')}</select></div><div><label for="m2">Date</label><input id="m2" name="date" type="date" min="${TODAY}" value="${a ? a.date : TODAY}" data-a="slots" required></div><div><label for="m3">Time slot</label><select id="m3" name="slot"></select></div><div class="full acts"><button class="btn p">Confirm appointment</button><button type="button" class="btn" data-a="close">Close</button></div><div class="full err"></div></form>`);
+      refreshSlots();
+    }
+    function refreshSlots() {
+      const f = $('form[data-f=assign]');
+      if (!f) {
+        return;
+      }
+      const s = f.slot;
+      const cur = s.value;
+      s.innerHTML = slotOpts(f.dr.value, f.date.value, +f.dataset.id);
+      const o = s.querySelector(`option[value="${cur}"]`);
+      if (cur && o && !o.disabled) {
+        s.value = cur;
+      } else {
+        const x = [...s.options].find(o => !o.disabled);
+        if (x) {
+          s.value = x.value;
+        }
+      }
+    }
+    const editPt = id => {
+      const p = patientById(id);
+      modal(`<h3>Edit patient ${mrn(p.id)}</h3><form data-f="editpt" data-id="${p.id}" class="grid"><div><label for="e1">First name</label><input id="e1" name="fn" required value="${escapeHtml(p.fn)}"></div><div><label for="e2">Last name</label><input id="e2" name="ln" required value="${escapeHtml(p.ln)}"></div><div><label for="e3">Phone</label><input id="e3" name="ph" value="${escapeHtml(p.ph)}"></div><div><label for="e4">Address</label><input id="e4" name="ad" value="${escapeHtml(p.ad)}"></div><div class="full acts"><button class="btn p">Save changes</button><button type="button" class="btn" data-a="close">Close</button></div></form>`);
+    };
+    const editDr = id => {
+      const d = doctorById(id);
+      modal(`<h3>Edit ${escapeHtml(doctorName(d.id))}</h3><form data-f="editdr" data-id="${d.id}" class="grid"><div><label for="x1">First name</label><input id="x1" name="fn" required value="${escapeHtml(d.fn)}"></div><div><label for="x2">Last name</label><input id="x2" name="ln" required value="${escapeHtml(d.ln)}"></div><div><label for="x3">Email</label><input id="x3" name="em" type="email" required value="${escapeHtml(d.em)}"></div><div><label for="x4">Specialty</label><select id="x4" name="sp">${DB.sp.map(s => `<option value="${s.id}" ${s.id === d.sp ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}</select></div><div class="full acts"><button class="btn p">Save changes</button><button type="button" class="btn" data-a="close">Close</button><span class="err"></span></div></form>`);
+    };
+
+    // ===== Click & change actions =====
+    const actions = {
+      role: d => go(d.k),
+      signout: () => {
+        try { localStorage.removeItem(SESSION_KEY); } catch (e) { }
+        location.href = LOGIN_URL;
+      },
+      newvisit: () => {
+        state.more = true;
+        render();
+        const f = $('#nv1');
+        if (f) {
+          f.focus();
+        }
+      },
+      cancelnew: () => {
+        state.more = false;
+        render();
+      },
+      view: d => {
+        state.view = d.k;
+        state.done = null;
+        state.more = false;
+        render();
+      },
+      pickdate: (d, button) => {
+        const box = button.closest('.datebox');
+        if (box.querySelector('.cal')) {
+          closeCalendars();
+          return;
+        }
+        closeCalendars();
+        const typed = parseDmy(box.querySelector('.datetext').value);
+        const base = typed && typed >= day(0) ? typed : day(0);
+        renderCalendar(box, +base.slice(0, 4), +base.slice(5, 7) - 1);
+      },
+      calview: (d, button) => {
+        const cal = button.closest('.cal');
+        renderCalendar(cal.parentElement, +cal.dataset.year, +cal.dataset.month, 'months');
+      },
+      calyearview: (d, button) => {
+        const cal = button.closest('.cal');
+        renderCalendar(cal.parentElement, +cal.dataset.year, +cal.dataset.month, 'years');
+      },
+      calmonthpick: (d, button) => {
+        const cal = button.closest('.cal');
+        renderCalendar(cal.parentElement, +cal.dataset.year, +d.m);
+      },
+      calyearpick: (d, button) => {
+        const cal = button.closest('.cal');
+        renderCalendar(cal.parentElement, +d.y, +cal.dataset.month, 'months');
+      },
+      caltoday: (d, button) => {
+        const text = button.closest('.datebox').querySelector('.datetext');
+        text.value = toDmy(day(0));
+        validateField(text);
+        closeCalendars();
+        text.focus();
+      },
+      calclear: (d, button) => {
+        const text = button.closest('.datebox').querySelector('.datetext');
+        text.value = '';
+        showFieldError(text, '');
+        closeCalendars();
+        text.focus();
+      },
+      calprev: (d, button) => shiftCalendar(button, -1),
+      calnext: (d, button) => shiftCalendar(button, 1),
+      calpick: (d, button) => {
+        const box = button.closest('.datebox');
+        const text = box.querySelector('.datetext');
+        text.value = toDmy(d.date);
+        validateField(text);
+        closeCalendars();
+        text.focus();
+      },
+      close: () => modal(''),
+      rcpt: d => rcptModal(+d.id),
+      prt: () => window.print(),
+      walkin: () => DB.pt.length ? assignModal(0) : toast('No patients yet. They appear here once someone sends a request.'),
+      assign: d => assignModal(d.id),
+      again: () => {
+        state.done = null;
+        render();
+      },
+      editpt: d => editPt(d.id),
+      delpt:d=>{const p=patientById(d.id),n=DB.ap.filter(a=>a.pt===p.id).length;modal(`<h3>Delete ${escapeHtml(patientName(p.id))}?</h3><p style="margin:0 0 16px">${mrn(p.id)} will be removed.${n?` Their ${n} appointment${n>1?'s':''}, visit notes and prescriptions will be deleted too.`:''} This can’t be undone.</p><div class="acts"><button class="btn d" data-a="confirmdelpt" data-id="${p.id}">Delete patient</button><button class="btn" data-a="close">Cancel</button></div>`)},
+      confirmdelpt:d=>{const id=+d.id,name=patientName(id),apIds=DB.ap.filter(a=>a.pt===id).map(a=>a.id);DB.nt=DB.nt.filter(x=>!apIds.includes(x.ap));DB.rx=DB.rx.filter(x=>!apIds.includes(x.ap));DB.ap=DB.ap.filter(a=>a.pt!==id);DB.pt=DB.pt.filter(x=>x.id!==id);if(state.me===id)state.me=0;if(state.done&&state.done.p===id)state.done=null;logEvent(`Patient ${name} deleted`);modal('');render();toast('Patient deleted')},
+      editdr: d => editDr(d.id),
+      reset: () => {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {
+        }
+        load();
+        render();
+        toast('Demo data reset');
+      },
+      note: d => {
+        state.cid = +d.id;
+        state.view = 'consult';
+        render();
+        scrollTo(0, 0);
+      },
+      addmed: () => $('#meds').insertAdjacentHTML('beforeend', medRow()),
+      rmmed: (d, t) => {
+        if ($('#meds').children.length > 1) {
+          t.parentElement.remove();
+        } else {
+          t.parentElement.querySelectorAll('input').forEach(i => i.value = '');
+        }
+      },
+      day: d => {
+        const x = parseDay(state.sd);
+        x.setDate(x.getDate() + +d.n);
+        state.sd = toIsoDate(x);
+        render();
+      },
+      cancel: d => {
+        const a = appointmentById(d.id);
+        a.st = 'Cancelled';
+        logEvent(`Appointment for ${patientName(a.pt)} cancelled`);
+        render();
+        toast('Appointment cancelled');
+      },
+      tog: d => {
+        const x = doctorById(d.id);
+        x.on = x.on ? 0 : 1;
+        logEvent(`${doctorName(x.id)} ${x.on ? 'activated' : 'deactivated'}`);
+        render();
+      },
+      delsp: d => {
+        const s = specialtyById(d.id);
+        DB.sp = DB.sp.filter(x => x.id !== +d.id);
+        logEvent(`Specialty ${s.name} deleted`);
+        render();
+        toast('Specialty deleted');
+      }
+    };
+
+    // ===== Event listeners =====
+    document.addEventListener('click', e => {
+      const link = e.target.closest('a[data-login]');
+      if (link) {
+        e.preventDefault();
+        location.href = link.getAttribute('href');
+        return;
+      }
+      const t = e.target.closest('[data-a]');
+      if (!t || /^(SELECT|INPUT)$/.test(t.tagName)) {
+        return;
+      }
+      const f = actions[t.dataset.a];
+      if (f) {
+        f(t.dataset, t);
+      }
+    });
+    document.addEventListener('change', e => {
+      const t = e.target;
+      const a = t.dataset.a;
+      if (a === 'pick') {
+        state[t.dataset.t] = +t.value;
+        render();
+      } else if (a === 'slots') {
+        refreshSlots();
+      } else if (a === 'setday' && t.value) {
+        state.sd = t.value;
+        render();
+      } else if (a === 'fday' && t.value) {
+        state.fd = t.value;
+        render();
+      } else if (a === 'fspec') {
+        state.fs = +t.value;
+        render();
+      }
+    });
+    $('#q').addEventListener('input', e => {
+      state.q = e.target.value;
+      if (state.view !== 'pts') {
+        state.view = 'pts';
+        render();
+      } else {
+        main();
+      }
+    });
+    // Visit request form: live formatting and inline validation
+    const capitalizeWords = text => text.replace(/(^|[\s'-])([a-z])/g, (m, lead, ch) => lead + ch.toUpperCase());
+    const normalizePhone = raw => {
+      let d = raw.replace(/\D/g, '');
+      if (d.startsWith('63') && d.length > 10) {
+        d = d.slice(2);
+      }
+      return d.replace(/^0+/, '').slice(0, 10);
+    };
+    const maskDate = raw => {
+      const d = raw.replace(/\D/g, '').slice(0, 8);
+      return d.slice(0, 2) + (d.length > 2 ? '/' + d.slice(2, 4) : '') + (d.length > 4 ? '/' + d.slice(4) : '');
+    };
+    const setKeepingCaret = (input, value) => {
+      if (input.value === value) {
+        return;
+      }
+      const caret = input.selectionStart - (input.value.length - value.length);
+      input.value = value;
+      input.setSelectionRange(caret, caret);
+    };
+    const VISIT_RULES = {
+      fn: v => (v.trim() ? '' : 'Please enter your first name.'),
+      ln: v => (v.trim() ? '' : 'Please enter your last name.'),
+      ph: v => {
+        if (!v) {
+          return 'Please enter your mobile number.';
+        }
+        return /^9\d{9}$/.test(v) ? '' : 'Enter a 10-digit mobile number starting with 9, for example 9171234567.';
+      },
+      date_text: v => {
+        if (!v.trim()) {
+          return 'Please enter the preferred date.';
+        }
+        const iso = parseDmy(v);
+        if (!iso) {
+          return 'Enter a real date as dd/mm/yyyy.';
+        }
+        return iso < day(0) ? 'Please choose today or a later date.' : '';
+      },
+      ad: v => (v.trim() ? '' : 'Please enter your address.'),
+      sym: v => (v.trim() ? '' : 'Please describe your symptoms or reason for visit.')
+    };
+    const showFieldError = (field, message) => {
+      const anchor = field.closest('.phonebox, .datebox') || field;
+      let note = anchor.nextElementSibling;
+      const hasNote = note && note.classList.contains('field-msg');
+      if (!message) {
+        field.removeAttribute('aria-invalid');
+        if (hasNote) {
+          note.remove();
+        }
+        return true;
+      }
+      if (!hasNote) {
+        note = document.createElement('div');
+        note.className = 'field-msg';
+        note.setAttribute('role', 'alert');
+        anchor.after(note);
+      }
+      note.textContent = message;
+      field.setAttribute('aria-invalid', 'true');
+      return false;
+    };
+    const validateField = field => showFieldError(field, VISIT_RULES[field.name](field.value));
+    const validateVisitForm = form => {
+      const fields = [...form.elements].filter(el => VISIT_RULES[el.name]);
+      const failed = fields.filter(el => !validateField(el));
+      if (failed.length) {
+        failed[0].focus();
+      }
+      return !failed.length;
+    };
+    // Date picker popup (always dd/mm/yyyy, works inside iframes)
+    const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const closeCalendars = () => document.querySelectorAll('.cal').forEach(cal => cal.remove());
+    const CAL_CHEVRON = d => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+    const renderCalendar = (box, year, month, view = 'days', ys) => {
+      const today = day(0);
+      const ty = +today.slice(0, 4);
+      const tm = +today.slice(5, 7) - 1;
+      if (year < ty || (year === ty && month < tm)) {
+        year = ty;
+        month = tm;
+      }
+      let cal = box.querySelector('.cal');
+      if (!cal) {
+        cal = document.createElement('div');
+        cal.className = 'cal';
+        cal.setAttribute('role', 'dialog');
+        cal.setAttribute('aria-label', 'Choose a date');
+        box.append(cal);
+      }
+      if (ys === undefined) {
+        ys = ty + 12 * Math.floor((year - ty) / 12);
+      }
+      Object.assign(cal.dataset, { year, month, view, ys });
+      const selected = parseDmy(box.querySelector('.datetext').value);
+      const pad = n => String(n).padStart(2, '0');
+      const iso = (y, m, n) => `${y}-${pad(m + 1)}-${pad(n)}`;
+      const down = CAL_CHEVRON('M3 6l5 5 5-5');
+      const up = CAL_CHEVRON('M3 10l5-5 5 5');
+      let title;
+      let body;
+      let prevOff;
+      if (view === 'days') {
+        title = `${MONTH_NAMES[month]}, ${year}`;
+        prevOff = year === ty && month === tm;
+        const lead = (new Date(year, month, 1).getDay() + 6) % 7;
+        const count = new Date(year, month + 1, 0).getDate();
+        const total = Math.ceil((lead + count) / 7) * 7;
+        let cells = '';
+        for (let i = 0; i < total; i++) {
+          const d = new Date(year, month, 1 - lead + i);
+          const key = iso(d.getFullYear(), d.getMonth(), d.getDate());
+          const inMonth = d.getMonth() === month;
+          const cls = `cal-day${inMonth ? '' : ' other'}${key === selected ? ' is-selected' : ''}${key === today ? ' is-today' : ''}`;
+          cells += `<button type="button" class="${cls}" data-a="calpick" data-date="${key}" aria-label="${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}"${key < today ? ' disabled' : ''}>${d.getDate()}</button>`;
+        }
+        body = `<div class="cal-week">${['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(w => `<span>${w}</span>`).join('')}</div><div class="cal-grid">${cells}</div>`;
+      } else if (view === 'months') {
+        title = String(year);
+        prevOff = year <= ty;
+        body = `<div class="cal-grid pick">${MONTH_NAMES.map((m, i) => `<button type="button" class="cal-cell${i === month ? ' is-selected' : ''}${year === ty && i === tm ? ' is-today' : ''}" data-a="calmonthpick" data-m="${i}"${year === ty && i < tm ? ' disabled' : ''}>${m.slice(0, 3)}</button>`).join('')}</div>`;
+      } else {
+        title = `${ys} – ${ys + 11}`;
+        prevOff = ys <= ty;
+        body = `<div class="cal-grid pick">${Array.from({ length: 12 }, (_, i) => ys + i).map(y => `<button type="button" class="cal-cell${y === year ? ' is-selected' : ''}${y === ty ? ' is-today' : ''}" data-a="calyearpick" data-y="${y}"${y < ty ? ' disabled' : ''}>${y}</button>`).join('')}</div>`;
+      }
+      const titleBtn = view === 'years' ? `<span class="cal-title" style="cursor:default">${title}</span>` : `<button type="button" class="cal-title" data-a="${view === 'days' ? 'calview' : 'calyearview'}" aria-label="Choose ${view === 'days' ? 'month and year' : 'year'}">${title}${down}</button>`;
+      cal.innerHTML = `<div class="cal-head">${titleBtn}<div class="cal-arrows"><button type="button" class="cal-nav" data-a="calprev" aria-label="Previous"${prevOff ? ' disabled' : ''}>${up}</button><button type="button" class="cal-nav" data-a="calnext" aria-label="Next">${down}</button></div></div>${body}<div class="cal-foot"><button type="button" data-a="calclear">Clear</button><button type="button" data-a="caltoday">Today</button></div>`;
+    };
+    const shiftCalendar = (button, step) => {
+      const cal = button.closest('.cal');
+      const { view } = cal.dataset;
+      const year = +cal.dataset.year;
+      const month = +cal.dataset.month;
+      const box = cal.parentElement;
+      if (view === 'days') {
+        const target = new Date(year, month + step, 1);
+        renderCalendar(box, target.getFullYear(), target.getMonth());
+      } else if (view === 'months') {
+        renderCalendar(box, year + step, month, 'months');
+      } else {
+        renderCalendar(box, year, month, 'years', +cal.dataset.ys + 12 * step);
+      }
+    };
+    document.addEventListener('click', e => {
+      if (!e.composedPath().some(el => el.classList && el.classList.contains('datebox'))) {
+        closeCalendars();
+      }
+    });
+    document.addEventListener('input', e => {
+      const field = e.target;
+      if (!field.closest('form[data-f=visit], form[data-f=more]') || !VISIT_RULES[field.name]) {
+        return;
+      }
+      if (field.name === 'ph') {
+        setKeepingCaret(field, normalizePhone(field.value));
+      } else if (field.name === 'date_text') {
+        setKeepingCaret(field, maskDate(field.value));
+      } else if (field.name === 'fn' || field.name === 'ln') {
+        setKeepingCaret(field, capitalizeWords(field.value));
+      }
+      field.dataset.touched = '1';
+      if (field.getAttribute('aria-invalid') || !field.value.trim()) {
+        validateField(field);
+      }
+    });
+    document.addEventListener('focusout', e => {
+      const field = e.target;
+      if (field.dataset && field.dataset.touched && VISIT_RULES[field.name] && field.closest('form[data-f=visit], form[data-f=more]')) {
+        validateField(field);
+      }
+    });
+    document.addEventListener('click', e => {
+      const field = e.target;
+      if (field.classList && field.classList.contains('datetext')) {
+        const box = field.closest('.datebox');
+        if (!box.querySelector('.cal')) {
+          const typed = parseDmy(field.value);
+          const base = typed && typed >= day(0) ? typed : day(0);
+          renderCalendar(box, +base.slice(0, 4), +base.slice(5, 7) - 1);
+        }
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        modal('');
+        closeCalendars();
+      }
+    });
+    $('#modal').addEventListener('click', e => {
+      if (e.target.id === 'modal') {
+        modal('');
+      }
+    });
+
+    // ===== Form submission =====
+    const trimmedValues = f => Object.fromEntries([...new FormData(f)].map(([k, x]) => [k, String(x).trim()]));
+    const emailTaken = (email, exceptId) => DB.dr.some(d => d.id !== exceptId && d.em.toLowerCase() === email.toLowerCase());
+    const sameText = (a, b) => a.toLowerCase() === b.toLowerCase();
+    // Same patient + same date + same reason (ignoring case, spacing and end punctuation) counts as a duplicate
+    const normReason = t => String(t || '').toLowerCase().replace(/\s+/g, ' ').replace(/[.!?,;\s]+$/, '').trim();
+    const findDuplicate = (ptId, date, sym) => DB.ap.find(a => a.pt === ptId && a.date === date && a.st !== 'Cancelled' && normReason(a.sym) === normReason(sym));
+    const blockDuplicate = (f, dup) => {
+      const field = f.querySelector('[name=sym]');
+      showFieldError(field, `You already sent this request for ${formatDate(dup.date)} (${dup.st.toLowerCase()}). Check “My appointment”, or change the date or reason.`);
+      field.focus();
+    };
+    const submitHandlers = {
+      visit(f, v) {
+        const digits = x => String(x || '').replace(/\D/g, '');
+        v.fn = capitalizeWords(v.fn);
+        v.ln = capitalizeWords(v.ln);
+        const local = normalizePhone(v.ph);
+        v.ph = `+63 ${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6)}`;
+        v.date = parseDmy(v.date_text);
+        let p = DB.pt.find(x => sameText(x.fn, v.fn) && sameText(x.ln, v.ln) && digits(x.ph).slice(-10) === local);
+        const dupVisit = p && findDuplicate(p.id, v.date, v.sym);
+        if (dupVisit) {
+          return blockDuplicate(f, dupVisit);
+        }
+        if (p) {
+          if (v.ad) {
+            p.ad = v.ad;
+          }
+        } else {
+          p = { id: nextPatientId(), fn: v.fn, ln: v.ln, ph: v.ph, ad: v.ad };
+          DB.pt.push(p);
+        }
+        const a = { id: ++nid, pt: p.id, dr: null, date: v.date, slot: null, st: 'Pending', sym: v.sym };
+        DB.ap.push(a);
+        state.me = p.id;
+        state.done = { p: p.id, a: a.id };
+        state.view = 'mine';
+        logEvent(`${patientName(p.id)} submitted a request`);
+        render();
+        scrollTo(0, 0);
+        toast('Request sent');
+      },
+      more(f, v) {
+        const p = patientById(state.me);
+        if (!p) {
+          return;
+        }
+        const moreDate = parseDmy(v.date_text);
+        const dupMore = findDuplicate(p.id, moreDate, v.sym);
+        if (dupMore) {
+          return blockDuplicate(f, dupMore);
+        }
+        const a = { id: ++nid, pt: p.id, dr: null, date: moreDate, slot: null, st: 'Pending', sym: v.sym };
+        DB.ap.push(a);
+        state.done = { p: p.id, a: a.id };
+        state.more = false;
+        logEvent(`${patientName(p.id)} requested another visit`);
+        render();
+        scrollTo(0, 0);
+        toast('Request sent');
+      },
+      editpt(f, v) {
+        Object.assign(patientById(f.dataset.id), { fn: v.fn, ln: v.ln, ph: v.ph, ad: v.ad });
+        logEvent(`Patient ${mrn(+f.dataset.id)} updated`);
+        modal('');
+        render();
+        toast('Patient updated');
+      },
+      editdr(f, v, err) {
+        const d = doctorById(f.dataset.id);
+        if (emailTaken(v.em, d.id)) {
+          err.textContent = 'That email already belongs to another doctor.';
+          return;
+        }
+        Object.assign(d, { fn: v.fn, ln: v.ln, em: v.em, sp: +v.sp });
+        logEvent(`${doctorName(d.id)} updated`);
+        modal('');
+        render();
+        toast('Doctor updated');
+      },
+      doc(f, v, err) {
+        if (emailTaken(v.em)) {
+          err.textContent = 'That email already belongs to another doctor.';
+          return;
+        }
+        DB.dr.push({ id: ++nid, sp: +v.sp, fn: v.fn, ln: v.ln, em: v.em, on: 1 });
+        logEvent(`Dr. ${v.fn} ${v.ln} added to ${specialtyById(+v.sp).name}`);
+        render();
+        toast('Doctor added');
+      },
+      spec(f, v, err) {
+        if (DB.sp.some(s => sameText(s.name, v.name))) {
+          err.textContent = 'That specialty already exists.';
+          return;
+        }
+        DB.sp.push({ id: ++nid, name: v.name });
+        logEvent(`Specialty ${v.name} added`);
+        render();
+        toast('Specialty added');
+      },
+      assign(f, v, err) {
+        let a = +f.dataset.id ? appointmentById(f.dataset.id) : null;
+        if (!v.slot || taken(v.dr, v.date, v.slot, a ? a.id : 0)) {
+          err.textContent = 'That doctor already has an appointment in this slot. Choose another time.';
+          return;
+        }
+        if (!a) {
+          a = { id: ++nid, pt: +v.pt, sym: v.sym };
+          DB.ap.push(a);
+        }
+        Object.assign(a, { dr: +v.dr, date: v.date, slot: v.slot, st: 'Scheduled' });
+        logEvent(`${patientName(a.pt)} scheduled with ${doctorName(a.dr)}`);
+        modal('');
+        render();
+        toast('Appointment scheduled');
+      },
+      note(f, v) {
+        const id = +f.dataset.id;
+        const a = appointmentById(id);
+        DB.nt.push({ id: ++nid, ap: id, dx: v.dx, ob: v.ob });
+        f.querySelectorAll('.mrow').forEach(row => {
+          const [med, dose, ins] = [...row.querySelectorAll('input')].map(i => i.value.trim());
+          if (med) {
+            DB.rx.push({ id: ++nid, ap: id, med, dose, ins });
+          }
+        });
+        a.st = 'Completed';
+        logEvent(`${doctorName(a.dr)} completed a visit with ${patientName(a.pt)}`);
+        state.view = 'queue';
+        render();
+        toast('Visit completed and saved');
+      }
+    };
+    const runForm = f => {
+      const handler = submitHandlers[f.dataset.f];
+      if (!handler) {
+        return;
+      }
+      if (f.dataset.f === 'visit' || f.dataset.f === 'more') {
+        if (!validateVisitForm(f)) {
+          return;
+        }
+      } else if (!f.noValidate && !f.reportValidity()) {
+        return;
+      }
+      handler(f, trimmedValues(f), f.querySelector('.err'));
+    };
+    // Submit buttons are handled on click (this also covers pressing Enter in a field).
+    // Sandboxed previews can block the browser's own form submit, so we don't rely on it.
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (btn && btn.type === 'submit' && btn.form && btn.form.dataset.f) {
+        e.preventDefault();
+        runForm(btn.form);
+      }
+    });
+    document.addEventListener('submit', e => {
+      e.preventDefault();
+      runForm(e.target);
+    });
+
+    // ===== Clock & startup =====
+    const tick = () => $('#clock').textContent = new Date().toLocaleString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    load();
+    Object.assign(state, START);
+    if (MODE === 'client') {
+      // 1) A new account arriving from the login page: create the patient, assign the next ID, sign them in
+      let su = null;
+      try {
+        su = JSON.parse(localStorage.getItem(SIGNUP_KEY));
+        localStorage.removeItem(SIGNUP_KEY);
+      } catch (e) { }
+      if (su && su.fn && su.ln && su.em && su.hash) {
+        const local = String(su.ph || '').replace(/\D/g, '').slice(-10);
+        const dup = DB.pt.find(x => sameText(x.fn, su.fn) && sameText(x.ln, su.ln) && String(x.ph || '').replace(/\D/g, '').slice(-10) === local);
+        if (!dup) {
+          const np = { id: nextPatientId(), fn: capitalizeWords(su.fn), ln: capitalizeWords(su.ln), ph: `+63 ${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6)}`, ad: su.ad };
+          DB.pt.push(np);
+          try {
+            const all = JSON.parse(localStorage.getItem(CREDS_KEY)) || {};
+            all[np.id] = { em: su.em, salt: su.salt, hash: su.hash };
+            localStorage.setItem(CREDS_KEY, JSON.stringify(all));
+            localStorage.setItem(SESSION_KEY, String(np.id));
+          } catch (e) { }
+          logEvent(`${patientName(np.id)} created an account`);
+          save();
+          state.welcome = np.id;
+        }
+      }
+      // 2) Signed in? Open their appointments. Not signed in? Send them to the login page.
+      let sid = null;
+      try { sid = localStorage.getItem(SESSION_KEY); } catch (e) { }
+      const sp = sid && patientById(sid);
+      if (sp) {
+        Object.assign(state, { me: sp.id, auth: true, view: 'mine' });
+      } else {
+        try { localStorage.removeItem(SESSION_KEY); } catch (e) { }
+        location.replace(LOGIN_URL);
+      }
+    }
+    document.body.classList.toggle('portal', MODE === 'client');
+    tick();
+    setInterval(tick, 3e4);
+    render();
+    if (state.welcome && patientById(state.welcome)) {
+      toast(`Account created. Welcome, ${patientById(state.welcome).fn}!`);
+      state.welcome = 0;
+    }
+    window.addEventListener('storage', e => {
+      if (e.key === SESSION_KEY && !e.newValue && state.auth) {
+        location.href = LOGIN_URL; // signed out in another tab
+        return;
+      }
+      if (e.key !== STORAGE_KEY) {
+        return;
+      }
+      const f = document.activeElement;
+      if ($('#modal').classList.contains('on') || (f && /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName))) {
+        return;
+      }
+      const before = state.auth ? myBilledIds() : [];
+      const paidBefore = state.auth ? DB.ap.filter(x => x.pt === state.me && (billOf(x.id) || {}).paid).length : 0;
+      load();
+      chrome();
+      main();
+      if (state.auth) {
+        if (myBilledIds().some(id => !before.includes(id))) {
+          toast('Your bill is ready. See My appointment.');
+        } else if (DB.ap.filter(x => x.pt === state.me && (billOf(x.id) || {}).paid).length > paidBefore) {
+          toast('Payment received. Thank you!');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
