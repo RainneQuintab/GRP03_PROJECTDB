@@ -1,28 +1,38 @@
-# HealthBridge Clinic Management System (`grp03_projectdb`)
+# HealthBridge Clinic Management System
 
-A fully implemented 3-tier clinic management system built to handle patient intake, appointment scheduling, and clinical consultation workflows using **Flask (Python)**, **PostgreSQL 17**, and interactive **HTML/CSS/JS** web interfaces.
+**Course:** COMP 018 - Database Administration  
+**Group:** Group 03  
+**Members:** 
+- Lazarte, Andrei Miguel
+- Opiña, Kisha Mae
+- Quintab, Rainne T.[cite: 4, 28]  
+
+**Tech Stack:** HTML5, CSS3, JavaScript, PHP (PDO), PostgreSQL 17[cite: 6, 23, 24, 25]
 
 ---
 
 ## 🏗️ Project Architecture & Tech Stack
 
-* **Backend:** Python Flask API (`app.py`) managing routing, business logic, and API endpoints.
-* **Database:** PostgreSQL 17 (`grp03_projectdb`) running a 6-table normalized schema (`specialties`, `doctors`, `patients`, `appointments`, `medical_notes`, `prescriptions`).
-* **Frontend:** Responsive web administration and portal interfaces (`HealthBridge-Staff.html`, `HealthBridge-Admin.html`, `HealthBridge-Patient-Portal.html`).
+- **Backend:** PHP (PDO) managing API routing, database connections, and operational logic.
+- **Database:** PostgreSQL 17 (`grp03_projectdb`) running a 6-table normalized schema (`specialties`, `doctors`, `patients`, `appointments`, `medical_notes`, `prescriptions`)[cite: 24, 25].
+- **Frontend:** Responsive web interface templates (`HealthBridge-Admin.html`, `HealthBridge-Login.html`, `HealthBridge-Patient.html`, `HealthBridge-Staff.html`).
 
 ---
 
 ## 📁 Repository Structure
 
 ```text
-grp03_projectdb/
-├── app.py                      # Flask backend application controller
-├── requirements.txt            # Python environment dependencies
-├── README.md                   # Project documentation
+GRP03_PROJECTDB/
+├── backend/
+│   ├── db.php                  # PostgreSQL PDO connection script
+│   └── api/                    # API endpoints (login, appointments, queues)
 ├── database/
-│   ├── schema.sql              # PostgreSQL DDL table definitions & constraints
-│   └── seed.sql                # Initial lookup values & sample records
-└── frontend/                   # UI interface components & client templates
-    ├── HealthBridge-Staff.html
-    ├── HealthBridge-Admin.html
-    └── HealthBridge-Patient-Portal.html
+│   ├── schema.sql              # PostgreSQL DDL schema & constraints
+│   └── seeds.sql               # Initial sample test data
+├── frontend/                   # UI interfaces & client templates
+│   ├── HealthBridge-Admin.html
+│   ├── HealthBridge-Login.html
+│   ├── HealthBridge-Patient.html
+│   └── HealthBridge-Staff.html
+├── .env.example                # Configuration environment template
+└── README.md                   # Project documentation & setup manual
