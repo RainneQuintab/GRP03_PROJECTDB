@@ -974,7 +974,15 @@
     .cal-foot button:hover { background: var(--hov); }
     .datetext { cursor: pointer; }
     .field-msg { margin-top: 4px; color: var(--bad); font-size: 12px; }
-  </style>
+    .rxl { margin: 6px 0 0; padding-left: 18px; }
+  .rxl li { margin: 5px 0; }
+  @media print {
+    body * { visibility: hidden !important; }
+    .rcpt, .rcpt * { visibility: visible !important; color: #000 !important; }
+    .rcpt { position: fixed; left: 0; top: 0; width: 100%; padding: 24px; background: #fff !important; }
+    .noprint { display: none !important; }
+  }
+</style>
 </head>
 <body>
   <!-- Shared logo artwork, referenced twice below -->
@@ -1140,6 +1148,9 @@
     const patientCell = id => `<div class="n">${escapeHtml(patientName(id))}</div><div class="id">${mrn(id)}</div>`;
     const taken = (dr, date, slot, skip) => DB.ap.some(a => a.dr === +dr && a.date === date && a.slot === slot && a.st !== 'Cancelled' && a.id !== skip);
     const pill = s => `<span class="pill ${s}">${s}</span>`;
+    const money = v => v == null || v === '' ? '—' : Number(v).toLocaleString('en-PH', { style: 'currency', currency: 'PHP' });
+    const billOf = apId => { const n = DB.nt.find(y => y.ap === apId); return n && n.fee != null ? n : null; };
+    const myBilledIds = () => DB.ap.filter(x => x.pt === state.me && billOf(x.id)).map(x => x.id);
     const logEvent = m => state.log.unshift({ t: new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', hour12: false }), m });
     const byDateSlot = (a, b) => (a.date + a.slot).localeCompare(b.date + b.slot);
     const activeDr = () => DB.dr.filter(d => d.on);
@@ -1156,6 +1167,17 @@
       const m = $('#modal');
       m.innerHTML = h ? `<div class="dlg">${h}</div>` : '';
       m.classList.toggle('on', !!h);
+    }
+    const rno = id => 'RCPT-' + String(id).padStart(5, '0');
+    const rxHtml = r => r.length ? `<ul class="rxl">${r.map(x => `<li><b>${escapeHtml(x.med)}</b>${x.dose ? ' · ' + escapeHtml(x.dose) : ''}${x.ins ? `<div class="meta">${escapeHtml(x.ins)}</div>` : ''}</li>`).join('')}</ul>` : '<div class="meta">No medication prescribed.</div>';
+    function rcptModal(id) {
+      const a = appointmentById(id);
+      const n = a && billOf(a.id);
+      if (!a || !n || !n.paid || a.pt !== state.me) return;
+      const r = DB.rx.filter(x => x.ap === a.id);
+      const d = a.dr ? doctorById(a.dr) : null;
+      const sp = d ? specialtyById(d.sp) : null;
+      modal(`<div class="rcpt"><div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div style="display:flex;align-items:center;gap:12px"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" style="flex:none;-webkit-print-color-adjust:exact;print-color-adjust:exact"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B8CFF"/><stop offset="1" stop-color="#0B5CAD"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lg)"/><path d="M8 27a12 12 0 0 1 24 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M6 28.5h28" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M20 15v9M15.5 19.5h9" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg><div><h3 style="margin:0">HealthBridge</h3><div class="meta">Visit receipt</div></div></div><div style="text-align:right"><b>${rno(a.id)}</b><div class="meta">${formatDate(a.date)}</div></div></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="grid"><div><div class="meta">Patient</div><b>${escapeHtml(patientName(a.pt))}</b><div class="meta">${mrn(a.pt)}</div></div><div><div class="meta">Doctor</div><b>${a.dr ? escapeHtml(doctorName(a.dr)) : '—'}</b><div class="meta">${sp ? escapeHtml(sp.name) : ''}</div></div><div><div class="meta">Appointment</div>${formatDate(a.date)}<div class="meta">${a.slot || ''}</div></div><div><div class="meta">Diagnosis</div>${escapeHtml(n.dx || '—')}</div></div><div class="meta" style="margin-top:14px">Prescription</div>${rxHtml(r)}<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><div style="display:flex;justify-content:space-between;font-size:18px"><b>Consultation fee</b><b>${money(n.fee)}</b></div><div class="meta" style="display:flex;justify-content:space-between;margin-top:6px"><span>Payment status</span><b>Paid</b></div><div class="acts noprint" style="margin-top:18px"><button class="btn p" data-a="prt">Print receipt</button><button class="btn" data-a="close">Close</button></div></div>`);
     }
     const head = (t, s, x = '') => `<div class="head"><div><h1>${t}</h1><p class="sub">${s}</p></div>${x}</div>`;
     const empty = t => `<div class="empty">${t}</div>`;
@@ -1269,8 +1291,16 @@
         const moreForm = p && state.more ? `<form class="panel pad grid" data-f="more" novalidate style="margin-bottom:16px"><div class="full"><b>Book a visit</b> <span class="meta">for ${escapeHtml(patientName(p.id))} (${mrn(p.id)}).</span></div><div><label for="nv1">Preferred date</label><div class="datebox"><input id="nv1" class="datetext" name="date_text" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" autocomplete="off" required><button type="button" class="datebtn" data-a="pickdate" aria-label="Pick a date"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button></div></div><div class="full"><label for="nv2">Symptoms or reason for visit</label><textarea id="nv2" name="sym" required placeholder="Example: follow-up check, fever and cough for three days"></textarea></div><div class="full acts"><button class="btn p">Send request</button><button type="button" class="btn" data-a="cancelnew">Cancel</button></div></form>` : '';
         const sent = state.done && patientById(state.done.p);
         const banner = sent ? `<div class="panel pad okbox" role="status" style="margin-bottom:16px"><b>Request sent. Clinic staff will review it and assign your doctor.</b>${state.auth ? '' : `<div class="meta" style="margin-top:6px">Your patient ID</div><div class="big">${mrn(sent.id)}</div><div>Keep this ID. Create a password to sign in and check your appointment later.</div>`}</div>` : '';
-        return head('My appointment', state.auth ? 'Your visits and their status.' : 'Sign in to see all your appointments.') + banner + (state.auth ? '' : signInBox(p)) +
-          (p ? `<div class="sec"><div class="acts" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">${escapeHtml(patientName(p.id))} <span class="id">${mrn(p.id)}</span></h2>${(state.more || !state.auth) ? '' : '<button class="btn p" data-a="newvisit">Book a visit</button>'}</div>${moreForm}${l.length ? l.map(a => `<div class="panel rec"><div class="rh"><span><b>${formatDate(a.date)}</b> <span class="meta">${a.slot || 'Time to be confirmed'}</span></span>${pill(a.st)}</div><div class="pad"><div class="meta">Doctor</div><b>${a.dr ? escapeHtml(doctorName(a.dr)) : 'To be assigned by the clinic'}</b>${a.dr ? ` <span class="meta">${escapeHtml(specialtyById(doctorById(a.dr).sp).name)}</span>` : ''}<div class="meta" style="margin-top:10px">Reason for visit</div>${escapeHtml(a.sym)}${a.st === 'Pending' ? '<div class="meta" style="margin-top:10px">Clinic staff are reviewing your request.</div>' : ''}${a.st === 'Cancelled' ? '<div class="meta" style="margin-top:10px">This appointment was cancelled. You can send a new request.</div>' : ''}</div></div>`).join('') : `<div class="panel">${empty('No appointments yet. Choose “Book a visit” to send your first request.')}</div>`}</div>` : '');
+        const unpaid = state.auth ? l.filter(x => { const n = billOf(x.id); return n && !n.paid; }) : [];
+        const billBanner = unpaid.length ? `<div class="panel pad okbox" role="status" style="margin-bottom:16px"><b>${unpaid.length > 1 ? 'You have ' + unpaid.length + ' unpaid bills' : 'Your bill is ready'}</b><div>Total due: <b>${money(unpaid.reduce((t, x) => t + Number(billOf(x.id).fee), 0))}</b>. Please settle it with clinic staff.</div></div>` : '';
+        const billBlock = a => {
+          if (a.st !== 'Completed') return '';
+          const n = billOf(a.id);
+          if (!n) return '<div class="meta" style="margin-top:10px">Your bill is being prepared by clinic staff.</div>';
+          return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><div class="meta">Bill</div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>${money(n.fee)}</b>${n.paid ? '<span class="pill Completed">Paid</span>' : '<span class="pill Scheduled">Unpaid</span>'}${n.paid ? `<button class="btn" data-a="rcpt" data-id="${a.id}" style="margin-left:auto">View receipt</button>` : ''}</div></div>`;
+        };
+        return head('My appointment', state.auth ? 'Your visits and their status.' : 'Sign in to see all your appointments.') + banner + billBanner + (state.auth ? '' : signInBox(p)) +
+          (p ? `<div class="sec"><div class="acts" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">${escapeHtml(patientName(p.id))} <span class="id">${mrn(p.id)}</span></h2>${(state.more || !state.auth) ? '' : '<button class="btn p" data-a="newvisit">Book a visit</button>'}</div>${moreForm}${l.length ? l.map(a => `<div class="panel rec"><div class="rh"><span><b>${formatDate(a.date)}</b> <span class="meta">${a.slot || 'Time to be confirmed'}</span></span>${pill(a.st)}</div><div class="pad"><div class="meta">Doctor</div><b>${a.dr ? escapeHtml(doctorName(a.dr)) : 'To be assigned by the clinic'}</b>${a.dr ? ` <span class="meta">${escapeHtml(specialtyById(doctorById(a.dr).sp).name)}</span>` : ''}<div class="meta" style="margin-top:10px">Reason for visit</div>${escapeHtml(a.sym)}${a.st === 'Pending' ? '<div class="meta" style="margin-top:10px">Clinic staff are reviewing your request.</div>' : ''}${a.st === 'Cancelled' ? '<div class="meta" style="margin-top:10px">This appointment was cancelled. You can send a new request.</div>' : ''}${billBlock(a)}</div></div>`).join('') : `<div class="panel">${empty('No appointments yet. Choose “Book a visit” to send your first request.')}</div>`}</div>` : '');
       }
     };
 
@@ -1403,6 +1433,8 @@
         text.focus();
       },
       close: () => modal(''),
+      rcpt: d => rcptModal(+d.id),
+      prt: () => window.print(),
       walkin: () => DB.pt.length ? assignModal(0) : toast('No patients yet. They appear here once someone sends a request.'),
       assign: d => assignModal(d.id),
       again: () => {
@@ -1928,9 +1960,18 @@
       if ($('#modal').classList.contains('on') || (f && /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName))) {
         return;
       }
+      const before = state.auth ? myBilledIds() : [];
+      const paidBefore = state.auth ? DB.ap.filter(x => x.pt === state.me && (billOf(x.id) || {}).paid).length : 0;
       load();
       chrome();
       main();
+      if (state.auth) {
+        if (myBilledIds().some(id => !before.includes(id))) {
+          toast('Your bill is ready. See My appointment.');
+        } else if (DB.ap.filter(x => x.pt === state.me && (billOf(x.id) || {}).paid).length > paidBefore) {
+          toast('Payment received. Thank you!');
+        }
+      }
     });
   </script>
 </body>
