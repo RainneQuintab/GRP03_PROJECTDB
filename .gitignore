@@ -1,0 +1,12 @@
+# secrets / local config
+backend/config.php
+.env
+
+# PHP dependencies (run "composer require phpmailer/phpmailer" inside backend/)
+backend/vendor/
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

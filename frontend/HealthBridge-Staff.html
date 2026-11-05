@@ -1,138 +1,170 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-mode="staff">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HealthBridge Staff</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231470D9%22/%3E%3Cpath%20d%3D%22M5%2023c3-9%207-12%2011-12s8%203%2011%2012M4%2023h24%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v7M12.5%2017.5h7%22%20fill%3D%22none%22%20stroke%3D%22%239BE3FF%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231470D9%22/%3E%3Cpath%20d%3D%22M5%2023c3-9%207-12%2011-12s8%203%2011%2012M4%2023h24%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v7M12.5%2017.5h7   php -v%22%20fill%3D%22none%22%20stroke%3D%22%239BE3FF%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F3F5F8;--card:#fff;--ink:#17212B;--mute:#5F6C7B;--line:#DCE2E9;--pri:#0B5CAD;--prih:#094A8C;--on:#fff;--side:#0E2A47;--ok:#17803D;--okbg:#E2F4E8;--warn:#9A5B00;--warnbg:#FFF1D6;--bad:#B42318;--badbg:#FDE7E5;--info:#0B5CAD;--infobg:#E1EEFB;--hov:#F0F4F8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B141D;--card:#121E2A;--ink:#E5ECF3;--mute:#8CA0B3;--line:#243445;--pri:#4F9BE8;--prih:#78B3F0;--on:#06121D;--side:#08121B;--ok:#6BD08F;--okbg:#10301D;--warn:#F2C46D;--warnbg:#38290B;--bad:#F59D94;--badbg:#3C1814;--info:#7FB6F4;--infobg:#12304F;--hov:#172636}}
-:root[data-theme="dark"]{--bg:#0B141D;--card:#121E2A;--ink:#E5ECF3;--mute:#8CA0B3;--line:#243445;--pri:#4F9BE8;--prih:#78B3F0;--on:#06121D;--side:#08121B;--ok:#6BD08F;--okbg:#10301D;--warn:#F2C46D;--warnbg:#38290B;--bad:#F59D94;--badbg:#3C1814;--info:#7FB6F4;--infobg:#12304F;--hov:#172636}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+/* HealthBridge Design System v2 — shared by Admin, Staff and Patient Portal.
+   Identity per product is set only by the accent tokens (--a*) below. */
+html[data-mode=admin]{--a:#1470D9;--ah:#0F5CB8;--as:#E6F1FD;--ad:#4F9DF0;--adh:#7DB8F6;--ads:#12294A}
+html[data-mode=staff]{--a:#1470D9;--ah:#0F5CB8;--as:#E6F1FD;--ad:#4F9DF0;--adh:#7DB8F6;--ads:#12294A}
+:root{
+ --bg:#F6F7F9;--card:#fff;--ink:#0F1720;--mute:#5B6676;--line:#E3E7EC;--line2:#EEF1F4;--hov:#F3F5F8;
+ --pri:var(--a);--prih:var(--ah);--pris:var(--as);--on:#fff;--glass:#F6F7F9cc;
+ --ok:#157A3E;--okbg:#E6F5EC;--warn:#935300;--warnbg:#FFF3DC;--bad:#B3261E;--badbg:#FCE9E7;--info:var(--pri);--infobg:var(--pris);
+ --sh1:0 1px 2px #0f172a0d;--sh2:0 1px 2px #0f172a0a,0 8px 24px -8px #0f172a1f;--r:12px;--rs:8px;
+ --ease:cubic-bezier(.2,.7,.2,1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0A0E13;--card:#11171E;--ink:#E8EDF3;--mute:#92A0B1;--line:#222C38;--line2:#1A222C;--hov:#171F28;--pri:var(--ad);--prih:var(--adh);--pris:var(--ads);--on:#0A0E13;--glass:#0A0E13cc;--ok:#6BD08F;--okbg:#10301D;--warn:#F2C46D;--warnbg:#38290B;--bad:#F59D94;--badbg:#3C1814;--sh2:0 8px 28px -8px #000a}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0A0E13;--card:#11171E;--ink:#E8EDF3;--mute:#92A0B1;--line:#222C38;--line2:#1A222C;--hov:#171F28;--pri:var(--ad);--prih:var(--adh);--pris:var(--ads);--on:#0A0E13;--glass:#0A0E13cc;--ok:#6BD08F;--okbg:#10301D;--warn:#F2C46D;--warnbg:#38290B;--bad:#F59D94;--badbg:#3C1814;--sh2:0 8px 28px -8px #000a}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
-h1,h2,h3{margin:0;letter-spacing:-.015em}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-feature-settings:"cv11","ss01"}
+h1,h2,h3{margin:0;letter-spacing:-.02em}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--pri);outline-offset:1px}
-.app{display:grid;grid-template-columns:232px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
-aside{grid-row:1/3;background:var(--side);color:#C9D6E4;padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
-.logo{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:17px;padding:2px 8px 18px}
-.logo svg{width:34px;height:34px;fill:none;stroke:none;stroke-width:0}.logo i{width:30px;height:30px;border-radius:7px;background:#fff;display:grid;place-items:center}
-aside button{display:flex;align-items:center;gap:11px;border:0;background:none;color:inherit;padding:9px 10px;border-radius:6px;cursor:pointer;font-weight:500;text-align:left;white-space:nowrap}
-aside button:hover{background:#ffffff14}
-aside button[aria-current=page]{background:#ffffff24;color:#fff;box-shadow:inset 3px 0 0 #6DB4FF}
-aside svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.sf{margin-top:auto;font-size:12px;color:#8DA2B8;padding:8px}
-.bar{background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 28px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
-.srch{flex:1;min-width:180px;max-width:380px}
-.clock{margin-left:auto;color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums}
-.roles{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
-.roles button{border:0;background:var(--card);padding:6px 13px;cursor:pointer;font-weight:500;color:var(--mute);border-left:1px solid var(--line)}
-.roles button:first-child{border:0}
-.roles button[aria-pressed=true]{background:var(--pri);color:var(--on)}
-main{padding:26px 28px 70px;max-width:1180px;width:100%}
-.head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px}
-h1{font-size:24px;font-weight:700}
-.sub{color:var(--mute);margin:3px 0 0}
-h2{font-size:15px;font-weight:600;margin:0 0 10px}
-.sec{margin-top:26px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:8px}
-.pad{padding:16px}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.kpi{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--pri);border-radius:8px;padding:12px 16px}
-.kpi b{display:block;font-size:26px;line-height:1.2;font-variant-numeric:tabular-nums}
-.kpi span{color:var(--mute);font-size:13px}
-.kpi.w{border-left-color:#D98A00}.kpi.g{border-left-color:var(--ok)}
-.two{display:grid;grid-template-columns:3fr 2fr;gap:16px;align-items:start}
-.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+:focus-visible{outline:2px solid var(--pri);outline-offset:2px;border-radius:6px}
+::selection{background:var(--pris)}
+
+/* Shell */
+.app{display:grid;grid-template-columns:244px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+aside{grid-row:1/3;background:var(--card);border-right:1px solid var(--line);padding:16px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:650;font-size:16px;letter-spacing:-.02em;padding:4px 8px 20px}
+.logo svg{width:30px;height:30px;border-radius:8px;box-shadow:0 2px 8px -2px var(--pri)}
+aside nav button,aside>button{display:flex;align-items:center;gap:11px;border:0;background:none;color:var(--mute);padding:9px 11px;border-radius:var(--rs);cursor:pointer;font-weight:500;text-align:left;white-space:nowrap;transition:background .15s,color .15s}
+aside button:hover{background:var(--hov);color:var(--ink)}
+aside button[aria-current=page]{background:var(--pris);color:var(--pri);font-weight:600}
+aside svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+aside .logo svg{stroke:none}
+.sf{margin-top:auto;font-size:11.5px;color:var(--mute);padding:12px;border:1px solid var(--line);border-radius:var(--rs);background:var(--bg);line-height:1.45}
+.sf:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:7px;box-shadow:0 0 0 3px var(--okbg)}
+.bar{background:var(--glass);backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 32px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+.srch{flex:1;min-width:180px;max-width:400px;padding-left:34px!important;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238a96a6' stroke-width='2' stroke-linecap='round' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-4-4'/%3E%3C/svg%3E") 11px 50% no-repeat}
+.clock{margin-left:auto;color:var(--mute);font-size:12.5px;font-variant-numeric:tabular-nums}
+.roles{display:flex;background:var(--hov);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.roles button{border:0;background:none;padding:5px 12px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--mute);transition:all .15s}
+.roles button:hover{color:var(--ink)}
+.roles button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:var(--sh1),0 0 0 1px var(--line)}
+#theme{width:34px;height:34px;padding:0;display:grid;place-items:center;border-radius:50%}
+#theme svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+main{padding:32px 32px 80px;max-width:1220px;width:100%;animation:up .35s var(--ease)}
+main>*{animation:up .4s var(--ease) both}main>*:nth-child(2){animation-delay:.04s}main>*:nth-child(3){animation-delay:.08s}main>*:nth-child(n+4){animation-delay:.12s}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Type + layout */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+h1{font-size:26px;font-weight:650;line-height:1.2}
+.sub{color:var(--mute);margin:4px 0 0;font-size:14px}
+h2{font-size:13px;font-weight:600;margin:0 0 10px;color:var(--ink)}
+.sec{margin-top:30px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh1)}
+.pad{padding:20px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column-reverse;box-shadow:var(--sh1);transition:transform .2s var(--ease),box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.kpi b{font-size:30px;line-height:1.15;font-weight:650;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--mute);font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.kpi span:before{content:"";width:8px;height:8px;border-radius:3px;background:var(--pri)}
+.kpi.w span:before{background:#E09100}.kpi.g span:before{background:var(--ok)}
+.two{display:grid;grid-template-columns:3fr 2fr;gap:20px;align-items:start}
+
+/* Tables */
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh1)}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:12px;font-weight:600;color:var(--mute);padding:9px 14px;background:var(--bg);border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:10px 14px;border-top:1px solid var(--line);vertical-align:middle}
+th{text-align:left;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);padding:11px 16px;background:var(--bg);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:13px 16px;border-top:1px solid var(--line2);vertical-align:middle}
 tr:first-child td{border-top:0}
-tbody tr:hover td{background:var(--hov)}
-.n{font-weight:600}
-.id{color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
-.meta{color:var(--mute);font-size:13px}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:1px 9px;border-radius:4px;font-size:12px;font-weight:600;white-space:nowrap}
+tbody tr{transition:background .12s}tbody tr:hover td{background:var(--hov)}
+.n{font-weight:600}.id{color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}.meta{color:var(--mute);font-size:13px}
+
+/* Status */
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
 .pill:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
 .Pending{background:var(--warnbg);color:var(--warn)}.Scheduled{background:var(--infobg);color:var(--info)}.Completed{background:var(--okbg);color:var(--ok)}.Cancelled{background:var(--badbg);color:var(--bad)}
-.btn{border:1px solid var(--line);background:var(--card);padding:6px 13px;border-radius:6px;cursor:pointer;font-weight:500;white-space:nowrap}
-.btn:hover{background:var(--hov)}
-.btn.p{background:var(--pri);color:var(--on);border-color:var(--pri)}
+
+/* Controls */
+.btn{border:1px solid var(--line);background:var(--card);padding:7px 14px;border-radius:var(--rs);cursor:pointer;font-weight:550;white-space:nowrap;box-shadow:var(--sh1);transition:background .15s,transform .1s,border-color .15s}
+.btn:hover{background:var(--hov);border-color:#c9d0d9}.btn:active{transform:scale(.97)}
+.btn.p{background:var(--pri);color:var(--on);border-color:transparent;box-shadow:0 1px 2px #0003,inset 0 1px 0 #ffffff2a}
 .btn.p:hover{background:var(--prih)}
-.btn.d{color:var(--bad)}
+.btn.d{color:var(--bad)}.btn.d:hover{background:var(--badbg);border-color:transparent}
 .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-label{display:block;font-weight:500;font-size:13px;margin-bottom:4px}
-input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card)}
-.bar input,.bar select{width:auto}
-textarea{min-height:90px;resize:vertical}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid .full{grid-column:1/-1}
-.empty{padding:34px;text-align:center;color:var(--mute)}
-.gridt td,.gridt th{min-width:150px}
-.gridt td:first-child,.gridt th:first-child{min-width:100px;color:var(--mute)}
-.cell{border-radius:5px;padding:5px 8px;font-size:13px;font-weight:500;display:flex;justify-content:space-between;gap:8px;align-items:center}
-.free{color:var(--mute);opacity:.55}
-.sbar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line);margin:4px 0 12px}
-.sbar i{display:block}
-.leg div{display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid var(--line)}
+label{display:block;font-weight:550;font-size:12.5px;margin-bottom:5px}
+input,select,textarea{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:var(--rs);background:var(--card);transition:border-color .15s,box-shadow .15s}
+input:hover,select:hover,textarea:hover{border-color:#c0c8d2}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--pri);box-shadow:0 0 0 3px var(--pris)}
+.bar input,.bar select{width:auto}.bar .srch{width:100%}
+textarea{min-height:96px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid .full{grid-column:1/-1}
+.empty{padding:48px 20px;text-align:center;color:var(--mute)}
+.empty:before{content:"";display:block;width:44px;height:44px;margin:0 auto 12px;border-radius:12px;background:var(--hov) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='none' stroke='%238a96a6' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='M4 13l2-8h12l2 8M4 13v6h16v-6M4 13h5l1 3h4l1-3h5'/%3E%3C/svg%3E") center no-repeat}
+
+/* Schedule grid */
+.gridt{table-layout:fixed}.gridt td,.gridt th{overflow:hidden;text-overflow:ellipsis}.gridt td:first-child,.gridt th:first-child{width:112px;color:var(--mute);font-variant-numeric:tabular-nums;font-weight:500}
+.cell{border-radius:var(--rs);padding:6px 10px;font-size:13px;font-weight:550;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.free{color:var(--mute);opacity:.5;font-size:12.5px}
+.sbar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin:4px 0 14px;gap:2px}.sbar i{display:block;border-radius:2px;transition:width .5s var(--ease)}
+.leg div{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line2)}.leg b{font-variant-numeric:tabular-nums}
 .log{list-style:none;margin:0;padding:0}
-.log li{display:flex;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
-.log li:first-child{border:0}
-.log time{color:var(--mute);width:44px;flex:none}
-.cg{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
-.pb{position:sticky;top:70px}
-.pb h2{font-size:18px;margin:0}
-.pb dl{margin:12px 0 0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
-.pb dt{color:var(--mute)}.pb dd{margin:0}
-.hx{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;font-size:13px}
-.hx div{padding:6px 0}
-.rec{margin-bottom:12px;overflow:hidden}
-.rh{display:flex;justify-content:space-between;gap:10px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:wrap}
-.rx{margin-top:10px;border:1px solid var(--line);border-radius:6px}
-.rx div{padding:8px 12px}.rx div+div{border-top:1px solid var(--line)}
+.log li{display:flex;gap:14px;padding:10px 0;border-top:1px solid var(--line2);font-size:13px}.log li:first-child{border:0;padding-top:0}
+.log time{color:var(--mute);width:44px;flex:none;font-variant-numeric:tabular-nums}
+
+/* Consultation + records */
+.cg{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}.pb{position:sticky;top:76px}
+.pb h2{font-size:19px;margin:0;font-weight:650}
+.pb dl{margin:14px 0 0;display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:13px}.pb dt{color:var(--mute)}.pb dd{margin:0}
+.hx{border-top:1px solid var(--line);margin-top:16px;padding-top:14px;font-size:13px}.hx div{padding:6px 0}
+.rec{margin-bottom:14px;overflow:hidden}
+.rh{display:flex;justify-content:space-between;gap:10px;padding:12px 20px;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.rx{margin-top:10px;border:1px solid var(--line);border-radius:var(--rs)}.rx div{padding:9px 12px}.rx div+div{border-top:1px solid var(--line2)}
 .mrow{display:grid;grid-template-columns:1.4fr 1fr 2fr auto;gap:8px;margin-bottom:8px}
 .err{color:var(--bad);font-size:13px;min-height:18px}
-#modal{position:fixed;inset:0;background:#050d1888;display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
-#modal.on{display:flex}
-.dlg{background:var(--card);border-radius:10px;padding:22px;width:min(520px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 50px #0004}
-.dlg h3{font-size:18px;margin-bottom:12px}
-#toast{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:6px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
-#toast.on{opacity:1}
-.hl{display:none;align-items:center;gap:10px;font-weight:700;font-size:17px;margin-right:14px;color:var(--ink)}
-.hl svg{width:32px;height:32px;fill:none;stroke:none}
+
+/* Overlays */
+#modal{position:fixed;inset:0;background:#050a1299;backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+#modal.on{display:flex;animation:fade .18s}
+.dlg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;width:min(540px,100%);max-height:90vh;overflow:auto;box-shadow:0 30px 80px -20px #000a;animation:pop .25s var(--ease)}
+.dlg h3{font-size:19px;font-weight:650;margin-bottom:14px}
+@keyframes fade{from{opacity:0}}@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}}
+#toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:50%;transform:translate(-50%,12px);background:var(--ink);color:var(--bg);padding:10px 18px 10px 38px;border-radius:999px;font-weight:550;opacity:0;transition:all .25s var(--ease);pointer-events:none;z-index:30;box-shadow:var(--sh2);
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2339d98a' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:14px 50%}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* Patient portal chrome */
+.hl{display:none;align-items:center;gap:10px;font-weight:650;font-size:16px;margin-right:16px;color:var(--ink)}.hl svg{width:30px;height:30px;border-radius:8px}
 #pnav{display:none;gap:4px;flex-wrap:wrap}
-#pnav button{border:0;background:none;padding:7px 13px;border-radius:6px;cursor:pointer;color:var(--mute);font-weight:500;white-space:nowrap}
-#pnav button:hover{background:var(--hov)}
-#pnav button[aria-current=page]{background:var(--infobg);color:var(--pri)}
-.portal .app{grid-template-columns:1fr}
-.portal aside,.portal .roles,.portal .clock{display:none}
-.portal .hl,.portal #pnav{display:flex}
-.portal main{margin:0 auto}
-.avl{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.dc{padding:16px}
-.dc .tp{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-.av{width:42px;height:42px;border-radius:50%;background:var(--infobg);color:var(--pri);display:grid;place-items:center;font-weight:700;flex:none}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:12px;font-variant-numeric:tabular-nums}
-.steps{margin:0;padding:0;list-style:none;counter-reset:s}
-.steps li{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
-.steps li:first-child{border:0}
+#pnav button{border:0;background:none;padding:7px 14px;border-radius:999px;cursor:pointer;color:var(--mute);font-weight:550;white-space:nowrap;transition:all .15s}
+#pnav button:hover{background:var(--hov);color:var(--ink)}#pnav button[aria-current=page]{background:var(--pris);color:var(--pri)}
+.avl{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dc{padding:20px;transition:transform .2s var(--ease),box-shadow .2s}.dc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.dc .tp{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--pris),var(--card));border:1px solid var(--line);color:var(--pri);display:grid;place-items:center;font-weight:650;flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:3px 9px;font-size:12px;font-variant-numeric:tabular-nums}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s}.steps li{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line2)}.steps li:first-child{border:0}
 .steps li:before{counter-increment:s;content:counter(s);width:24px;height:24px;border-radius:50%;background:var(--pri);color:var(--on);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
-.okbox{border-left:4px solid var(--ok);background:var(--okbg)}
-.big{font-size:30px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.okbox{border-color:transparent;background:var(--okbg);box-shadow:inset 0 0 0 1px #17803d33}
+.big{font-size:34px;font-weight:700;letter-spacing:.03em;font-variant-numeric:tabular-nums}
+
+/* Responsive: sidebar becomes a bottom tab bar */
 @media (max-width:700px){.avl{grid-template-columns:1fr}}
-@media (max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}aside{grid-row:auto;position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.sf{display:none}.logo{padding:0 10px 0 4px}.logo span{display:none}.bar{padding:10px 14px;position:static}main{padding:20px 14px 60px}.kpis{grid-template-columns:1fr 1fr}.two,.cg{grid-template-columns:1fr}.pb{position:static}.grid{grid-template-columns:1fr}.mrow{grid-template-columns:1fr 1fr}.clock{display:none}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:900px){
+ .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}
+ aside{grid-row:auto;position:fixed;inset:auto 0 0 0;height:auto;flex-direction:row;justify-content:space-around;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:10;border-right:0;border-top:1px solid var(--line);background:var(--glass);backdrop-filter:blur(14px)}
+ aside nav{display:flex!important;width:100%;justify-content:space-around}aside nav button{flex-direction:column;gap:3px;font-size:11px;padding:6px 8px;white-space:normal;text-align:center}
+ .sf,.logo{display:none}.bar{padding:10px 16px;position:static}main{padding:22px 16px 110px}
+ .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpis[style]{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px}.kpi{padding:12px}.kpi b{font-size:24px}.kpi span{font-size:11.5px}.bar>*{min-width:0}.srch{flex:1 1 100%;max-width:none;min-width:0}.roles{max-width:100%;overflow-x:auto}.two,.cg{grid-template-columns:minmax(0,1fr)}.pb{position:static}.grid{grid-template-columns:1fr}.mrow{grid-template-columns:1fr 1fr}.clock{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*:before{animation:none!important;transition:none!important}}
+
 </style>
+<style id="guardhide">html{visibility:hidden}</style>
 </head>
 <body>
 <div class="app">
-<aside><div class="logo"><svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><rect width="32" height="32" rx="8" fill="#1470D9"/><path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/></svg><span>HealthBridge</span></div><nav id="nav" style="display:contents" aria-label="Main"></nav><div class="sf">grp03_projectdb<br>PostgreSQL 17</div></aside>
-<header class="bar"><div class="hl"><svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><rect width="32" height="32" rx="8" fill="#1470D9"/><path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/></svg>HealthBridge</div><nav id="pnav" aria-label="Main"></nav><input class="srch" id="q" type="search" placeholder="Search patients by name or ID" aria-label="Search patients"><div id="who" class="acts"></div><div class="roles" id="roles" role="group" aria-label="View as"></div><div class="clock" id="clock"></div></header>
+<aside><div class="logo"><svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><rect width="32" height="32" rx="8" fill="#1470D9"/><path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/></svg><span>HealthBridge</span></div><nav id="nav" style="display:contents" aria-label="Main"></nav></aside>
+<header class="bar"><div class="hl"><svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><rect width="32" height="32" rx="8" fill="#1470D9"/><path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/></svg>HealthBridge</div><nav id="pnav" aria-label="Main"></nav><input class="srch" id="q" type="search" placeholder="Search patients by name or ID" aria-label="Search patients"><div id="who" class="acts"></div><div class="roles" id="roles" role="group" aria-label="View as"></div><div class="clock" id="clock"></div><button class="btn" id="theme" type="button"></button></header>
 <main id="main"></main>
 </div>
 <div id="modal" role="dialog" aria-modal="true"></div>
@@ -144,27 +176,118 @@ const day=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
 const T=day(0),dt=d=>new Date(d+'T00:00');
 const fmt=d=>dt(d).toLocaleDateString('en-PH',{weekday:'short',month:'short',day:'numeric'});
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const MODE='staff';
 const seed=()=>({
  sp:[{id:1,name:'General Practice'},{id:2,name:'Pediatrics'},{id:3,name:'Cardiology'},{id:4,name:'Dermatology'}],
  dr:[{id:1,sp:1,fn:'Maria',ln:'Santos',em:'m.santos@healthbridge.ph',on:1},{id:2,sp:2,fn:'Paolo',ln:'Reyes',em:'p.reyes@healthbridge.ph',on:1},{id:3,sp:3,fn:'Ana',ln:'Villanueva',em:'a.villanueva@healthbridge.ph',on:1}],
- pt:[{id:1,fn:'Juan',ln:'dela Cruz',ph:'0917 555 0142',ad:'San Pedro, Laguna'},{id:2,fn:'Liza',ln:'Mendoza',ph:'0928 555 0187',ad:'Biñan, Laguna'},{id:3,fn:'Carlo',ln:'Bautista',ph:'0935 555 0120',ad:'Cabuyao, Laguna'}],
+ pt:[{id:1,fn:'Juan',ln:'dela Cruz',ph:'09175550142',ad:'San Pedro, Laguna'},{id:2,fn:'Liza',ln:'Mendoza',ph:'09285550187',ad:'Biñan, Laguna'},{id:3,fn:'Carlo',ln:'Bautista',ph:'09355550120',ad:'Cabuyao, Laguna'}],
  ap:[{id:1,pt:1,dr:1,date:T,slot:SLOTS[1],st:'Scheduled',sym:'Fever and sore throat for two days'},{id:2,pt:2,dr:1,date:T,slot:SLOTS[3],st:'Scheduled',sym:'Follow-up on blood pressure'},{id:3,pt:3,dr:null,date:day(1),slot:null,st:'Pending',sym:'Persistent dry cough, worse at night'},{id:4,pt:2,dr:null,date:day(2),slot:null,st:'Pending',sym:'Skin rash on both arms'},{id:5,pt:1,dr:1,date:day(-14),slot:SLOTS[0],st:'Completed',sym:'Persistent headache'}],
  nt:[{id:1,ap:5,dx:'Tension-type headache',ob:'BP 118/76. No neurological findings. Advised hydration and sleep.'}],
  rx:[{id:1,ap:5,med:'Paracetamol',dose:'500 mg',ins:'Take every 6 hours as needed, after meals'}]
 });
-const KEY='healthbridge_demo_v1';
+const KEY='healthbridge_demo_v2';
 let DB,nid=100;
-const S={role:'staff',view:'req',did:1,cid:0,sd:T,q:'',me:0,done:null,fd:day(1),fs:0,log:[]};
+const S={role:'staff',view:'req',did:1,cid:0,sd:T,q:'',fd:T,fs:0,sdr:0,log:[]};
 const L0=()=>[{t:'08:05',m:'Dr. Maria Santos added to General Practice'},{t:'08:12',m:'Carlo Bautista submitted a request'}];
-function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.DB){DB=j.DB;nid=j.nid;S.log=j.log;return}}catch(e){}DB=seed();nid=100;S.log=L0()}
+function mig(){if(!Array.isArray(DB.arc))DB.arc=[];DB.pt.forEach(p=>{if(p.reg===undefined)p.reg=DB.ap.some(a=>a.pt==p.id&&(a.st==='Scheduled'||a.st==='Completed'))?1:0})}
+function load(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.DB){DB=j.DB;nid=+j.nid||100;S.log=Array.isArray(j.log)?j.log:[];mig();return}}catch(e){}DB=seed();nid=100;S.log=L0();mig()}
+/* Backup: deleted records are copied here (shared with the admin app) before they leave the active data */
+const arch=(type,o)=>{if(!Array.isArray(DB.arc))DB.arc=[];DB.arc.unshift(JSON.parse(JSON.stringify(Object.assign({id:++nid,at:new Date().toISOString(),by:S.role,type},o))))};
+function sync(){try{const j=JSON.parse(localStorage.getItem(KEY));if(j&&j.DB){DB=j.DB;nid=Math.max(nid,+j.nid||0);mig()}}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({DB,nid,log:S.log.slice(0,40)}))}catch(e){}}
-const NAV={admin:[['ov','Overview'],['docs','Doctors'],['spec','Specialties'],['pts','Patients']],staff:[['req','Requests'],['sched','Schedule'],['pts','Patients'],['docs','Doctors'],['spec','Specialties']],doctor:[['queue','My queue']],patient:[['visit','Request a visit'],['avail','Available doctors'],['mine','My appointment']]};
-const ROLES={client:[],staff:[['staff','Staff'],['doctor','Doctor']],admin:[['patient','Patient'],['doctor','Doctor'],['staff','Staff'],['admin','Admin']]}[MODE];
-const START={client:{role:'patient',view:'visit'},staff:{role:'staff',view:'req'},admin:{role:'admin',view:'ov'}}[MODE];
-const IC={ov:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',docs:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',spec:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',pts:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M16 4.5a3.5 3.5 0 010 7M18 14c2.5.8 4 2.5 4 6"/>',req:'<path d="M5 5h14l2 8v6H3v-6z"/><path d="M3 13h5l1 3h6l1-3h5"/>',sched:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',queue:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',book:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',rec:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/>'};
+const NAV={staff:[['req','Requests'],['sched','Schedule'],['avail','Available doctors'],['pts','Patients'],['visits','Completed visits'],['bill','Billing'],['docs','Doctors'],['spec','Specialties']],doctor:[['queue','My queue']]};
+const ROLES=[['staff','Staff'],['doctor','Doctor']];
+const START={role:'staff',view:'req'};
+const IC={ov:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',docs:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',spec:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',pts:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M16 4.5a3.5 3.5 0 010 7M18 14c2.5.8 4 2.5 4 6"/>',req:'<path d="M5 5h14l2 8v6H3v-6z"/><path d="M3 13h5l1 3h6l1-3h5"/>',sched:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',bill:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',queue:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',book:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',rec:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/>'};
 const $=s=>document.querySelector(s);
+
+/* ---------- Validation helpers (red fields, country code, mm/dd/yyyy) ---------- */
+document.head.insertAdjacentHTML('beforeend',`<style>
+form[data-f=look]{display:grid!important}
+.field-err{border-color:#E5484D!important;box-shadow:0 0 0 3px rgba(229,72,77,.2)}
+.ferr{color:#E5484D;font-size:12px;margin-top:4px}
+.phw{display:flex;align-items:stretch}
+.phw>input{border-radius:0 8px 8px 0;flex:1;min-width:0}
+.phw:has(.field-err) .ccb{border-color:#E5484D}
+.cc{position:relative;display:flex}
+.ccb{display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid var(--line);border-right:0;border-radius:8px 0 0 8px;background:rgba(127,127,127,.12);color:inherit;font:inherit;font-weight:600;cursor:pointer}
+.ccb svg,.ccl svg{width:22px;height:15px;flex:none;border-radius:2px;box-shadow:0 0 0 1px rgba(127,127,127,.35)}
+.car{border:solid currentColor;border-width:0 2px 2px 0;padding:2.5px;transform:rotate(45deg);margin:-3px 0 0 2px;opacity:.7}
+.ccl{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:30;min-width:240px;margin:0;padding:4px;list-style:none;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.ccl.on{display:block}
+.ccl li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer}
+.ccl li:hover{background:rgba(127,127,127,.2)}
+.ccl li em{margin-left:auto;font-style:normal;opacity:.7}
+.dtw{position:relative}
+.dtw>input[type=text]{display:block;width:100%;padding-right:44px}
+.dtb{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:inherit;cursor:pointer}
+.dtb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+.dtn{position:absolute!important;right:0;bottom:0;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none;border:0!important;padding:0!important}
+.chks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chk{display:inline-flex!important;align-items:center;gap:6px;margin:0!important;padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-weight:500!important;font-size:13px;cursor:pointer;user-select:none}
+.chk input{width:auto!important;height:auto!important;margin:0}
+.chk:has(input:checked){background:rgba(127,127,127,.22);border-color:currentColor}
+.qk{margin-top:8px;gap:6px}
+.rxbox{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.rxl{margin:6px 0 0;padding-left:18px}
+.rxl li{margin:5px 0}
+@media print{body *{visibility:hidden!important}.rcpt,.rcpt *{visibility:visible!important;color:#000!important}.rcpt{position:fixed;left:0;top:0;width:100%;padding:24px;background:#fff!important}.noprint{display:none!important}}
+</style>`);
+const CC=[
+ {k:'PH',n:'Philippines',c:'63',max:10,re:/^9\d{9}$/,ex:'9170000000'},
+ {k:'US',n:'United States',c:'1',max:10,re:/^\d{10}$/,ex:'2025550123'},
+ {k:'JP',n:'Japan',c:'81',max:10,re:/^\d{9,10}$/,ex:'9012345678'},
+ {k:'KR',n:'South Korea',c:'82',max:10,re:/^\d{9,10}$/,ex:'1012345678'},
+ {k:'SG',n:'Singapore',c:'65',max:8,re:/^\d{8}$/,ex:'81234567'}
+];
+const ccOf=k=>CC.find(x=>x.k===k)||CC[0];
+const FLAG={
+ PH:`<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="10" fill="#0038A8"/><rect y="10" width="30" height="10" fill="#CE1126"/><path d="M0 0L17 10L0 20Z" fill="#fff"/><circle cx="5" cy="10" r="2.3" fill="#FCD116"/></svg>`,
+ US:`<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#fff"/><g fill="#B22234"><rect width="30" height="1.54"/><rect y="3.08" width="30" height="1.54"/><rect y="6.16" width="30" height="1.54"/><rect y="9.24" width="30" height="1.54"/><rect y="12.32" width="30" height="1.54"/><rect y="15.4" width="30" height="1.54"/><rect y="18.46" width="30" height="1.54"/></g><rect width="12" height="10.78" fill="#3C3B6E"/></svg>`,
+ JP:`<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#BC002D"/></svg>`,
+ KR:`<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#fff"/><path d="M10 10a5 5 0 0 1 10 0z" fill="#CD2E3A"/><path d="M10 10a5 5 0 0 0 10 0z" fill="#0047A0"/><g stroke="#000" stroke-width="1"><path d="M3.5 3.5l3-2M3 5l3-2M23.5 18.5l3-2M24 17l3-2M3.5 16.5l3 2M3 15l3 2M23.5 1.5l3 2M24 3l3 2"/></g></svg>`,
+ SG:`<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="10" fill="#EF3340"/><rect y="10" width="30" height="10" fill="#fff"/><circle cx="8" cy="5" r="3.6" fill="#fff"/><circle cx="9.4" cy="5" r="3.2" fill="#EF3340"/><g fill="#fff"><circle cx="12.6" cy="2.8" r=".7"/><circle cx="14.6" cy="4.4" r=".7"/><circle cx="13.8" cy="6.8" r=".7"/><circle cx="11.4" cy="6.8" r=".7"/><circle cx="10.6" cy="4.4" r=".7"/></g></svg>`
+};
+const ph10=(s,k='PH')=>{let d=String(s||'').replace(/\D/g,'');if(k==='PH')d=d.replace(/^63/,'');d=d.replace(/^0/,'');return d.slice(0,ccOf(k).max)};
+const splitPh=s=>{s=String(s||'');if(s[0]==='+'){const d=s.replace(/\D/g,''),c=[...CC].sort((a,b)=>b.c.length-a.c.length).find(x=>d.startsWith(x.c));if(c)return{k:c.k,n:ph10(d.slice(c.c.length),c.k)}}return{k:'PH',n:ph10(s,'PH')}};
+const ccBtn=c=>`${FLAG[c.k]}<b>+${c.c}</b><i class="car"></i>`;
+const phone=(id,v)=>{const s=splitPh(v),c=ccOf(s.k);return `<div class="phw"><div class="cc"><button type="button" class="ccb" data-a="ccopen" aria-label="Country code">${ccBtn(c)}</button><ul class="ccl" role="listbox">${CC.map(x=>`<li role="option" data-a="ccpick" data-k="${x.k}">${FLAG[x.k]}<span>${x.n}</span><em>+${x.c}</em></li>`).join('')}</ul><input type="hidden" name="cc" value="${c.k}"></div><input id="${id}" name="ph" type="tel" inputmode="numeric" required autocomplete="tel-national" placeholder="${c.ex}" value="${esc(s.n)}"></div>`};
+const toISO=s=>{const m=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(s||''));if(!m)return null;const x=new Date(+m[3],+m[1]-1,+m[2]);if(x.getFullYear()!==+m[3]||x.getMonth()!==+m[1]-1||x.getDate()!==+m[2])return null;return m[3]+'-'+m[1]+'-'+m[2]};
+const dfield=(id,iso)=>`<div class="dtw"><input id="${id}" name="date" type="text" inputmode="numeric" required placeholder="mm/dd/yyyy" maxlength="10" autocomplete="off" value="${iso?iso.slice(5,7)+'/'+iso.slice(8,10)+'/'+iso.slice(0,4):''}"><button type="button" class="dtb" data-a="pickdate" aria-label="Choose date"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button><input type="date" class="dtn" min="${T}" tabindex="-1" aria-hidden="true"></div>`;
+const nov=()=>document.querySelectorAll('form').forEach(f=>f.noValidate=true);
+/* Live validation: red + message as soon as a required field is emptied or left blank */
+function fieldMsg(i,f,full){
+ if(!i.value.trim())return 'This field is required.';
+ if(!full)return '';
+ if(i.name==='ph'){const c=ccOf((f.querySelector('[name=cc]')||{}).value);if(!c.re.test(i.value))return 'Enter a valid number, e.g. '+c.ex+'.'}
+ else if(i.name==='date'&&i.type==='text'){const d=toISO(i.value);if(!d)return 'Enter a valid date as mm/dd/yyyy.';if(d<T)return 'Date can’t be in the past.'}
+ return '';
+}
+function live(i,full){
+ if(!i||!i.form||!i.hasAttribute||!i.hasAttribute('required'))return;
+ const had=i.classList.contains('field-err'),m=fieldMsg(i,i.form,full||had),w=i.closest('.phw')||i.closest('.dtw')||i;
+ if(w.nextElementSibling&&w.nextElementSibling.classList.contains('ferr'))w.nextElementSibling.remove();
+ i.classList.remove('field-err');
+ if(m){i.classList.add('field-err');w.insertAdjacentHTML('afterend','<div class="ferr">'+m+'</div>')}
+}
+const cap=s=>s.replace(/(^|[\s\-'’.])(\p{Ll})/gu,(m,a,b)=>a+b.toUpperCase());
+function check(f){
+ let first=null;
+ f.querySelectorAll('.ferr').forEach(x=>x.remove());
+ f.querySelectorAll('.field-err').forEach(x=>x.classList.remove('field-err'));
+ f.querySelectorAll('[required]').forEach(i=>{
+  const m=fieldMsg(i,f,true);
+  if(!m)return;
+  i.classList.add('field-err');
+  (i.closest('.phw')||i.closest('.dtw')||i).insertAdjacentHTML('afterend','<div class="ferr">'+m+'</div>');
+  first=first||i;
+ });
+ if(first){first.focus();try{first.scrollIntoView({block:'center'})}catch(x){}const eb=f.querySelector('#e');if(eb)eb.textContent='Please fill in the highlighted fields.'}else{const eb=f.querySelector('#e');if(eb)eb.textContent=''}
+ return !first;
+}
+/* ------------------------------------------------------------- */
+
 const P=id=>DB.pt.find(x=>x.id==id),D=id=>DB.dr.find(x=>x.id==id),SP=id=>DB.sp.find(x=>x.id==id),AP=id=>DB.ap.find(x=>x.id==id);
+const regPts=()=>DB.pt.filter(p=>p.reg);
 const mrn=id=>'HB-'+String(id).padStart(5,'0');
 const pn=id=>{const p=P(id);return p?p.fn+' '+p.ln:'—'};
 const dn=id=>{const d=D(id);return d?'Dr. '+d.fn+' '+d.ln:'Unassigned'};
@@ -174,15 +297,26 @@ const pill=s=>`<span class="pill ${s}">${s}</span>`;
 const L=m=>S.log.unshift({t:new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:false}),m});
 const cmp=(a,b)=>(a.date+a.slot).localeCompare(b.date+b.slot);
 const activeDr=()=>DB.dr.filter(d=>d.on);
+/* A slot is closed once its end time has passed (today) or its date is in the past */
+const passed=(date,slot)=>{if(!date)return false;if(date<T)return true;if(date>T)return false;const e=String(slot||'').split('\u2013')[1];if(!e)return false;const n=new Date();return (+e.slice(0,2))*60+(+e.slice(3,5))<=n.getHours()*60+n.getMinutes()};
+/* ---------- Doctor availability ---------- */
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const avOf=d=>d.av||{d:[0,1,2,3,4,5,6],s:SLOTS.slice()};
+const works=(dr,date,slot)=>{const d=D(dr);if(!d||!date)return true;const a=avOf(d);return a.d.includes(dt(date).getDay())&&(!slot||a.s.includes(slot))};
+const dayStr=a=>{const o=[1,2,3,4,5,6,0].filter(i=>a.d.includes(i));if(o.length===7)return 'Every day';if(o.join()==='1,2,3,4,5')return 'Mon\u2013Fri';return o.map(i=>DAYS[i]).join(', ')};
+const slotStr=a=>{const r=[];SLOTS.filter(s=>a.s.includes(s)).forEach(s=>{const[st,en]=s.split('\u2013'),l=r[r.length-1];if(l&&l[1]===st)l[1]=en;else r.push([st,en])});return r.map(x=>x[0]+'\u2013'+x[1]).join(', ')};
+const avText=d=>{const a=avOf(d);return `<div>${dayStr(a)}</div><div class="meta">${slotStr(a)}</div>`};
+const avBox=av=>`<div class="full"><label>Available days</label><div class="chks">${[1,2,3,4,5,6,0].map(i=>`<label class="chk"><input type="checkbox" name="avday" value="${i}" ${av&&av.d.includes(i)?'checked':''}>${DAYS[i]}</label>`).join('')}</div><div class="acts qk"><button type="button" class="btn" data-a="qdays" data-v="wk">Mon\u2013Fri</button><button type="button" class="btn" data-a="qdays" data-v="all">Every day</button><button type="button" class="btn" data-a="qdays" data-v="none">Clear</button></div><label style="margin-top:14px">Available time slots</label><div class="chks">${SLOTS.map(s=>`<label class="chk"><input type="checkbox" name="avslot" value="${s}" ${av&&av.s.includes(s)?'checked':''}>${s}</label>`).join('')}</div><div class="acts qk"><button type="button" class="btn" data-a="qslots" data-v="am">Morning</button><button type="button" class="btn" data-a="qslots" data-v="pm">Afternoon</button><button type="button" class="btn" data-a="qslots" data-v="all">All day</button><button type="button" class="btn" data-a="qslots" data-v="none">Clear</button></div></div>`;
+const getAv=f=>{const d=[...f.querySelectorAll('input[name=avday]:checked')].map(x=>+x.value),s=[...f.querySelectorAll('input[name=avslot]:checked')].map(x=>x.value);return d.length&&s.length?{d,s:SLOTS.filter(x=>s.includes(x))}:null};
+/* ----------------------------------------- */
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2400)}
-function modal(h){const m=$('#modal');m.innerHTML=h?`<div class="dlg">${h}</div>`:'';m.classList.toggle('on',!!h)}
+function modal(h){const m=$('#modal');m.innerHTML=h?`<div class="dlg">${h}</div>`:'';m.classList.toggle('on',!!h);nov()}
 const head=(t,s,x='')=>`<div class="head"><div><h1>${t}</h1><p class="sub">${s}</p></div>${x}</div>`;
 const empty=t=>`<div class="empty">${t}</div>`;
 const tbl=(h,rows,msg)=>rows.length?`<div class="wrap"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`:`<div class="panel">${empty(msg)}</div>`;
 const kpi=(n,l,c='')=>`<div class="kpi ${c}"><b>${n}</b><span>${l}</span></div>`;
-
 function chrome(){
- const cur=S.view==='consult'?'queue':S.view,nav=NAV[S.role],ic=k=>IC[k]||IC[{visit:'book',avail:'docs',mine:'rec'}[k]];
+ const cur=S.view==='consult'?'queue':S.view,nav=NAV[S.role],ic=k=>IC[k]||IC[{visit:'book',avail:'docs',mine:'rec',visits:'rec'}[k]];
  $('#roles').innerHTML=ROLES.map(([k,l])=>`<button data-a="role" data-k="${k}" aria-pressed="${S.role===k}">${l}</button>`).join('');
  $('#who').innerHTML=S.role==='doctor'?`<select aria-label="Doctor" data-a="pick" data-t="did">${activeDr().map(d=>`<option value="${d.id}" ${d.id==S.did?'selected':''}>${esc(dn(d.id))}</option>`).join('')}</select>`:'';
  $('#nav').innerHTML=nav.map(([k,l])=>`<button data-a="view" data-k="${k}" ${cur===k?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${ic(k)}</svg>${l}</button>`).join('');
@@ -190,19 +324,10 @@ function chrome(){
  $('#q').style.display=['admin','staff'].includes(S.role)?'':'none';
 }
 const V={
-ov(){
- const c=s=>DB.ap.filter(a=>a.st===s).length,n=DB.ap.length||1,col={Pending:'#D98A00',Scheduled:'#0B5CAD',Completed:'#17803D',Cancelled:'#B42318'};
- const td=DB.ap.filter(a=>a.date===T&&a.st!=='Cancelled').length;
- return head('Overview','Clinic activity at a glance.','<button class="btn" data-a="reset">Reset demo data</button>')+
- `<div class="kpis">${kpi(DB.pt.length,'Registered patients')}${kpi(activeDr().length,'Active doctors','g')}${kpi(td,'Appointments today')}${kpi(c('Pending'),'Requests waiting','w')}</div>`+
- `<div class="two"><div><h2>Doctor workload</h2>${tbl(['Doctor','Specialty','Today','Upcoming'],DB.dr.map(d=>`<tr><td class="n">${esc(dn(d.id))}</td><td>${esc(SP(d.sp).name)}</td><td>${DB.ap.filter(a=>a.dr===d.id&&a.date===T&&a.st!=='Cancelled').length}</td><td>${DB.ap.filter(a=>a.dr===d.id&&a.date>T&&a.st==='Scheduled').length}</td></tr>`),'No doctors yet.')}</div>`+
- `<div><h2>Appointments by status</h2><div class="panel pad"><div class="sbar" role="img" aria-label="Status breakdown">${Object.keys(col).map(s=>`<i style="width:${c(s)/n*100}%;background:${col[s]}"></i>`).join('')}</div><div class="leg">${Object.keys(col).map(s=>`<div><span>${s}</span><b>${c(s)}</b></div>`).join('')}</div></div></div></div>`+
- `<div class="sec"><h2>Recent activity</h2><div class="panel pad"><ul class="log">${S.log.slice(0,8).map(x=>`<li><time>${x.t}</time><span>${esc(x.m)}</span></li>`).join('')}</ul></div></div>`;
-},
 docs(){
  return head('Doctors','Manage doctor profiles and who can receive appointments.')+
- `<form class="panel pad grid" data-f="doc"><div><label for="d1">First name</label><input id="d1" name="fn" required></div><div><label for="d2">Last name</label><input id="d2" name="ln" required></div><div><label for="d3">Email</label><input id="d3" name="em" type="email" required></div><div><label for="d4">Specialty</label><select id="d4" name="sp">${DB.sp.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div><div class="full acts"><button class="btn p">Add doctor</button><span class="err" id="e"></span></div></form>`+
- `<div class="sec">${tbl(['Doctor','Specialty','Email','Status',''],DB.dr.map(d=>`<tr><td class="n">${esc(dn(d.id))}</td><td>${esc(SP(d.sp).name)}</td><td>${esc(d.em)}</td><td>${d.on?'Active':'<span class="meta">Inactive</span>'}</td><td><div class="acts"><button class="btn" data-a="editdr" data-id="${d.id}">Edit</button><button class="btn" data-a="tog" data-id="${d.id}">${d.on?'Deactivate':'Activate'}</button></div></td></tr>`))}</div>`;
+ `<form class="panel pad grid" data-f="doc"><div><label for="d1">First name</label><input id="d1" name="fn" required></div><div><label for="d2">Last name</label><input id="d2" name="ln" required></div><div><label for="d3">Email</label><input id="d3" name="em" type="email" required></div><div><label for="d4">Specialty</label><select id="d4" name="sp" required><option value="">Select specialty</option>${DB.sp.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div>${avBox()}<div class="full acts"><button class="btn p">Add doctor</button><span class="err" id="e"></span></div></form>`+
+ `<div class="sec">${tbl(['Doctor','Specialty','Email','Availability','Status',''],DB.dr.map(d=>`<tr><td class="n">${esc(dn(d.id))}</td><td>${esc(SP(d.sp).name)}</td><td>${esc(d.em)}</td><td>${avText(d)}</td><td>${d.on?'Active':'<span class="meta">Inactive</span>'}</td><td><div class="acts"><button class="btn" data-a="editdr" data-id="${d.id}">Edit</button><button class="btn" data-a="tog" data-id="${d.id}">${d.on?'Deactivate':'Activate'}</button><button class="btn d" data-a="deldr" data-id="${d.id}">Delete</button></div></td></tr>`))}</div>`;
 },
 spec(){
  return head('Specialties','Every doctor belongs to exactly one specialty.')+
@@ -210,8 +335,8 @@ spec(){
  `<div class="sec">${tbl(['Specialty','Doctors',''],DB.sp.map(s=>{const n=DB.dr.filter(d=>d.sp===s.id).length;return `<tr><td class="n">${esc(s.name)}</td><td>${n}</td><td>${n?'<span class="meta">In use. Reassign its doctors to remove it.</span>':`<button class="btn d" data-a="delsp" data-id="${s.id}">Delete</button>`}</td></tr>`}))}</div>`;
 },
 pts(){
- const q=S.q.trim().toLowerCase(),l=DB.pt.filter(p=>!q||(pn(p.id)+' '+mrn(p.id)).toLowerCase().includes(q));
- return head('Patients',`${l.length} of ${DB.pt.length} shown.`)+tbl(['Patient','Phone','Address','Completed visits',''],l.map(p=>`<tr><td>${pc(p.id)}</td><td>${esc(p.ph||'—')}</td><td>${esc(p.ad||'—')}</td><td>${DB.ap.filter(a=>a.pt===p.id&&a.st==='Completed').length}</td><td><button class="btn" data-a="editpt" data-id="${p.id}">Edit</button></td></tr>`),'No patients match your search.');
+ const q=S.q.trim().toLowerCase(),l=regPts().filter(p=>!q||(pn(p.id)+' '+mrn(p.id)).toLowerCase().includes(q));
+ return head('Patients',`${l.length} of ${regPts().length} shown.`)+tbl(['Patient','Phone','Address','Completed visits',''],l.map(p=>`<tr><td>${pc(p.id)}</td><td>${esc(p.ph||'—')}</td><td>${esc(p.ad||'—')}</td><td>${DB.ap.filter(a=>a.pt==p.id&&a.st==='Completed').length}</td><td><button class="btn" data-a="editpt" data-id="${p.id}">Edit</button></td></tr>`),(regPts().length?'No patients match your search.':'No registered patients yet. A patient appears here after staff confirm their first appointment.'));
 },
 req(){
  const l=DB.ap.filter(a=>a.st==='Pending').sort((a,b)=>a.date.localeCompare(b.date));
@@ -219,91 +344,264 @@ req(){
  tbl(['Preferred date','Patient','Reason for visit','Status',''],l.map(a=>`<tr><td>${fmt(a.date)}</td><td>${pc(a.pt)}</td><td>${esc(a.sym)}</td><td>${pill('Pending')}</td><td><div class="acts"><button class="btn p" data-a="assign" data-id="${a.id}">Assign doctor</button><button class="btn d" data-a="cancel" data-id="${a.id}">Decline</button></div></td></tr>`),'No requests waiting. New ones from patients appear here.');
 },
 sched(){
- const dr=activeDr();
- return head('Schedule',fmt(S.sd)+'. One column per doctor.',`<div class="acts"><button class="btn" data-a="day" data-n="-1">Previous</button><input type="date" value="${S.sd}" data-a="setday" aria-label="Date" style="width:auto"><button class="btn" data-a="day" data-n="1">Next</button></div>`)+
- `<div class="wrap"><table class="gridt"><thead><tr><th>Time</th>${dr.map(d=>`<th>${esc(dn(d.id))} <span style="font-weight:400">· ${esc(SP(d.sp).name)}</span></th>`).join('')}</tr></thead><tbody>${SLOTS.map(s=>`<tr><td>${s}</td>${dr.map(d=>{const a=DB.ap.find(x=>x.dr===d.id&&x.date===S.sd&&x.slot===s&&x.st!=='Cancelled');return `<td>${a?`<div class="cell ${a.st}"><span>${esc(pn(a.pt))}</span>${a.st==='Scheduled'?`<button class="btn d" style="padding:0 7px;font-size:12px" data-a="cancel" data-id="${a.id}">Cancel</button>`:''}</div>`:'<span class="free">Open</span>'}</td>`}).join('')}</tr>`).join('')}</tbody></table></div>`;
+ const all=activeDr();if(S.sdr&&!all.some(d=>d.id==S.sdr))S.sdr=0;
+ const one=!!S.sdr,dd=one?D(S.sdr):null;
+ let cols=[];
+ if(one){const b=dt(S.sd);b.setDate(b.getDate()+(b.getDay()===0?-6:1-b.getDay()));cols=[0,1,2,3,4,5,6].map(i=>{const x=new Date(b);x.setDate(x.getDate()+i);return iso(x)})}
+ const cf=(d,date,s)=>{const a=DB.ap.find(x=>x.dr===d.id&&x.date===date&&x.slot===s&&x.st!=='Cancelled');return a?`<div class="cell ${a.st}" style="flex-wrap:wrap"><span>${esc(pn(a.pt))}</span>${a.st==='Scheduled'?`<button class="btn d" style="padding:0 7px;font-size:12px" data-a="cancel" data-id="${a.id}">Cancel</button>`:''}</div>`:(!works(d.id,date,s)?'<span class="meta">Off</span>':passed(date,s)?'<span class="free">Passed</span>':'<span class="free">Open</span>')};
+ const nb=(n,p,l)=>`<button class="btn" data-a="day" data-n="${n}" aria-label="${l}" title="${l}" style="width:38px;padding:7px 0;display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="${p}"/></svg></button>`;
+ const sub=one?`Week of ${fmt(cols[0])} to ${fmt(cols[6])}. ${esc(dn(dd.id))}.`:fmt(S.sd)+'. One column per doctor.';
+ const heads=one?cols.map(c=>`<th${c===T?' style="color:var(--pri)"':''}>${fmt(c)}</th>`).join(''):all.map(d=>`<th>${esc(dn(d.id))} <span style="font-weight:400">· ${esc(SP(d.sp).name)}</span></th>`).join('');
+ const rows=SLOTS.map(s=>`<tr><td>${s}</td>${one?cols.map(c=>`<td>${cf(dd,c,s)}</td>`).join(''):all.map(d=>`<td>${cf(d,S.sd,s)}</td>`).join('')}</tr>`).join('');
+ const nc=one?7:all.length;
+ return head('Schedule',sub,`<div class="acts"><select data-a="sdoc" aria-label="Doctor" style="width:auto"><option value="0">All doctors</option>${all.map(d=>`<option value="${d.id}" ${d.id==S.sdr?'selected':''}>${esc(dn(d.id))} · ${esc(SP(d.sp).name)}</option>`).join('')}</select>${nb(-1,'M15 6l-6 6 6 6','Previous')}<input type="date" value="${S.sd}" data-a="setday" aria-label="Date" style="width:auto">${nb(1,'M9 6l6 6-6 6','Next')}</div>`)+
+ `<div class="wrap"><table class="gridt" style="min-width:${112+nc*150}px"><thead><tr><th>Time</th>${heads}</tr></thead><tbody>${rows}</tbody></table></div>`;
+},
+visits(){
+ const l=DB.ap.filter(a=>a.st==='Completed').sort(cmp).reverse();
+ return head('Completed visits',l.length?`${l.length} finished visit${l.length==1?'':'s'}. Open one to see the notes, prescription and receipt.`:'Finished visits appear here once a doctor completes them.')+
+ tbl(['Date','Patient','Doctor','Diagnosis','Fee',''],l.map(a=>{const n=DB.nt.find(y=>y.ap===a.id);return `<tr><td>${fmt(a.date)}<div class="meta">${a.slot}</div></td><td>${pc(a.pt)}</td><td>${esc(dn(a.dr))}</td><td>${esc(n?n.dx:'—')}</td><td>${money(n&&n.fee)}</td><td><div class="acts"><button class="btn" data-a="rec" data-id="${a.id}">Open record</button>${n&&n.fee!=null?'<button class="btn p" data-a="rcpt" data-id="'+a.id+'">Receipt</button>':'<span class="meta">Not billed</span>'}</div></td></tr>`}),'No completed visits yet.');
+},
+bill(){
+ const l=DB.ap.filter(a=>a.st==='Completed').map(a=>({a,n:DB.nt.find(y=>y.ap===a.id)})).filter(x=>x.n),
+ st=x=>x.n.fee==null?0:x.n.paid?2:1;
+ l.sort((x,y)=>st(x)-st(y)||cmp(y.a,x.a));
+ const c=k=>l.filter(x=>st(x)===k).length,
+ pl=x=>['<span class="pill Pending">Unbilled</span>','<span class="pill Scheduled">Unpaid</span>','<span class="pill Completed">Paid</span>'][st(x)],
+ act=x=>{const i=x.a.id,s=st(x),rc='<button class="btn" data-a="rcpt" data-id="'+i+'">Receipt</button>';
+  if(s===0)return '<button class="btn p" data-a="bill" data-id="'+i+'">Add bill</button>';
+  if(s===1)return '<button class="btn p" data-a="paid" data-id="'+i+'">Mark as paid</button><button class="btn" data-a="bill" data-id="'+i+'">Edit bill</button>'+rc;
+  return rc};
+ return head('Billing','Doctors finish the visit. Staff add the bill and record payment here.')+
+ `<div class="kpis" style="grid-template-columns:repeat(3,1fr)">${kpi(c(0),'Waiting for a bill','w')}${kpi(c(1),'Unpaid')}${kpi(c(2),'Paid','g')}</div>`+
+ tbl(['Date','Patient','Doctor','Diagnosis','Fee','Status',''],l.map(x=>`<tr><td>${fmt(x.a.date)}<div class="meta">${x.a.slot||''}</div></td><td>${pc(x.a.pt)}</td><td>${esc(dn(x.a.dr))}</td><td>${esc(x.n.dx)}</td><td>${money(x.n.fee)}</td><td>${pl(x)}</td><td><div class="acts">${act(x)}</div></td></tr>`),'No completed visits to bill yet.');
 },
 queue(){
  const mine=DB.ap.filter(a=>a.dr===S.did),sc=mine.filter(a=>a.st==='Scheduled').sort(cmp),tod=sc.filter(a=>a.date<=T),up=sc.filter(a=>a.date>T),done=mine.filter(a=>a.st!=='Scheduled').sort(cmp).reverse();
- const rows=(l,act,num)=>l.map((a,i)=>`<tr><td>${num?`<b>${i+1}</b>`:fmt(a.date)}</td><td>${a.slot}</td><td>${pc(a.pt)}</td><td>${esc(a.sym)}</td><td>${pill(a.st)}</td><td>${act?`<div class="acts"><button class="btn p" data-a="note" data-id="${a.id}">Open chart</button><button class="btn d" data-a="cancel" data-id="${a.id}">Cancel</button></div>`:''}</td></tr>`);
+ const rows=(l,act,num)=>l.map((a,i)=>`<tr><td>${num?`<b>${i+1}</b>`:fmt(a.date)}</td><td>${a.slot}</td><td>${pc(a.pt)}</td><td>${esc(a.sym)}</td><td>${pill(a.st)}</td><td>${act?`<div class="acts"><button class="btn p" data-a="note" data-id="${a.id}">Open chart</button><button class="btn d" data-a="cancel" data-id="${a.id}">Cancel</button></div>`:(a.st==='Completed'?`<button class="btn" data-a="rec" data-id="${a.id}">View record</button>`:'')}</td></tr>`);
  const H=f=>[f,'Time','Patient','Reason for visit','Status',''];
- return head(dn(S.did),SP(D(S.did).sp).name)+
- `<div class="kpis" style="grid-template-columns:repeat(3,1fr)">${kpi(tod.length,'Waiting today','w')}${kpi(mine.filter(a=>a.date===T&&a.st==='Completed').length,'Seen today','g')}${kpi(up.length,'Upcoming')}</div>`+
+ return head(dn(S.did),(D(S.did)&&SP(D(S.did).sp)||{}).name||'')+
+ `<div class="kpis" style="grid-template-columns:repeat(2,1fr)">${kpi(tod.length,'Waiting today','w')}${kpi(up.length,'Upcoming')}</div>`+
  `<h2>Today’s queue</h2>${tbl(H('No.'),rows(tod,1,1),'No patients in the queue today.')}`+
  (up.length?`<div class="sec"><h2>Upcoming</h2>${tbl(H('Date'),rows(up,1,0))}</div>`:'')+
  (done.length?`<div class="sec"><h2>Closed visits</h2>${tbl(H('Date'),rows(done,0,0))}</div>`:'');
 },
 consult(){
+ if(!AP(S.cid)){S.view='queue';return V.queue()}
  const a=AP(S.cid),p=P(a.pt),hx=DB.ap.filter(x=>x.pt===a.pt&&x.st==='Completed').sort(cmp).reverse();
  return head('Consultation',`${fmt(a.date)} · ${a.slot}`,'<button class="btn" data-a="view" data-k="queue">Back to queue</button>')+
  `<div class="cg"><div class="panel pad pb"><h2>${esc(pn(a.pt))}</h2><div class="id">${mrn(a.pt)}</div><dl><dt>Phone</dt><dd>${esc(p.ph||'—')}</dd><dt>Address</dt><dd>${esc(p.ad||'—')}</dd><dt>Reason</dt><dd>${esc(a.sym)}</dd></dl><div class="hx"><b>Previous visits</b>${hx.length?hx.map(x=>{const n=DB.nt.find(y=>y.ap===x.id);return `<div>${fmt(x.date)}<br><span class="meta">${esc(n?n.dx:'No note')}</span></div>`}).join(''):'<div class="meta">None on record.</div>'}</div></div>`+
- `<form class="panel pad" data-f="note" data-id="${a.id}"><div class="grid"><div class="full"><label for="n1">Diagnosis</label><input id="n1" name="dx" required></div><div class="full"><label for="n2">Clinical observations</label><textarea id="n2" name="ob"></textarea></div></div><h2 style="margin-top:18px">Prescriptions</h2><div id="meds">${medRow()}</div><div class="acts" style="margin-top:8px"><button type="button" class="btn" data-a="addmed">Add medication</button></div><div class="acts" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line)"><button class="btn p">Save and complete visit</button></div></form></div>`;
-},
-visit(){
- if(S.done){const p=P(S.done.p),a=AP(S.done.a);return head('Request received','Clinic staff will review it and assign your doctor.')+`<div class="panel pad okbox"><div class="meta">Your patient ID</div><div class="big">${mrn(p.id)}</div><p style="margin:8px 0 0">Keep this ID. You need it with your last name to check your appointment.</p></div><div class="panel pad" style="margin-top:14px"><h2>Request details</h2><div class="meta">Preferred date</div><div>${fmt(a.date)}</div><div class="meta" style="margin-top:8px">Reason for visit</div><div>${esc(a.sym)}</div></div><div class="acts" style="margin-top:16px"><button class="btn p" data-a="view" data-k="mine">Check my appointment</button><button class="btn" data-a="again">Make another request</button></div>`}
- return head('Request a visit','Tell us about yourself and when you’d like to come in.')+
- `<div class="two"><form class="panel pad grid" data-f="visit"><div><label for="v1">First name</label><input id="v1" name="fn" required autocomplete="given-name"></div><div><label for="v2">Last name</label><input id="v2" name="ln" required autocomplete="family-name"></div><div><label for="v3">Mobile number</label><input id="v3" name="ph" type="tel" required autocomplete="tel" placeholder="0917 000 0000"></div><div><label for="v4">Preferred date</label><input id="v4" name="date" type="date" min="${T}" value="${day(1)}" required></div><div class="full"><label for="v5">Address <span class="meta">(optional)</span></label><input id="v5" name="ad" autocomplete="street-address"></div><div class="full"><label for="v6">Symptoms or reason for visit</label><textarea id="v6" name="sym" required placeholder="Example: fever and cough for three days"></textarea></div><div class="full acts"><button class="btn p">Send request</button><span class="meta">Only clinic staff and your doctor can see this.</span></div></form><div class="panel pad"><h2>What happens next</h2><ol class="steps"><li>Clinic staff review your request.</li><li>They assign a doctor and confirm your time.</li><li>Open “My appointment” with your patient ID to see the date, time and doctor.</li></ol></div></div>`;
+ `<form class="panel pad" data-f="note" data-id="${a.id}"><div class="grid"><div class="full"><label for="n1">Diagnosis</label><input id="n1" name="dx" required></div><div class="full"><label for="n2">Clinical observations</label><textarea id="n2" name="ob"></textarea></div><div class="full meta">Billing is handled separately by clinic staff after the visit.</div></div><h2 style="margin-top:18px">Prescriptions</h2><div id="meds">${medRow()}</div><div class="acts" style="margin-top:8px"><button type="button" class="btn" data-a="addmed">Add medication</button></div><div class="acts" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line)"><button class="btn p">Save and complete visit</button></div></form></div>`;
 },
 avail(){
  const dr=activeDr().filter(d=>!S.fs||d.sp==S.fs);
- return head('Available doctors','Open time slots for the day you choose. This page is for viewing only.',`<div class="acts"><input type="date" value="${S.fd}" min="${T}" data-a="fday" aria-label="Date" style="width:auto"><select data-a="fspec" aria-label="Specialty" style="width:auto"><option value="0">All specialties</option>${DB.sp.map(s=>`<option value="${s.id}" ${s.id==S.fs?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>`)+
- (dr.length?`<div class="avl">${dr.map(d=>{const o=SLOTS.filter(s=>!taken(d.id,S.fd,s));return `<div class="panel dc"><div class="tp"><div class="av">${esc(d.fn[0]+d.ln[0])}</div><div><div class="n">${esc(dn(d.id))}</div><div class="meta">${esc(SP(d.sp).name)}</div></div><div style="margin-left:auto">${o.length?`<span class="pill Completed">${o.length} open</span>`:'<span class="pill Cancelled">Fully booked</span>'}</div></div><div class="chips">${o.map(s=>`<span class="chip">${s}</span>`).join('')}</div></div>`}).join('')}</div><p class="meta" style="margin-top:14px">To book, send a request. Clinic staff will confirm your doctor and time.</p>`:`<div class="panel">${empty('No doctors match this specialty.')}</div>`);
-},
-mine(){
- const p=S.me&&P(S.me),l=p?DB.ap.filter(a=>a.pt===p.id).sort((a,b)=>b.date.localeCompare(a.date)):[];
- return head('My appointment','Enter your patient ID and last name to see your appointment.')+
- `<form class="panel pad acts" data-f="look" style="align-items:flex-end"><div style="flex:1;min-width:160px"><label for="k1">Patient ID</label><input id="k1" name="id" required placeholder="HB-00001" value="${p?mrn(p.id):''}"></div><div style="flex:1;min-width:160px"><label for="k2">Last name</label><input id="k2" name="ln" required value="${p?esc(p.ln):''}"></div><button class="btn p">Check</button><span class="err" id="e" style="width:100%"></span></form>`+
- (p?`<div class="sec"><h2>${esc(pn(p.id))} <span class="id">${mrn(p.id)}</span></h2>${l.length?l.map(a=>`<div class="panel rec"><div class="rh"><span><b>${fmt(a.date)}</b> <span class="meta">${a.slot||'Time to be confirmed'}</span></span>${pill(a.st)}</div><div class="pad"><div class="meta">Doctor</div><b>${a.dr?esc(dn(a.dr)):'To be assigned by the clinic'}</b>${a.dr?` <span class="meta">${esc(SP(D(a.dr).sp).name)}</span>`:''}<div class="meta" style="margin-top:10px">Reason for visit</div>${esc(a.sym)}${a.st==='Pending'?'<div class="meta" style="margin-top:10px">Clinic staff are reviewing your request.</div>':''}${a.st==='Cancelled'?'<div class="meta" style="margin-top:10px">This appointment was cancelled. You can send a new request.</div>':''}</div></div>`).join(''):`<div class="panel">${empty('No appointments yet.')}</div>`}</div>`:'');
+ return head('Available doctors','Open time slots for each doctor on the day you choose.',`<div class="acts"><input type="date" value="${S.fd}" min="${T}" data-a="fday" aria-label="Date" style="width:auto"><select data-a="fspec" aria-label="Specialty" style="width:auto"><option value="0">All specialties</option>${DB.sp.map(s=>`<option value="${s.id}" ${s.id==S.fs?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>`)+
+ (dr.length?`<div class="avl">${dr.map(d=>{const o=SLOTS.filter(s=>!taken(d.id,S.fd,s)&&works(d.id,S.fd,s)&&!passed(S.fd,s));return `<div class="panel dc"><div class="tp"><div class="av">${esc(d.fn[0]+d.ln[0])}</div><div><div class="n">${esc(dn(d.id))}</div><div class="meta">${esc(SP(d.sp).name)}</div></div><div style="margin-left:auto">${o.length?`<span class="pill Completed">${o.length} open</span>`:(works(d.id,S.fd)?'<span class="pill Cancelled">'+(SLOTS.every(s=>passed(S.fd,s))?'No slots left':'Fully booked')+'</span>':'<span class="pill Cancelled">Not working this day</span>')}</div></div><div class="chips">${o.map(s=>`<span class="chip">${s}</span>`).join('')}</div></div>`}).join('')}</div>`:`<div class="panel">${empty('No doctors match this specialty.')}</div>`);
 }
 };
-function main(){$('#main').innerHTML=V[S.view]()}
+function main(){$('#main').innerHTML=V[S.view]();nov()}
 function render(){chrome();main();save()}
 function go(r){S.role=r;S.view=NAV[r][0][0];render()}
-const slotOpts=(dr,date,skip)=>SLOTS.map(s=>{const t=taken(dr,date,s,skip);return `<option value="${s}" ${t?'disabled':''}>${s}${t?' (booked)':''}</option>`}).join('');
+const slotOpts=(dr,date,skip)=>SLOTS.map(s=>{const p=passed(date,s),t=taken(dr,date,s,skip),o=!works(dr,date,s);return `<option value="${s}" ${p||t||o?'disabled':''}>${s}${p?' (time passed)':t?' (booked – not available)':o?' (not available)':''}</option>`}).join('');
+/* ---------- Doctor suggestion from the patient's reason for visit ---------- */
+const KW={
+ 'dermatology':['rash','skin','itch','acne','pimple','eczema','hives','allerg','mole','wart','nail','hair','sugat','kati','pantal','butlig','buni'],
+ 'cardiology':['chest','heart','palpitat','blood pressure','bp','hypertens','cholesterol','breath','dibdib','puso'],
+ 'pediatrics':['child','baby','infant','kid','toddler','newborn','pediatric','vaccin','bata','sanggol'],
+ 'general practice':['fever','cough','cold','flu','headache','throat','sick','stomach','vomit','diarrhea','pain','dizz','check','lagnat','ubo','sipon','sakit','masama']
+};
+const sugg=sym=>{const t=String(sym||'').toLowerCase();if(!t.trim())return{ids:[],fb:0};const sc={};DB.sp.forEach(s=>{const n=(KW[s.name.toLowerCase()]||[]).filter(w=>new RegExp('\\b'+w).test(t)).length;if(n)sc[s.id]=n});let ids=Object.keys(sc).sort((a,b)=>sc[b]-sc[a]).map(Number),fb=0;if(!ids.length){const g=DB.sp.find(s=>s.name.toLowerCase()==='general practice');if(g){ids=[g.id];fb=1}}return{ids,fb}};
+const docOpts=sym=>{const g=sugg(sym),all=activeDr(),sd=all.filter(d=>g.ids.includes(d.sp)).sort((a,b)=>g.ids.indexOf(a.sp)-g.ids.indexOf(b.sp)),rest=all.filter(d=>!sd.includes(d));return '<option value="">Select doctor</option>'+(sd.length?`<optgroup label="★ Suggested for this patient">${sd.map(d=>`<option value="${d.id}">${esc(dn(d.id))} · ${esc(SP(d.sp).name)}</option>`).join('')}</optgroup>`:'')+DB.sp.map(s=>({s,l:rest.filter(d=>d.sp===s.id)})).filter(x=>x.l.length).map(x=>`<optgroup label="${esc(x.s.name)}">${x.l.map(d=>`<option value="${d.id}">${esc(dn(d.id))}</option>`).join('')}</optgroup>`).join('')};
+const sgText=sym=>{const g=sugg(sym);return g.ids.length?'Suggested specialty: <b>'+g.ids.map(i=>esc(SP(i).name)).join(', ')+'</b>'+(g.fb?' (general check-up, the reason is not specific)':''):''};
+/* ----------------------------------------------------------------------- */
 function assignModal(id){
  const a=id?AP(id):null,w=!a;
- modal(`<h3>${w?'Book a walk-in':'Assign '+esc(pn(a.pt))}</h3>${w?'':`<p class="meta" style="margin:0 0 12px">${esc(a.sym)}</p>`}<form data-f="assign" data-id="${id}" class="grid">${w?`<div class="full"><label for="m0">Patient</label><select id="m0" name="pt">${DB.pt.map(p=>`<option value="${p.id}">${esc(pn(p.id))} (${mrn(p.id)})</option>`).join('')}</select></div><div class="full"><label for="m4">Reason for visit</label><input id="m4" name="sym" required></div>`:''}<div class="full"><label for="m1">Doctor</label><select id="m1" name="dr" data-a="slots">${DB.sp.map(s=>({s,l:activeDr().filter(d=>d.sp===s.id)})).filter(x=>x.l.length).map(x=>`<optgroup label="${esc(x.s.name)}">${x.l.map(d=>`<option value="${d.id}">${esc(dn(d.id))}</option>`).join('')}</optgroup>`).join('')}</select></div><div><label for="m2">Date</label><input id="m2" name="date" type="date" min="${T}" value="${a?a.date:T}" data-a="slots" required></div><div><label for="m3">Time slot</label><select id="m3" name="slot"></select></div><div class="full acts"><button class="btn p">Confirm appointment</button><button type="button" class="btn" data-a="close">Close</button></div><div class="full err" id="e"></div></form>`);
+ modal(`<h3>${w?'Book a walk-in':'Assign '+esc(pn(a.pt))}</h3>${w?'':`<p class="meta" style="margin:0 0 12px">${esc(a.sym)}</p>`}<form data-f="assign" data-id="${id}" class="grid">${w?`<div><label for="w1">First name</label><input id="w1" name="fn" required autocomplete="off"></div><div><label for="w2">Last name</label><input id="w2" name="ln" required autocomplete="off"></div><div><label for="w3">Phone</label>${phone('w3','')}</div><div><label for="w4">Address</label><input id="w4" name="ad" required autocomplete="off"></div><div class="full"><label for="m4">Reason for visit</label><input id="m4" name="sym" required></div>`:''}<div class="full"><label for="m1">Doctor</label><select id="m1" name="dr" data-a="slots" required>${docOpts(a?a.sym:'')}</select><div class="meta" id="sg" style="margin-top:6px">${sgText(a?a.sym:'')}</div></div><div><label for="m2">Date</label>${dfield('m2',a?a.date:'')}</div><div><label for="m3">Time slot</label><select id="m3" name="slot" required></select></div><div class="full acts"><button class="btn p">Confirm appointment</button><button type="button" class="btn" data-a="close">Close</button></div><div class="full err" id="e"></div></form>`);
+ {const f=$('form[data-f=assign]'),fs=f&&f.querySelector('optgroup[label^="★"] option');if(fs&&a)f.dr.value=fs.value}
  refreshSlots();
 }
-function refreshSlots(){const f=$('form[data-f=assign]');if(!f)return;const s=f.slot,cur=s.value;s.innerHTML=slotOpts(f.dr.value,f.date.value,+f.dataset.id);const o=s.querySelector(`option[value="${cur}"]`);if(cur&&o&&!o.disabled)s.value=cur;else{const x=[...s.options].find(o=>!o.disabled);if(x)s.value=x.value}}
+function warnDoc(f){
+ const a=+f.dataset.id?AP(f.dataset.id):null,sym=a?a.sym:(f.sym?f.sym.value:''),g=sugg(sym),d=D(f.dr.value);
+ if(!d||!g.ids.length||g.ids.includes(d.sp)||f.dataset.ack===String(d.id)||$('#wrn'))return false;
+ const dlg=$('#modal .dlg'),bg=dlg?getComputedStyle(dlg).backgroundColor:'#111',sp=SP(d.sp).name,sg=g.ids.map(i=>SP(i).name).join(', ');
+ const w=document.createElement('div');w.id='wrn';w.setAttribute('role','alertdialog');
+ w.style.cssText='position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:16px';
+ w.innerHTML=`<div style="max-width:440px;width:100%;padding:22px;border-radius:14px;border:1px solid #E5484D;background:${bg};box-shadow:0 12px 40px rgba(0,0,0,.5)"><h3 style="margin:0 0 10px;color:#E5484D">⚠ This doctor may not match</h3><p style="margin:0 0 8px">${esc(dn(d.id))} is a <b>${esc(sp)}</b> doctor, but the patient’s reason (“${esc(sym)}”) does not look related to ${esc(sp)}.</p><p class="meta" style="margin:0 0 16px">Suggested: <b>${esc(sg)}</b></p><div class="acts"><button type="button" class="btn p" data-w="back">Choose another doctor</button><button type="button" class="btn d" data-w="keep">Keep ${esc(dn(d.id))}</button></div></div>`;
+ document.body.appendChild(w);
+ w.addEventListener('click',e=>{const b=e.target.closest('[data-w]');if(!b)return;
+  if(b.dataset.w==='keep')f.dataset.ack=String(d.id);
+  else{const fs=f.querySelector('optgroup[label^="★"] option');f.dr.value=fs?fs.value:''}
+  w.remove();refreshSlots()});
+ return true}
+function refreshSlots(){const f=$('form[data-f=assign]');if(!f)return;sync();const s=f.slot,cur=s.value,dv=toISO(f.date.value)||'';if(!f.dr.value||!dv){s.innerHTML='<option value="">Choose doctor and date first</option>';return}s.innerHTML='<option value="">'+(f.dr.value&&dv&&!works(f.dr.value,dv)?'Doctor is off on this day':'Select time slot')+'</option>'+slotOpts(f.dr.value,dv,+f.dataset.id);const o=s.querySelector(`option[value="${cur}"]`);if(cur&&o&&!o.disabled)s.value=cur}
 const medRow=()=>`<div class="mrow"><input name="med" placeholder="Medication" aria-label="Medication"><input name="dose" placeholder="Dosage" aria-label="Dosage"><input name="ins" placeholder="Instructions" aria-label="Instructions"><button type="button" class="btn d" data-a="rmmed">Remove</button></div>`;
-const editPt=id=>{const p=P(id);modal(`<h3>Edit patient ${mrn(p.id)}</h3><form data-f="editpt" data-id="${p.id}" class="grid"><div><label for="e1">First name</label><input id="e1" name="fn" required value="${esc(p.fn)}"></div><div><label for="e2">Last name</label><input id="e2" name="ln" required value="${esc(p.ln)}"></div><div><label for="e3">Phone</label><input id="e3" name="ph" value="${esc(p.ph)}"></div><div><label for="e4">Address</label><input id="e4" name="ad" value="${esc(p.ad)}"></div><div class="full acts"><button class="btn p">Save changes</button><button type="button" class="btn" data-a="close">Close</button></div></form>`)};
-const editDr=id=>{const d=D(id);modal(`<h3>Edit ${esc(dn(d.id))}</h3><form data-f="editdr" data-id="${d.id}" class="grid"><div><label for="x1">First name</label><input id="x1" name="fn" required value="${esc(d.fn)}"></div><div><label for="x2">Last name</label><input id="x2" name="ln" required value="${esc(d.ln)}"></div><div><label for="x3">Email</label><input id="x3" name="em" type="email" required value="${esc(d.em)}"></div><div><label for="x4">Specialty</label><select id="x4" name="sp">${DB.sp.map(s=>`<option value="${s.id}" ${s.id===d.sp?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div><div class="full acts"><button class="btn p">Save changes</button><button type="button" class="btn" data-a="close">Close</button><span class="err" id="e"></span></div></form>`)};
+const editPt=id=>{const p=P(id),aps=DB.ap.filter(x=>x.pt===p.id).sort(cmp).reverse();modal(`<h3>Edit patient ${mrn(p.id)}</h3><form data-f="editpt" data-id="${p.id}" class="grid"><div><label for="e1">First name</label><input id="e1" name="fn" required value="${esc(p.fn)}"></div><div><label for="e2">Last name</label><input id="e2" name="ln" required value="${esc(p.ln)}"></div><div><label for="e3">Phone</label>${phone('e3',p.ph)}</div><div><label for="e4">Address</label><input id="e4" name="ad" required value="${esc(p.ad)}"></div><div class="full acts"><button class="btn p">Save changes</button><button type="button" class="btn" data-a="close">Close</button><span class="err" id="e"></span><button type="button" class="btn d" data-a="delpt" data-id="${p.id}" style="margin-left:auto">Delete patient</button></div></form><div class="hx"><b>Appointments</b>${aps.length?aps.map(x=>`<div class="acts" style="justify-content:space-between"><span>${fmt(x.date)} <span class="meta">${x.slot||'No time yet'} · ${x.dr?esc(dn(x.dr)):'Unassigned'}</span></span><span class="acts">${pill(x.st)}${x.st==='Completed'||x.st==='Cancelled'?`<button type="button" class="btn d" data-a="delap" data-id="${x.id}">Delete</button>`:''}</span></div>`).join(''):'<div class="meta">No appointments.</div>'}</div>`)};
+const editDr=id=>{const d=D(id);modal(`<h3>Edit ${esc(dn(d.id))}</h3><form data-f="editdr" data-id="${d.id}" class="grid"><div><label for="x1">First name</label><input id="x1" name="fn" required value="${esc(d.fn)}"></div><div><label for="x2">Last name</label><input id="x2" name="ln" required value="${esc(d.ln)}"></div><div><label for="x3">Email</label><input id="x3" name="em" type="email" required value="${esc(d.em)}"></div><div><label for="x4">Specialty</label><select id="x4" name="sp">${DB.sp.map(s=>`<option value="${s.id}" ${s.id===d.sp?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>${avBox(avOf(d))}<div class="full acts"><button class="btn p">Save changes</button><button type="button" class="btn" data-a="close">Close</button><span class="err" id="e"></span></div></form>`)};
+const money=v=>v==null||v===''?'—':Number(v).toLocaleString('en-PH',{style:'currency',currency:'PHP'});
+const fdate=d=>dt(d).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+const rno=id=>'RCPT-'+String(id).padStart(5,'0');
+const rxHtml=r=>r.length?`<ul class="rxl">${r.map(x=>`<li><b>${esc(x.med)}</b>${x.dose?' · '+esc(x.dose):''}${x.ins?`<div class="meta">${esc(x.ins)}</div>`:''}</li>`).join('')}</ul>`:'<div class="meta">No medication prescribed.</div>';
+const visitExtras=a=>{const n=DB.nt.find(y=>y.ap===a.id),r=DB.rx.filter(x=>x.ap===a.id);return `<div class="rxbox"><div class="meta">Diagnosis</div><div>${esc(n?n.dx:'—')}</div><div class="meta" style="margin-top:10px">Prescription from ${esc(dn(a.dr))}</div>${rxHtml(r)}<div class="acts" style="margin-top:12px">${n&&n.fee!=null?'<button class="btn" data-a="rcpt" data-id="'+a.id+'">View receipt</button>':'<span class="meta">Receipt available once billing is done.</span>'}</div></div>`};
+function recModal(id){
+ const a=AP(id);if(!a)return;const n=DB.nt.find(y=>y.ap===a.id),r=DB.rx.filter(x=>x.ap===a.id);
+ modal(`<h3>Visit record</h3><div class="meta" style="margin-bottom:12px">${fdate(a.date)} · ${a.slot} · ${esc(dn(a.dr))}</div><div class="grid"><div><div class="meta">Patient</div><b>${esc(pn(a.pt))}</b><div class="meta">${mrn(a.pt)}</div></div><div><div class="meta">Reason for visit</div>${esc(a.sym)}</div><div class="full"><div class="meta">Diagnosis</div><b>${esc(n?n.dx:'—')}</b></div><div class="full"><div class="meta">Clinical observations</div>${esc(n&&n.ob?n.ob:'—')}</div></div><div class="meta" style="margin-top:14px">Prescription</div>${rxHtml(r)}${S.role==='doctor'?'':'<div class="meta" style="margin-top:14px">Consultation fee</div><b>'+(n&&n.fee!=null?money(n.fee):'Not billed yet')+'</b>'}<div class="acts" style="margin-top:18px">${S.role!=='doctor'&&n&&n.fee!=null?'<button class="btn p" data-a="rcpt" data-id="'+a.id+'">View receipt</button>':''}<button class="btn" data-a="close">Close</button></div>`);
+}
+function rcptModal(id){
+ const a=AP(id);if(!a)return;const n=DB.nt.find(y=>y.ap===a.id),r=DB.rx.filter(x=>x.ap===a.id),d=D(a.dr);
+ modal(`<div class="rcpt"><div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div style="display:flex;align-items:center;gap:12px"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" style="flex:none;-webkit-print-color-adjust:exact;print-color-adjust:exact"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B8CFF"/><stop offset="1" stop-color="#0B5CAD"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lg)"/><path d="M8 27a12 12 0 0 1 24 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M6 28.5h28" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M20 15v9M15.5 19.5h9" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg><div><h3 style="margin:0">HealthBridge</h3><div class="meta">Visit receipt</div></div></div><div style="text-align:right"><b>${rno(a.id)}</b><div class="meta">${fdate(a.date)}</div></div></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="grid"><div><div class="meta">Patient</div><b>${esc(pn(a.pt))}</b><div class="meta">${mrn(a.pt)}</div></div><div><div class="meta">Doctor</div><b>${esc(dn(a.dr))}</b><div class="meta">${d?esc(SP(d.sp).name):''}</div></div><div><div class="meta">Appointment</div>${fdate(a.date)}<div class="meta">${a.slot}</div></div><div><div class="meta">Diagnosis</div>${esc(n?n.dx:'—')}</div></div><div class="meta" style="margin-top:14px">Prescription</div>${rxHtml(r)}<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><div style="display:flex;justify-content:space-between;font-size:18px"><b>Consultation fee</b><b>${money(n&&n.fee)}</b></div><div class="meta" style="display:flex;justify-content:space-between;margin-top:6px"><span>Payment status</span><b>${n&&n.paid?'Paid':'Unpaid'}</b></div><div class="acts noprint" style="margin-top:18px"><button class="btn p" data-a="prt">Print receipt</button><button class="btn" data-a="close">Close</button></div></div>`);
+}
+function billModal(id){
+ const a=AP(id),n=DB.nt.find(y=>y.ap===id);if(!a||!n)return;
+ modal(`<h3>${n.fee==null?'Add bill':'Edit bill'}</h3><div class="meta" style="margin-bottom:4px">${esc(pn(a.pt))} · ${mrn(a.pt)}</div><div class="meta" style="margin-bottom:4px">${fdate(a.date)} · ${esc(dn(a.dr))}</div><div class="meta" style="margin-bottom:14px">Diagnosis: ${esc(n.dx)}</div><form data-f="bill" data-id="${a.id}"><label for="b1">Consultation fee (₱)</label><input id="b1" name="fee" type="number" min="0" step="0.01" inputmode="decimal" required placeholder="0.00" value="${n.fee==null?'':n.fee}"><div class="acts" style="margin-top:16px"><button class="btn p">Save bill</button><button type="button" class="btn" data-a="close">Close</button><span class="err" id="e"></span></div></form>`);
+}
+/* Patient ID + last name search (always shown in My appointments) */
 const A={
- role:d=>go(d.k),view:d=>{S.view=d.k;S.done=null;render()},close:()=>modal(''),walkin:()=>assignModal(0),assign:d=>assignModal(d.id),again:()=>{S.done=null;render()},editpt:d=>editPt(d.id),editdr:d=>editDr(d.id),reset:()=>{try{localStorage.removeItem(KEY)}catch(e){}load();render();toast('Demo data reset')},slots:refreshSlots,
+ role:d=>go(d.k),view:d=>{S.view=d.k;render()},close:()=>modal(''),walkin:()=>assignModal(0),assign:d=>assignModal(d.id),editpt:d=>editPt(d.id),editdr:d=>editDr(d.id),slots:refreshSlots,
+ rec:d=>recModal(+d.id),rcpt:d=>{const n=DB.nt.find(y=>y.ap===+d.id);if(!n||n.fee==null){toast('No bill yet. Staff must add the bill first.');return}rcptModal(+d.id)},bill:d=>billModal(+d.id),paid:d=>{const n=DB.nt.find(y=>y.ap===+d.id),a=AP(d.id);if(!n||n.fee==null)return;n.paid=1;L(`Payment received from ${pn(a.pt)} (${money(n.fee)})`);render();toast('Marked as paid')},prt:()=>window.print(),
+ qdays:(d,t)=>{const f=t.closest('form'),w={wk:[1,2,3,4,5],all:[0,1,2,3,4,5,6],none:[]}[d.v];f.querySelectorAll('input[name=avday]').forEach(x=>x.checked=w.includes(+x.value))},
+ qslots:(d,t)=>{const f=t.closest('form'),w={am:SLOTS.slice(0,4),pm:SLOTS.slice(4),all:SLOTS,none:[]}[d.v];f.querySelectorAll('input[name=avslot]').forEach(x=>x.checked=w.includes(x.value))},
+ ccopen:(d,t)=>{const l=t.parentElement.querySelector('.ccl'),was=l.classList.contains('on');document.querySelectorAll('.ccl.on').forEach(x=>x.classList.remove('on'));if(!was){const h=t.closest('.panel,.dlg')||document.body;let b=getComputedStyle(h).backgroundColor;if(b==='rgba(0, 0, 0, 0)'||b==='transparent')b=getComputedStyle(document.body).backgroundColor;l.style.background=b;l.classList.add('on')}},
+ ccpick:(d,t)=>{const w=t.closest('.cc'),c=ccOf(d.k),f=w.parentElement.querySelector('input[name=ph]');w.querySelector('.ccb').innerHTML=ccBtn(c);w.querySelector('input[name=cc]').value=c.k;w.querySelector('.ccl').classList.remove('on');f.placeholder=c.ex;f.value=ph10(f.value,c.k);f.focus()},
+ pickdate:(d,t)=>{const n=t.parentElement.querySelector('.dtn');try{n.showPicker()}catch(e){n.focus()}},
  note:d=>{S.cid=+d.id;S.view='consult';render();scrollTo(0,0)},
  addmed:()=>$('#meds').insertAdjacentHTML('beforeend',medRow()),
  rmmed:(d,t)=>{if($('#meds').children.length>1)t.parentElement.remove();else t.parentElement.querySelectorAll('input').forEach(i=>i.value='')},
- day:d=>{const x=dt(S.sd);x.setDate(x.getDate()+ +d.n);S.sd=iso(x);render()},
- cancel:d=>{const a=AP(d.id);a.st='Cancelled';L(`Appointment for ${pn(a.pt)} cancelled`);render();toast('Appointment cancelled')},
+ day:d=>{const x=dt(S.sd);x.setDate(x.getDate()+(+d.n)*(S.sdr?7:1));S.sd=iso(x);render()},
+// AFTER:
+cancel:d=>{
+  const a=AP(d.id);
+  modal(`<h3>Cancel appointment?</h3><p class="meta" style="margin:0 0 16px">Are you sure you want to cancel the appointment for <b>${esc(pn(a.pt))}</b> on ${fmt(a.date)}?</p><div class="acts"><button class="btn d" data-a="confirmCancel" data-id="${a.id}">Yes, cancel appointment</button><button class="btn" data-a="close">No, keep it</button></div>`);
+},
+confirmCancel:d=>{
+  const a=AP(d.id);
+  a.st='Cancelled';
+  L(`Appointment for ${pn(a.pt)} cancelled`);
+  modal('');
+  render();
+  toast('Appointment cancelled');
+},
  tog:d=>{const x=D(d.id);x.on=x.on?0:1;L(`${dn(x.id)} ${x.on?'activated':'deactivated'}`);render()},
- delsp:d=>{const s=SP(d.id);DB.sp=DB.sp.filter(x=>x.id!=d.id);L(`Specialty ${s.name} deleted`);render();toast('Specialty deleted')}
+ delsp:d=>{const s=SP(d.id);DB.sp=DB.sp.filter(x=>x.id!=d.id);L(`Specialty ${s.name} deleted`);render();toast('Specialty deleted')},
+ delpt:d=>{const p=P(d.id),n=DB.ap.filter(a=>a.pt==p.id).length;modal(`<h3>Delete ${esc(pn(p.id))}?</h3><p class="meta" style="margin:0 0 16px">This removes ${mrn(p.id)} and ${n} appointment${n==1?'':'s'} from the active records. A full copy, including diagnoses and prescriptions, is saved to Backup where an admin can restore it.</p><div class="acts"><button class="btn d" data-a="delpt2" data-id="${p.id}">Yes, delete patient</button><button class="btn" data-a="editpt" data-id="${p.id}">Cancel</button></div>`)},
+ delpt2:d=>{const p=P(d.id),nm=pn(p.id),ids=DB.ap.filter(a=>a.pt==p.id).map(a=>a.id);arch('patient',{name:nm,ref:p.id,pt:p,ap:DB.ap.filter(a=>ids.includes(a.id)),nt:DB.nt.filter(x=>ids.includes(x.ap)),rx:DB.rx.filter(x=>ids.includes(x.ap))});DB.ap=DB.ap.filter(a=>!ids.includes(a.id));DB.nt=DB.nt.filter(x=>!ids.includes(x.ap));DB.rx=DB.rx.filter(x=>!ids.includes(x.ap));DB.pt=DB.pt.filter(x=>x.id!=p.id);L(`Patient ${mrn(p.id)} (${nm}) moved to backup`);modal('');render();toast('Patient moved to backup')},
+ delap:d=>{const a=AP(d.id);modal(`<h3>Delete this appointment?</h3><p class="meta" style="margin:0 0 16px">${fmt(a.date)} for ${esc(pn(a.pt))}. Its diagnosis and prescriptions will also be removed from the active record. A copy is saved to Backup where an admin can restore it.</p><div class="acts"><button class="btn d" data-a="delap2" data-id="${a.id}">Yes, delete appointment</button><button class="btn" data-a="editpt" data-id="${a.pt}">Cancel</button></div>`)},
+ delap2:d=>{const a=AP(d.id),pid=a.pt,nm=pn(pid),dd=fmt(a.date);arch('appointment',{name:nm,ref:pid,ap:[a],nt:DB.nt.filter(x=>x.ap==a.id),rx:DB.rx.filter(x=>x.ap==a.id)});DB.ap=DB.ap.filter(x=>x.id!=a.id);DB.nt=DB.nt.filter(x=>x.ap!=a.id);DB.rx=DB.rx.filter(x=>x.ap!=a.id);L(`Appointment on ${dd} for ${nm} moved to backup`);render();toast('Appointment moved to backup');editPt(pid)},
+ deldr:d=>{const x=D(d.id),done=DB.ap.filter(a=>a.dr===x.id&&a.st==='Completed').length,open=DB.ap.filter(a=>a.dr===x.id&&a.st==='Scheduled').length;
+  if(done){modal(`<h3>Can’t delete ${esc(dn(x.id))}</h3><p class="meta" style="margin:0 0 16px">This doctor has ${done} completed visit${done==1?'':'s'} on record, and deleting would erase that history. Deactivate instead so they stop receiving appointments.</p><div class="acts"><button class="btn p" data-a="deactdr" data-id="${x.id}">Deactivate instead</button><button class="btn" data-a="close">Close</button></div>`);return}
+  modal(`<h3>Delete ${esc(dn(x.id))}?</h3><p class="meta" style="margin:0 0 16px">This permanently removes the doctor.${open?` Their ${open} scheduled appointment${open==1?'':'s'} will go back to Requests so staff can assign another doctor.`:''} This cannot be undone.</p><div class="acts"><button class="btn d" data-a="deldr2" data-id="${x.id}">Yes, delete doctor</button><button class="btn" data-a="close">Cancel</button></div>`)},
+ deactdr:d=>{const x=D(d.id);x.on=0;L(`${dn(x.id)} deactivated`);modal('');render();toast('Doctor deactivated')},
+ deldr2:d=>{const x=D(d.id),nm=dn(x.id);let n=0;DB.ap.forEach(a=>{if(a.dr===x.id){if(a.st==='Scheduled'){a.st='Pending';a.slot=null;n++}a.dr=null}});DB.dr=DB.dr.filter(y=>y.id!==x.id);if(S.did===x.id)S.did=(activeDr()[0]||{}).id||0;L(`${nm} deleted`);modal('');render();toast(n?`Doctor deleted. ${n} appointment${n==1?'':'s'} returned to requests.`:'Doctor deleted')}
 };
+
+// Input masks: phone digits by country, date as mm/dd/yyyy, clear red error while typing
+document.addEventListener('input',e=>{
+ const i=e.target;
+ if(i.name==='sym'&&i.form&&i.form.dataset.f==='assign'){const f=i.form,cur=f.dr.value;delete f.dataset.ack;f.dr.innerHTML=docOpts(i.value);if([...f.dr.options].some(o=>o.value===cur))f.dr.value=cur;const s=$('#sg');if(s)s.innerHTML=sgText(i.value);refreshSlots()}
+ if(i.name==='ph'){const w=i.closest('.phw'),k=w?w.querySelector('[name=cc]').value:'PH';i.value=ph10(i.value,k)}
+ if(i.name==='date'&&i.type==='text'){const d=i.value.replace(/\D/g,'').slice(0,8);i.value=d.length>4?d.slice(0,2)+'/'+d.slice(2,4)+'/'+d.slice(4):d.length>2?d.slice(0,2)+'/'+d.slice(2):d;refreshSlots()}
+ if((i.name==='fn'||i.name==='ln')&&i.type==='text'){const p=i.selectionStart,v=cap(i.value);if(v!==i.value){i.value=v;try{i.setSelectionRange(p,p)}catch(x){}}}
+ live(i,false);
+});
+document.addEventListener('focusout',e=>live(e.target,true));
+document.addEventListener('change',e=>live(e.target,true));
+// Close country list when clicking elsewhere
+document.addEventListener('click',e=>{if(!e.target.closest('.cc'))document.querySelectorAll('.ccl.on').forEach(x=>x.classList.remove('on'))});
+// Date picked from the calendar button -> fill the mm/dd/yyyy box
+document.addEventListener('change',e=>{
+ const n=e.target;if(!n.classList||!n.classList.contains('dtn')||!n.value)return;
+ const [y,m,d]=n.value.split('-'),w=n.parentElement,t=w.querySelector('input[type=text]');
+ t.value=m+'/'+d+'/'+y;refreshSlots();live(t,true);
+});
+
 document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t||/^(SELECT|INPUT)$/.test(t.tagName))return;const f=A[t.dataset.a];if(f)f(t.dataset,t)});
-document.addEventListener('change',e=>{const t=e.target,a=t.dataset.a;if(a==='pick'){S[t.dataset.t]=+t.value;render()}else if(a==='slots')refreshSlots();else if(a==='setday'&&t.value){S.sd=t.value;render()}else if(a==='fday'&&t.value){S.fd=t.value;render()}else if(a==='fspec'){S.fs=+t.value;render()}});
+document.addEventListener('change',e=>{const t=e.target,a=t.dataset.a;if(a==='pick'){S[t.dataset.t]=+t.value;render()}else if(a==='slots'){refreshSlots();warnDoc(t.form)}else if(a==='setday'&&t.value){S.sd=t.value;render()}else if(a==='fday'&&t.value){S.fd=t.value;render()}else if(a==='fspec'){S.fs=+t.value;render()}else if(a==='sdoc'){S.sdr=+t.value;render()}});
 $('#q').addEventListener('input',e=>{S.q=e.target.value;if(S.view!=='pts'){S.view='pts';render()}else main()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')modal('')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const w=$('#wrn');if(w)w.remove();else modal('')}});
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')modal('')});
 document.addEventListener('submit',e=>{
  e.preventDefault();const f=e.target,k=f.dataset.f,v=Object.fromEntries(new FormData(f)),err=$('#e');
- if(k==='visit'){const fn=v.fn.trim(),ln=v.ln.trim(),dg=x=>String(x||'').replace(/\D/g,'');let p=DB.pt.find(x=>x.fn.toLowerCase()===fn.toLowerCase()&&x.ln.toLowerCase()===ln.toLowerCase()&&dg(x.ph)===dg(v.ph));
-  if(p){if(v.ad.trim())p.ad=v.ad.trim()}else{p={id:++nid,fn,ln,ph:v.ph.trim(),ad:v.ad.trim()};DB.pt.push(p)}
-  const a={id:++nid,pt:p.id,dr:null,date:v.date,slot:null,st:'Pending',sym:v.sym.trim()};DB.ap.push(a);S.me=p.id;S.done={p:p.id,a:a.id};L(`${pn(p.id)} submitted a request`);render();scrollTo(0,0)}
- if(k==='look'){const p=P(parseInt(String(v.id).replace(/\D/g,''),10));if(!p||p.ln.toLowerCase()!==v.ln.trim().toLowerCase()){err.textContent='We couldn’t find a patient with that ID and last name. Check both and try again.';return}S.me=p.id;render()}
+ if(!check(f))return;
+ if(v.ph!==undefined){const c=ccOf(v.cc);v.ph=c.k==='PH'?'0'+v.ph:'+'+c.c+v.ph}
+ if(v.date&&v.date.includes('/'))v.date=toISO(v.date);
  if(k==='editpt'){Object.assign(P(f.dataset.id),{fn:v.fn.trim(),ln:v.ln.trim(),ph:v.ph.trim(),ad:v.ad.trim()});L(`Patient ${mrn(+f.dataset.id)} updated`);modal('');render();toast('Patient updated')}
- if(k==='editdr'){const x=D(f.dataset.id);if(DB.dr.some(d=>d.id!==x.id&&d.em.toLowerCase()===v.em.trim().toLowerCase())){err.textContent='That email already belongs to another doctor.';return}Object.assign(x,{fn:v.fn.trim(),ln:v.ln.trim(),em:v.em.trim(),sp:+v.sp});L(`${dn(x.id)} updated`);modal('');render();toast('Doctor updated')}
- if(k==='doc'){if(DB.dr.some(d=>d.em.toLowerCase()===v.em.toLowerCase())){err.textContent='That email already belongs to another doctor.';return}DB.dr.push({id:++nid,sp:+v.sp,fn:v.fn.trim(),ln:v.ln.trim(),em:v.em.trim(),on:1});L(`Dr. ${v.fn} ${v.ln} added to ${SP(+v.sp).name}`);render();toast('Doctor added')}
+ if(k==='editdr'){const x=D(f.dataset.id),av=getAv(f);if(!av){err.textContent='Choose at least one available day and one time slot.';return}if(DB.dr.some(d=>d.id!==x.id&&d.em.toLowerCase()===v.em.trim().toLowerCase())){err.textContent='That email already belongs to another doctor.';return}Object.assign(x,{fn:v.fn.trim(),ln:v.ln.trim(),em:v.em.trim(),sp:+v.sp,av});const c=DB.ap.filter(a=>a.dr===x.id&&a.st==='Scheduled'&&a.date>=T&&!works(x.id,a.date,a.slot)).length;L(`${dn(x.id)} updated`);modal('');render();toast(c?`Doctor updated. ${c} booked appointment${c==1?'':'s'} fall outside the new schedule.`:'Doctor updated')}
+ if(k==='doc'){const av=getAv(f);if(!av){err.textContent='Choose at least one available day and one time slot.';return}if(DB.dr.some(d=>d.em.toLowerCase()===v.em.toLowerCase())){err.textContent='That email already belongs to another doctor.';return}DB.dr.push({id:++nid,sp:+v.sp,fn:v.fn.trim(),ln:v.ln.trim(),em:v.em.trim(),on:1,av});L(`Dr. ${v.fn} ${v.ln} added to ${SP(+v.sp).name}`);render();toast('Doctor added')}
  if(k==='spec'){if(DB.sp.some(s=>s.name.toLowerCase()===v.name.trim().toLowerCase())){err.textContent='That specialty already exists.';return}DB.sp.push({id:++nid,name:v.name.trim()});L(`Specialty ${v.name.trim()} added`);render();toast('Specialty added')}
- if(k==='assign'){let a=+f.dataset.id?AP(f.dataset.id):null;if(!v.slot||taken(v.dr,v.date,v.slot,a?a.id:0)){err.textContent='That doctor already has an appointment in this slot. Choose another time.';return}if(!a){a={id:++nid,pt:+v.pt,sym:v.sym.trim()};DB.ap.push(a)}Object.assign(a,{dr:+v.dr,date:v.date,slot:v.slot,st:'Scheduled'});L(`${pn(a.pt)} scheduled with ${dn(a.dr)}`);modal('');render();toast('Appointment scheduled')}
- if(k==='note'){const id=+f.dataset.id,a=AP(id);DB.nt.push({id:++nid,ap:id,dx:v.dx.trim(),ob:v.ob.trim()});
+ if(k==='assign'){try{sync();if(warnDoc(f))return;let a=+f.dataset.id?AP(f.dataset.id):null;if(v.slot&&passed(v.date,v.slot)){err.textContent='That time has already passed. Choose a later time.';return}if(!v.slot||!works(v.dr,v.date,v.slot)){err.textContent='That doctor is not available on that day or time. Choose another.';return}if(taken(v.dr,v.date,v.slot,a?a.id:0)){err.textContent='That time slot is already booked for this doctor. Choose another time.';return}if(!a){const np={id:++nid,fn:cap(v.fn.trim()),ln:cap(v.ln.trim()),ph:v.ph.trim(),ad:v.ad.trim(),reg:0};DB.pt.push(np);a={id:++nid,pt:np.id,sym:v.sym.trim()};DB.ap.push(a)}Object.assign(a,{dr:+v.dr,date:v.date,slot:v.slot,st:'Scheduled'});{const pp=P(a.pt);if(pp&&!pp.reg){pp.reg=1;L(`${pn(pp.id)} registered as a patient`)}}L(`${pn(a.pt)} scheduled with ${dn(a.dr)}`);modal('');render();toast('Appointment scheduled')}catch(x){if(err)err.textContent='Could not save the appointment: '+x.message;console.error(x)}}
+ if(k==='bill'){const id=+f.dataset.id,a=AP(id),n=DB.nt.find(y=>y.ap===id);if(!n)return;n.fee=+v.fee;L(`Bill of ${money(n.fee)} added for ${pn(a.pt)}`);modal('');render();toast('Bill saved')}
+ if(k==='note'){const id=+f.dataset.id,a=AP(id);DB.nt.push({id:++nid,ap:id,dx:v.dx.trim(),ob:v.ob.trim(),fee:null,paid:0});
   f.querySelectorAll('.mrow').forEach(r=>{const[m,d,i]=r.querySelectorAll('input');if(m.value.trim())DB.rx.push({id:++nid,ap:id,med:m.value.trim(),dose:d.value.trim(),ins:i.value.trim()})});
-  a.st='Completed';L(`${dn(a.dr)} completed a visit with ${pn(a.pt)}`);S.view='queue';render();toast('Visit completed and saved')}
+  a.st='Completed';L(`${dn(a.dr)} completed a visit with ${pn(a.pt)}`);const np=DB.rx.filter(x=>x.ap===id).length;S.view='queue';render();toast(np?'Visit completed. Prescription sent to the patient.':'Visit completed. Sent to billing.')}
 });
 const tick=()=>$('#clock').textContent=new Date().toLocaleString('en-PH',{weekday:'long',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
-load();Object.assign(S,START);if(MODE==='client')document.body.classList.add('portal');
+load();nid=Math.max(+nid||100,...Object.values(DB).filter(Array.isArray).flat().map(x=>+(x&&x.id)||0));Object.assign(S,START);
 tick();setInterval(tick,3e4);render();
 window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.activeElement;if($('#modal').classList.contains('on')||(f&&/^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName)))return;load();chrome();main()});
+
+/* Theme toggle (light / dark / system), remembered per browser */
+(function(){
+ const b=$('#theme'),r=document.documentElement,K='hb_theme';
+ try{const t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
+ const dark=()=>r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+ const paint=()=>{
+  if(!b)return;
+  b.setAttribute('aria-label',dark()?'Switch to light theme':'Switch to dark theme');
+  b.innerHTML=dark()?
+   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>':
+   '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/></svg>';
+ };
+ if(b){
+  b.addEventListener('click',()=>{
+   const n=dark()?'light':'dark';
+   r.dataset.theme=n;
+   try{localStorage.setItem(K,n)}catch(e){}
+   paint();
+  });
+ }
+ paint();
+})();
+
+</script>
+
+<script>
+/* Sign-in guard: only a signed-in staff account may see this page */
+(async () => {
+  const PAGE = 'staff', LOGIN = 'HealthBridge-StaffLogin.html';
+  try {
+    const r = await fetch('../backend/staff_session.php', { credentials: 'same-origin', cache: 'no-store' });
+    const d = await r.json();
+    if (!d || !d.ok) { location.replace(LOGIN); return; }
+    if (d.role !== PAGE && d.role !== 'doctor') { location.replace(d.redirect); return; }
+    const style = document.createElement('style');
+    style.textContent = '.roles{display:none !important}';
+    document.head.appendChild(style);
+    if (d.role === 'doctor') {
+      // Doctor accounts open straight into their own queue and cannot switch to Staff
+      const me = DB.dr.find(x => (x.fn + ' ' + x.ln).toLowerCase() === String(d.name).trim().toLowerCase());
+      if (me) { S.did = me.id; style.textContent += '#who{display:none !important}'; }
+      go('doctor');
+    }
+    const box = document.createElement('div');
+    box.className = 'acts';
+    box.innerHTML = '<span style="color:var(--mute);white-space:nowrap"></span><button class="btn" id="signout" type="button">Sign out</button>';
+    box.firstChild.textContent = d.name + ' · ' + (d.role === 'admin' ? 'Admin' : d.role === 'doctor' ? 'Doctor' : 'Staff');
+    const before = document.getElementById('theme');
+    before.parentNode.insertBefore(box, before);
+    document.getElementById('signout').addEventListener('click', () => {
+      // Ask first, using the page's own dialog
+      modal('<h3>Sign out?</h3><p class="meta" style="margin:0 0 16px">You will need to sign in again to continue.</p><div class="acts"><button class="btn p" id="so-yes" type="button">Yes, sign out</button><button class="btn" id="so-no" type="button">Cancel</button></div>');
+      document.getElementById('so-no').addEventListener('click', () => modal(''));
+      const yes = document.getElementById('so-yes');
+      yes.addEventListener('click', async () => {
+        yes.disabled = true;
+        try { await fetch('../backend/staff_logout.php', { method: 'POST', credentials: 'same-origin' }); } catch (e) { }
+        location.replace(LOGIN);
+      });
+      yes.focus();
+    });
+    document.getElementById('guardhide').remove();
+  } catch (e) { location.replace(LOGIN); }
+})();
 </script>
 </body>
 </html>
-
