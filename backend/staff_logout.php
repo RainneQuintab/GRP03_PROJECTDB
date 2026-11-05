@@ -5,4 +5,3 @@ header('Content-Type: application/json; charset=utf-8');
 session_start();
 unset($_SESSION['staff']);
 echo json_encode(['ok' => true]);
-

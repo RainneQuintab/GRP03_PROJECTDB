@@ -159,6 +159,7 @@ textarea{min-height:96px;resize:vertical}
 @media (prefers-reduced-motion:reduce){*,*:before{animation:none!important;transition:none!important}}
 
 </style>
+<style id="guardhide">html{visibility:hidden}</style>
 </head>
 <body>
 <div class="app">
@@ -615,6 +616,41 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
  paint();
 })();
 
+</script>
+
+<script>
+/* Sign-in guard: only a signed-in admin account may see this page */
+(async () => {
+  const PAGE = 'admin', LOGIN = 'HealthBridge-StaffLogin.html';
+  try {
+    const r = await fetch('../backend/staff_session.php', { credentials: 'same-origin', cache: 'no-store' });
+    const d = await r.json();
+    if (!d || !d.ok) { location.replace(LOGIN); return; }
+    if (d.role !== PAGE) { location.replace(d.redirect); return; }
+    const style = document.createElement('style');
+    style.textContent = '.roles{display:none !important}';
+    document.head.appendChild(style);
+    const box = document.createElement('div');
+    box.className = 'acts';
+    box.innerHTML = '<span style="color:var(--mute);white-space:nowrap"></span><button class="btn" id="signout" type="button">Sign out</button>';
+    box.firstChild.textContent = d.name + ' · ' + (d.role === 'admin' ? 'Admin' : 'Staff');
+    const before = document.getElementById('theme');
+    before.parentNode.insertBefore(box, before);
+    document.getElementById('signout').addEventListener('click', () => {
+      // Ask first, using the page's own dialog
+      modal('<h3>Sign out?</h3><p class="meta" style="margin:0 0 16px">You will need to sign in again to continue.</p><div class="acts"><button class="btn p" id="so-yes" type="button">Yes, sign out</button><button class="btn" id="so-no" type="button">Cancel</button></div>');
+      document.getElementById('so-no').addEventListener('click', () => modal(''));
+      const yes = document.getElementById('so-yes');
+      yes.addEventListener('click', async () => {
+        yes.disabled = true;
+        try { await fetch('../backend/staff_logout.php', { method: 'POST', credentials: 'same-origin' }); } catch (e) { }
+        location.replace(LOGIN);
+      });
+      yes.focus();
+    });
+    document.getElementById('guardhide').remove();
+  } catch (e) { location.replace(LOGIN); }
+})();
 </script>
 </body>
 </html>

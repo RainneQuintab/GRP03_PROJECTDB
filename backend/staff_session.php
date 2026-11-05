@@ -18,4 +18,3 @@ echo json_encode([
     'doctor_id'=> $s['doctor_id'] ?? null,
     'redirect' => $s['role'] === 'admin' ? 'HealthBridge-admin.html' : 'HealthBridge-staff.html',
 ]);
-

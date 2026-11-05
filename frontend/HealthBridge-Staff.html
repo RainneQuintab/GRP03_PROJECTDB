@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HealthBridge Staff</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231470D9%22/%3E%3Cpath%20d%3D%22M5%2023c3-9%207-12%2011-12s8%203%2011%2012M4%2023h24%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v7M12.5%2017.5h7%22%20fill%3D%22none%22%20stroke%3D%22%239BE3FF%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231470D9%22/%3E%3Cpath%20d%3D%22M5%2023c3-9%207-12%2011-12s8%203%2011%2012M4%2023h24%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v7M12.5%2017.5h7   php -v%22%20fill%3D%22none%22%20stroke%3D%22%239BE3FF%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -159,6 +159,7 @@ textarea{min-height:96px;resize:vertical}
 @media (prefers-reduced-motion:reduce){*,*:before{animation:none!important;transition:none!important}}
 
 </style>
+<style id="guardhide">html{visibility:hidden}</style>
 </head>
 <body>
 <div class="app">
@@ -560,6 +561,47 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
  paint();
 })();
 
+</script>
+
+<script>
+/* Sign-in guard: only a signed-in staff account may see this page */
+(async () => {
+  const PAGE = 'staff', LOGIN = 'HealthBridge-StaffLogin.html';
+  try {
+    const r = await fetch('../backend/staff_session.php', { credentials: 'same-origin', cache: 'no-store' });
+    const d = await r.json();
+    if (!d || !d.ok) { location.replace(LOGIN); return; }
+    if (d.role !== PAGE && d.role !== 'doctor') { location.replace(d.redirect); return; }
+    const style = document.createElement('style');
+    style.textContent = '.roles{display:none !important}';
+    document.head.appendChild(style);
+    if (d.role === 'doctor') {
+      // Doctor accounts open straight into their own queue and cannot switch to Staff
+      const me = DB.dr.find(x => (x.fn + ' ' + x.ln).toLowerCase() === String(d.name).trim().toLowerCase());
+      if (me) { S.did = me.id; style.textContent += '#who{display:none !important}'; }
+      go('doctor');
+    }
+    const box = document.createElement('div');
+    box.className = 'acts';
+    box.innerHTML = '<span style="color:var(--mute);white-space:nowrap"></span><button class="btn" id="signout" type="button">Sign out</button>';
+    box.firstChild.textContent = d.name + ' · ' + (d.role === 'admin' ? 'Admin' : d.role === 'doctor' ? 'Doctor' : 'Staff');
+    const before = document.getElementById('theme');
+    before.parentNode.insertBefore(box, before);
+    document.getElementById('signout').addEventListener('click', () => {
+      // Ask first, using the page's own dialog
+      modal('<h3>Sign out?</h3><p class="meta" style="margin:0 0 16px">You will need to sign in again to continue.</p><div class="acts"><button class="btn p" id="so-yes" type="button">Yes, sign out</button><button class="btn" id="so-no" type="button">Cancel</button></div>');
+      document.getElementById('so-no').addEventListener('click', () => modal(''));
+      const yes = document.getElementById('so-yes');
+      yes.addEventListener('click', async () => {
+        yes.disabled = true;
+        try { await fetch('../backend/staff_logout.php', { method: 'POST', credentials: 'same-origin' }); } catch (e) { }
+        location.replace(LOGIN);
+      });
+      yes.focus();
+    });
+    document.getElementById('guardhide').remove();
+  } catch (e) { location.replace(LOGIN); }
+})();
 </script>
 </body>
 </html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HealthBridge Staff Login</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231470D9%22/%3E%3Cpath%20d%3D%22M5%2023c3-9%207-12%2011-12s8%203%2011%2012M4%2023h24%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M16%2014v7M12.5%2017.5h7%22%20fill%3D%22none%22%20stroke%3D%22%239BE3FF%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Theme tokens: sky (light) and dusk (dark, follows the OS) ── */
+  :root {
+    --sky1: #6BA6E8;
+    --sky2: #9CC8F2;
+    --sky3: #D3E6F9;
+    --cloud: rgba(255,255,255,.92);
+    --ring: rgba(255,255,255,.45);
+    --glass: rgba(255,255,255,.40);
+    --glass-edge: rgba(255,255,255,.88);
+    --field: rgba(255,255,255,.62);
+    --field-edge: rgba(14,42,71,.16);
+    --ink: #10263D;
+    --mute: #48607A;
+    --pri: #0B5CAD;
+    --btn: #0E2A47;
+    --btn-hover: #16406B;
+    --btn-ink: #fff;
+    --err: #B42318;
+    --warn: #B26B00;
+    --ok: #17803D;
+    --okbg: rgba(226,244,232,.9);
+    --shadow: 0 24px 60px rgba(16,60,110,.28);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --sky1: #08121F;
+      --sky2: #11284A;
+      --sky3: #1E4373;
+      --cloud: rgba(110,150,215,.22);
+      --ring: rgba(150,190,255,.18);
+      --glass: rgba(13,27,45,.58);
+      --glass-edge: rgba(255,255,255,.22);
+      --field: rgba(255,255,255,.07);
+      --field-edge: rgba(255,255,255,.22);
+      --ink: #E5ECF3;
+      --mute: #9DB1C6;
+      --pri: #4F9BE8;
+      --btn: #4F9BE8;
+      --btn-hover: #78B3F0;
+      --btn-ink: #06121D;
+      --err: #F59D94;
+      --warn: #F2C14E;
+      --ok: #6BD08F;
+      --okbg: rgba(16,48,29,.85);
+      --shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    color: var(--ink);
+    font: 400 14px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 48%, var(--sky3) 100%) fixed;
+    overflow-x: hidden;
+  }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--pri); outline-offset: 2px; }
+
+  /* ── Sky: soft clouds and faint rings behind the card ── */
+  .sky { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .ring { position: absolute; left: 50%; top: 46%; border: 1px solid var(--ring); border-radius: 50%; transform: translate(-50%,-50%); }
+  .r1 { width: 640px; height: 640px; }
+  .r2 { width: 940px; height: 940px; }
+  .r3 { width: 1280px; height: 1280px; }
+  .cloud { position: absolute; background: var(--cloud); border-radius: 50%; filter: blur(30px); animation: drift 38s ease-in-out infinite alternate; }
+  .c1 { width: 46vw; height: 190px; left: -8vw; bottom: -60px; }
+  .c2 { width: 40vw; height: 220px; left: 26vw; bottom: -90px; animation-duration: 46s; }
+  .c3 { width: 48vw; height: 200px; right: -10vw; bottom: -50px; animation-duration: 42s; animation-direction: alternate-reverse; }
+  .c4 { width: 30vw; height: 130px; left: 4vw; bottom: 150px; opacity: .8; animation-duration: 52s; }
+  .c5 { width: 34vw; height: 120px; right: 2vw; bottom: 190px; opacity: .75; animation-duration: 58s; animation-direction: alternate-reverse; }
+  .c6 { width: 38vw; height: 110px; left: 8vw; top: 6vh; opacity: .55; animation-duration: 64s; }
+  .c7 { width: 30vw; height: 90px; right: 10vw; top: 12vh; opacity: .5; animation-duration: 70s; animation-direction: alternate-reverse; }
+  @keyframes drift { from { transform: translateX(-24px); } to { transform: translateX(28px); } }
+
+  /* ── Glass card ── */
+  .card {
+    position: relative;
+    z-index: 1;
+    width: min(400px, 100%);
+    padding: 30px 28px 24px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(20px) saturate(1.35);
+    backdrop-filter: blur(20px) saturate(1.35);
+    border: 3px solid var(--glass-edge);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+  }
+  .logo {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 6px 18px rgba(16,60,110,.22);
+  }
+  .logo svg { width: 32px; height: 32px; }
+  h1 { margin: 0; text-align: center; font-size: 21px; font-weight: 700; letter-spacing: -.015em; }
+  .lead { margin: 4px 0 20px; text-align: center; color: var(--mute); font-size: 13px; }
+
+  label { display: block; margin: 0 0 5px; font-size: 13px; font-weight: 600; }
+  .field { margin-bottom: 14px; }
+  input[type=text], input[type=tel], input[type=email], input[type=password], input[type=date] {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    background: var(--field);
+    border: 1px solid var(--field-edge);
+    border-radius: 12px;
+    color: var(--ink);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input[type=date] { font: inherit; color-scheme: light dark; }
+  input::placeholder { color: var(--mute); opacity: .75; }
+  input:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pri) 28%, transparent); }
+  input[aria-invalid=true] { border-color: var(--err); }
+  /* Hide the browser's own show-password eye (Edge) so only our Show/Hide button appears */
+  input[type=password]::-ms-reveal, input[type=password]::-ms-clear { display: none; }
+  input[type=password]::-webkit-credentials-auto-fill-button { visibility: hidden; position: absolute; right: 0; }
+  .pwbox { position: relative; }
+  .pwbox input { padding-right: 64px; }
+  .pwtoggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--mute); font-size: 12px; font-weight: 600; cursor: pointer; }
+  .pwtoggle:hover { color: var(--ink); }
+  .demo { margin: 0 0 14px; padding: 10px 12px; border: 1px dashed var(--warn); border-radius: 12px; color: var(--warn); font-size: 12px; line-height: 1.5; }
+  .demo b { font-size: 17px; letter-spacing: .2em; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .links { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; }
+  .link[disabled] { opacity: .6; cursor: default; text-decoration: none; }
+  .fmsg { margin: 5px 0 0; color: var(--err); font-size: 12px; line-height: 1.4; }
+  .hint { margin: 5px 0 0; color: var(--mute); font-size: 12px; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card.wide { width: min(460px, 100%); }
+  .phonebox { display: flex; }
+  .phonebox input { flex: 1; min-width: 0; border-radius: 0 12px 12px 0; }
+  .prefix { display: flex; align-items: center; gap: 8px; padding: 0 12px; background: var(--field); border: 1px solid var(--field-edge); border-right: 0; border-radius: 12px 0 0 12px; color: var(--mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .prefix svg { width: 22px; height: 15px; border-radius: 2px; }
+
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 0 16px; background: var(--field); border: 1px solid var(--field-edge); border-radius: 12px; }
+  .seg button { height: 34px; border: 0; border-radius: 9px; background: none; color: var(--mute); font-weight: 600; cursor: pointer; transition: background .15s, color .15s; }
+  .seg button[aria-selected=true] { background: var(--btn); color: var(--btn-ink); }
+  .lead b { color: var(--ink); font-weight: 600; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 2px 0 16px; font-size: 13px; }
+  .check { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-weight: 500; cursor: pointer; }
+  .check input { appearance: none; -webkit-appearance: none; width: 16px; height: 16px; margin: 0; border: 1.5px solid var(--mute); border-radius: 4px; background: var(--field); display: grid; place-content: center; cursor: pointer; }
+  .check input:checked { background: var(--pri); border-color: var(--pri); }
+  .check input:checked::after { content: ""; width: 4px; height: 8px; border: solid var(--btn-ink); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+  .link { border: 0; background: none; padding: 0; color: var(--mute); font-size: 13px; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .link:hover { color: var(--ink); }
+
+  .primary {
+    width: 100%;
+    height: 46px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--btn);
+    color: var(--btn-ink);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .05s;
+  }
+  .primary:hover { background: var(--btn-hover); }
+  .primary:active { transform: translateY(1px); }
+  .primary[disabled] { opacity: .6; cursor: default; }
+
+  .or { display: flex; align-items: center; gap: 12px; margin: 18px 0 14px; color: var(--mute); font-size: 12px; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--field-edge); }
+  .ghost {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--field-edge);
+    border-radius: 12px;
+    background: var(--field);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .ghost:hover { background: color-mix(in srgb, var(--field) 70%, var(--pri) 18%); }
+  .foot { margin: 16px 0 0; text-align: center; color: var(--mute); font-size: 12px; }
+
+  .msg { min-height: 20px; margin: -4px 0 10px; color: var(--err); font-size: 13px; }
+  .found { margin: 0 0 16px; padding: 14px; text-align: center; background: var(--okbg); border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent); border-radius: 12px; }
+  .found .big { display: block; font-size: 26px; font-weight: 700; letter-spacing: .03em; color: var(--ok); font-variant-numeric: tabular-nums; }
+  .who { margin: 0 0 16px; padding: 12px 14px; text-align: center; background: var(--field); border: 1px solid var(--field-edge); border-radius: 12px; }
+  .who b { display: block; font-size: 15px; }
+  .back { display: block; margin: 14px auto 0; }
+
+  @media (max-width: 440px) { .card { padding: 26px 20px 20px; border-radius: 24px; } .r2, .r3 { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .cloud { animation: none; } * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+    <span class="cloud c4"></span><span class="cloud c5"></span><span class="cloud c6"></span><span class="cloud c7"></span>
+  </div>
+
+  <main class="card" id="card" aria-live="polite"></main>
+
+<script>
+  // ===== Settings =====
+  const API_LOGIN = '../backend/staff_login.php';   // must be served by PHP (XAMPP/Apache), not Live Server
+  const API_SESSION = '../backend/staff_session.php';
+  const API_RESET = '../backend/staff_reset.php';   // handles action=request (send code) and action=reset (verify code + save new password)
+  const RESEND_SECONDS = 30;
+  const REMEMBER_KEY = 'healthbridge_staff_remember';
+  const MAX_TRIES = 5, LOCK_MS = 30000;
+
+  // ===== Helpers =====
+  const $ = s => document.querySelector(s);
+  const card = $('#card');
+  const escapeHtml = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+    del(k) { try { localStorage.removeItem(k); } catch (e) { } }
+  };
+  const lock = { get() { return +store.get('healthbridge_staff_lock') || 0; }, set(t) { store.set('healthbridge_staff_lock', String(t)); }, tries() { return +store.get('healthbridge_staff_tries') || 0; }, setTries(n) { store.set('healthbridge_staff_tries', String(n)); } };
+  const pwField = (id, label, auto, hint) => `<div class="field"><label for="${id}">${label}</label><div class="pwbox"><input id="${id}" type="password" autocomplete="${auto}" placeholder="${auto === 'current-password' ? 'Enter your password' : ''}"><button type="button" class="pwtoggle" data-toggle="${id}" aria-label="Show password">Show</button></div>${hint ? `<p class="hint">${hint}</p>` : ''}</div>`;
+  const LOGO = '<svg viewBox="0 0 32 32" role="img" aria-label="HealthBridge logo"><rect width="32" height="32" rx="8" fill="#1470D9"/><path d="M5 23c3-9 7-12 11-12s8 3 11 12M4 23h24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M16 14v7M12.5 17.5h7" fill="none" stroke="#9BE3FF" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  const headHtml = (title, lead) => `<div class="logo">${LOGO}</div><h1>${title}</h1><p class="lead">${lead}</p>`;
+  function wire(form, handler) {
+    const run = e => { e.preventDefault(); handler(form); };
+    form.addEventListener('submit', run);
+    const btn = form.querySelector('button[type=submit]');
+    if (btn) { btn.addEventListener('click', run); }
+  }
+  function setError(input, text) {
+    const msg = $('#msg');
+    if (msg) { msg.textContent = text || ''; msg.style.color = ''; }
+    document.querySelectorAll('input[aria-invalid]').forEach(i => i.removeAttribute('aria-invalid'));
+    if (text && input) { input.setAttribute('aria-invalid', 'true'); input.focus(); }
+  }
+
+  // ===== Sign-in view =====
+  function showLogin(notice) {
+    const remembered = store.get(REMEMBER_KEY) || '';
+    card.innerHTML = headHtml('Staff sign in', 'For clinic staff and administrators.') +
+      `<form id="f" novalidate>
+        <div class="field"><label for="em">Work email</label><input id="em" type="email" placeholder="name@healthbridge.com" autocomplete="username" autocapitalize="off" spellcheck="false" value="${escapeHtml(remembered)}"></div>
+        ${pwField('pw', 'Password', 'current-password')}
+        <div class="row"><label class="check"><input type="checkbox" id="rem" ${remembered ? 'checked' : ''}>Remember me</label><button type="button" class="link" data-go="forgot">Forgot password?</button></div>
+        <div class="msg" id="msg" role="alert"></div>
+        <button type="submit" class="primary">Sign in</button>
+      </form>
+      <p class="foot">Staff accounts are created by a clinic administrator.</p>`;
+    if (notice) { const m = $('#msg'); m.style.color = 'var(--ok)'; m.textContent = notice; }
+    wire($('#f'), async f => {
+      const em = $('#em'), pw = $('#pw'), btn = f.querySelector('button[type=submit]');
+      const email = em.value.trim();
+      if (!email) { return setError(em, 'Enter your work email.'); }
+      if (!emailOk(email)) { return setError(em, 'That email address doesn’t look right. Check it and try again.'); }
+      if (!pw.value) { return setError(pw, 'Please enter your password.'); }
+      if (Date.now() < lock.get()) { return setError(null, `Too many attempts. Try again in ${Math.ceil((lock.get() - Date.now()) / 1000)} seconds.`); }
+      btn.disabled = true;
+      let data = null;
+      try {
+        const res = await fetch(API_LOGIN, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+          body: new URLSearchParams({ email, password: pw.value })
+        });
+        data = await res.json();
+      } catch (err) {
+        btn.disabled = false;
+        return setError(null, 'Can’t reach the server. Start Apache/PostgreSQL and open this page through http://localhost/… (not Live Server).');
+      }
+      if (!data || !data.ok) {
+        const n = lock.tries() + 1;
+        if (n >= MAX_TRIES) { lock.set(Date.now() + LOCK_MS); lock.setTries(0); } else { lock.setTries(n); }
+        btn.disabled = false;
+        return setError(pw, (data && data.error) || 'Incorrect email or password.');
+      }
+      lock.setTries(0);
+      if ($('#rem').checked) { store.set(REMEMBER_KEY, email); } else { store.del(REMEMBER_KEY); }
+      const msg = $('#msg');
+      msg.style.color = 'var(--ok)';
+      msg.textContent = `Welcome, ${data.user.name}. Opening the ${data.user.role} page…`;
+      setTimeout(() => { location.href = data.redirect; }, 600);
+    });
+    const first = $('#em').value ? $('#pw') : $('#em');
+    first.focus();
+  }
+
+  // ===== Forgot password: step 1 (choose email or phone, send code) =====
+  const reset = { method: 'email', contact: '', masked: '', demo: '' };
+  let resendTimer = null;
+
+  // Philippine mobile numbers: accepts 09171234567, 9171234567, +639171234567 -> 9171234567
+  function normalizePhone(v) {
+    let d = String(v).replace(/\D/g, '');
+    if (d.startsWith('63')) { d = d.slice(2); }
+    if (d.startsWith('0')) { d = d.slice(1); }
+    return /^9\d{9}$/.test(d) ? d : '';
+  }
+  async function callReset(params) {
+    try {
+      const res = await fetch(API_RESET, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+        body: new URLSearchParams(params)
+      });
+      return await res.json();
+    } catch (err) {
+      return { ok: false, error: 'Can’t reach the server. Start Apache/PostgreSQL and open this page through http://localhost/… (not Live Server).' };
+    }
+  }
+
+  function showForgot() {
+    clearInterval(resendTimer);
+    const isEmail = reset.method === 'email';
+    card.innerHTML = headHtml('Reset password', 'We’ll send a 6-digit code to your email or mobile number.') +
+      `<form id="f" novalidate>
+        <div class="seg" role="tablist" aria-label="Send code by">
+          <button type="button" role="tab" aria-selected="${isEmail}" data-method="email">Email</button>
+          <button type="button" role="tab" aria-selected="${!isEmail}" data-method="phone">Phone</button>
+        </div>
+        ${isEmail
+          ? `<div class="field"><label for="ct">Work email</label><input id="ct" type="email" placeholder="name@healthbridge.com" autocomplete="email" autocapitalize="off" spellcheck="false"></div>`
+          : `<div class="field"><label for="ct">Mobile number</label><div class="phonebox"><span class="prefix">+63</span><input id="ct" type="tel" inputmode="tel" placeholder="9171234567" autocomplete="tel-national"></div></div>`}
+        <div class="msg" id="msg" role="alert"></div>
+        <button type="submit" class="primary">Send code</button>
+      </form>
+      <button type="button" class="link back" data-go="login">Back to sign in</button>`;
+    $('#ct').value = reset.contact && ((isEmail && reset.contact.includes('@')) || (!isEmail && !reset.contact.includes('@'))) ? reset.contact : '';
+    wire($('#f'), async f => {
+      const ct = $('#ct'), btn = f.querySelector('button[type=submit]');
+      let contact = ct.value.trim();
+      if (isEmail) {
+        if (!contact) { return setError(ct, 'Enter your work email.'); }
+        if (!emailOk(contact)) { return setError(ct, 'That email address doesn’t look right. Check it and try again.'); }
+      } else {
+        const n = normalizePhone(contact);
+        if (!contact) { return setError(ct, 'Enter your mobile number.'); }
+        if (!n) { return setError(ct, 'Enter a valid mobile number, e.g. 9171234567.'); }
+        contact = '+63' + n;
+      }
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const data = await callReset({ action: 'request', method: reset.method, contact });
+      btn.disabled = false; btn.textContent = 'Send code';
+      if (!data || !data.ok) { return setError(ct, (data && data.error) || 'We couldn’t send a code. Please try again.'); }
+      reset.contact = contact;
+      reset.masked = data.masked || contact;
+      reset.demo = data.demo_code || '';
+      showCode();
+    });
+    $('#ct').focus();
+  }
+
+  // ===== Forgot password: step 2 (enter code + new password) =====
+  function showCode() {
+    card.innerHTML = headHtml('Enter your code', `We sent a 6-digit code to <b>${escapeHtml(reset.masked)}</b>. It expires in 10 minutes.`) +
+      (reset.demo ? `<p class="demo">Demo mode: no email/SMS provider is connected, so your code is <b>${escapeHtml(reset.demo)}</b></p>` : '') +
+      `<form id="f" novalidate>
+        <div class="field"><label for="cd">6-digit code</label><input id="cd" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456"></div>
+        ${pwField('np', 'New password', 'new-password', 'At least 8 characters.')}
+        ${pwField('np2', 'Confirm new password', 'new-password')}
+        <div class="msg" id="msg" role="alert"></div>
+        <button type="submit" class="primary">Reset password</button>
+      </form>
+      <div class="links">
+        <button type="button" class="link" id="resend" data-go="resend" disabled>Resend code</button>
+        <button type="button" class="link" data-go="forgot">Change email/phone</button>
+      </div>`;
+    startResendTimer();
+    wire($('#f'), async f => {
+      const cd = $('#cd'), np = $('#np'), np2 = $('#np2'), btn = f.querySelector('button[type=submit]');
+      if (!/^\d{6}$/.test(cd.value.trim())) { return setError(cd, 'Enter the 6-digit code we sent you.'); }
+      if (np.value.length < 8) { return setError(np, 'Your new password needs at least 8 characters.'); }
+      if (np.value !== np2.value) { return setError(np2, 'The two passwords don’t match.'); }
+      btn.disabled = true; btn.textContent = 'Saving…';
+      const data = await callReset({ action: 'reset', method: reset.method, contact: reset.contact, code: cd.value.trim(), password: np.value });
+      btn.disabled = false; btn.textContent = 'Reset password';
+      if (!data || !data.ok) { return setError(cd, (data && data.error) || 'That code is incorrect or has expired.'); }
+      clearInterval(resendTimer);
+      reset.contact = ''; reset.demo = '';
+      showLogin('Password changed. You can sign in with your new password.');
+    });
+    $('#cd').focus();
+  }
+
+  function startResendTimer() {
+    clearInterval(resendTimer);
+    let left = RESEND_SECONDS;
+    const tick = () => {
+      const b = $('#resend');
+      if (!b) { return clearInterval(resendTimer); }
+      if (left > 0) { b.disabled = true; b.textContent = `Resend code in ${left}s`; left--; }
+      else { b.disabled = false; b.textContent = 'Resend code'; clearInterval(resendTimer); }
+    };
+    tick();
+    resendTimer = setInterval(tick, 1000);
+  }
+
+  // ===== Events =====
+  card.addEventListener('click', async e => {
+    const go = e.target.closest('[data-go]');
+    const tg = e.target.closest('[data-toggle]');
+    const mt = e.target.closest('[data-method]');
+    if (tg) {
+      const i = document.getElementById(tg.dataset.toggle), show = i.type === 'password';
+      i.type = show ? 'text' : 'password';
+      tg.textContent = show ? 'Hide' : 'Show';
+      tg.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    } else if (mt) {
+      reset.method = mt.dataset.method;
+      showForgot();
+    } else if (go) {
+      const to = go.dataset.go;
+      if (to === 'forgot') { showForgot(); }
+      else if (to === 'login') { clearInterval(resendTimer); showLogin(); }
+      else if (to === 'resend' && !go.disabled) {
+        go.disabled = true; go.textContent = 'Sending…';
+        const data = await callReset({ action: 'request', method: reset.method, contact: reset.contact });
+        if (data && data.ok) { reset.demo = data.demo_code || reset.demo; showCode(); setError(null, ''); const m = $('#msg'); if (m) { m.style.color = 'var(--ok)'; m.textContent = 'A new code was sent.'; } }
+        else { startResendTimer(); setError(null, (data && data.error) || 'We couldn’t resend the code. Please try again.'); }
+      }
+    }
+  });
+  card.addEventListener('input', e => {
+    if (!e.target.closest('#f')) { return; }
+    e.target.removeAttribute('aria-invalid');
+    const m = $('#msg'); if (m) { m.textContent = ''; m.style.color = ''; }
+  });
+
+  // ===== Start: already signed in? go straight to your page =====
+  fetch(API_SESSION, { credentials: 'same-origin', cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => { if (d && d.ok) { location.replace(d.redirect); } else { showLogin(); } })
+    .catch(() => showLogin());
+</script>
+</body>
+</html>

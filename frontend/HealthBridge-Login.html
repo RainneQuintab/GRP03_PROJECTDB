@@ -117,7 +117,7 @@
 
   label { display: block; margin: 0 0 5px; font-size: 13px; font-weight: 600; }
   .field { margin-bottom: 14px; }
-  input[type=text], input[type=tel], input[type=email], input[type=password] {
+  input[type=text], input[type=tel], input[type=email], input[type=password], input[type=date] {
     width: 100%;
     height: 44px;
     padding: 0 14px;
@@ -127,6 +127,7 @@
     color: var(--ink);
     transition: border-color .15s, box-shadow .15s;
   }
+  input[type=date] { font: inherit; color-scheme: light dark; }
   input::placeholder { color: var(--mute); opacity: .75; }
   input:focus { outline: none; border-color: var(--pri); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pri) 28%, transparent); }
   input[aria-invalid=true] { border-color: var(--err); }
@@ -216,17 +217,22 @@
 <script>
   // ===== Settings (keep both files in the same folder with exactly these names; edit PORTAL_URL if you rename the portal file) =====
   const PORTAL_URL = 'HealthBridge-Patient.html';
+  const API_SIGNUP = '../backend/signup.php';
+  const API_LOGIN = '../backend/login.php'; // must be served by PHP (XAMPP/Apache), not Live Server
+  const API_RESET = '../backend/patient_reset.php';   // action=request (send code) and action=reset (check code + save new password)
   const STORAGE_KEY = 'healthbridge_demo_v2';   // same data the portal uses
+  // What the portal needs to know about a patient who came from the database
+  const serverUser = p => {
+    const d = String(p.contact_number || p.phone || '').replace(/\D/g, '').replace(/^0/, '').slice(-10);
+    return { id: Number(p.id), fn: p.fn || p.first_name || '', ln: p.last_name || p.ln || '',
+      ph: d.length === 10 ? `+63 ${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}` : '', ad: p.address || '' };
+  };
   const SESSION_KEY = 'healthbridge_session_v2'; // the portal reads this to know who is logged in
   const REMEMBER_KEY = 'healthbridge_remember_id';
   const SIGNUP_KEY = 'healthbridge_signup_v1';  // handed to the portal, which assigns the patient ID and creates the record
-  const CREDS_KEY = 'healthbridge_creds_v1';   // DEMO ONLY: { [patientId]: { em, salt, hash } }. Replace with server-side auth when the backend is connected.
   const MAX_TRIES = 5, LOCK_MS = 30000;
-  // Verification codes. DEMO: there is no server to send SMS/email, so the code is shown on screen.
-  // Set DEMO_SHOW_CODE to false once a real backend sends the code.
-  const DEMO_SHOW_CODE = true;
-  const CODE_TTL = 5 * 60 * 1000, RESEND_MS = 30000, MAX_CODE_TRIES = 5;
-  let reset = null;      // { pid, code, exp, tries, via, target, label, sentAt, verified }
+  const RESEND_MS = 30000;
+  let reset = null;      // { via, contact, label, sentAt, demo }
   let codeTimer = null;
 
   // ===== Helpers =====
@@ -253,8 +259,6 @@
     if (d.startsWith('63') && d.length > 10) { d = d.slice(2); }
     return d.replace(/^0+/, '').slice(0, 10);
   };
-  const creds = () => { try { return JSON.parse(store.get(CREDS_KEY)) || {}; } catch (e) { return {}; } };
-  const saveCred = (id, c) => { const all = creds(); all[id] = c; return store.set(CREDS_KEY, JSON.stringify(all)); };
   // Patient ID must look exactly like HB-00001: capital HB, a dash, then digits
   const idFormatError = v => {
     if (!/^hb/i.test(v)) { return 'Patient IDs start with HB, for example HB-00001. Or sign in with your email.'; }
@@ -285,20 +289,23 @@
     }
     return '';
   }
-  const newCode = () => String(crypto.getRandomValues(new Uint32Array(1))[0] % 1000000).padStart(6, '0');
   const maskEmail = e => e.replace(/^([^@])[^@]*(@.*)$/, '$1•••$2');
   const maskPhone = d => `+63 ${d.slice(0, 3)} ••• ${d.slice(6)}`;
-  const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
-  const emailTaken = (em, exceptId) => Object.entries(creds()).some(([id, c]) => String(id) !== String(exceptId) && sameText(c.em, em));
-  const newSalt = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
-  async function hashPw(pw, salt) {
-    const data = new TextEncoder().encode(salt + ':' + pw);
-    if (window.crypto && crypto.subtle) {
-      const buf = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+  // Talks to patient_reset.php; always returns { ok, error?, ... } even when the server can't be reached
+  async function resetCall(fields) {
+    try {
+      const res = await fetch(API_RESET, {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+        body: new URLSearchParams(fields)
+      });
+      const data = await res.json();
+      return data && typeof data === 'object' ? data : { ok: false, error: 'Unexpected reply from the server.' };
+    } catch (err) {
+      return { ok: false, error: 'Can’t reach the server. Start Apache/PostgreSQL and open this page through http://localhost/… (not Live Server).' };
     }
-    let h = 2166136261; for (const b of data) { h ^= b; h = Math.imul(h, 16777619); } return 'f' + (h >>> 0).toString(16);
   }
+  const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
   const lock = { get() { return +store.get('healthbridge_lock') || 0; }, set(t) { store.set('healthbridge_lock', String(t)); }, tries() { return +store.get('healthbridge_tries') || 0; }, setTries(n) { store.set('healthbridge_tries', String(n)); } };
   // Only the most obvious passwords are refused (password1, 12345678, ...); there is no strength meter or character rules
   const COMMON_PW = ['password', 'qwerty', 'qwertyuiop', 'iloveyou', 'admin', 'letmein', 'welcome', 'monkey', 'dragon', 'login', 'healthbridge', 'abcdefgh', 'abc123', '12345678', '123456789', '1234567890', '11111111', '00000000'];
@@ -371,27 +378,35 @@
         if (!pwInput.value) { return setError(pwInput, 'Please enter your password.'); }
         if (Date.now() < lock.get()) { return setError(null, `Too many attempts. Try again in ${Math.ceil((lock.get() - Date.now()) / 1000)} seconds.`); }
         btn.disabled = true;
-        // Find the patient by email or by patient ID
-        let p = null, c = null;
-        if (who.includes('@')) {
-          const hit = Object.entries(creds()).find(([, x]) => sameText(x.em, who));
-          if (hit) { p = patients().find(x => String(x.id) === String(hit[0])); c = hit[1]; }
-        } else {
-          p = patients().find(x => x.id === parseInt(who.slice(3), 10));
-          c = p && creds()[p.id];
+        // Ask the server (login.php -> database) to check the credentials
+        let p = null, reason = '';
+        try {
+          const res = await fetch(API_LOGIN, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: new URLSearchParams({ login: who, password: pwInput.value })
+          });
+          const data = await res.json();
+          if (data && data.ok && data.patient) { p = data.patient; } else { reason = (data && data.error) || ''; }
+        } catch (err) {
+          btn.disabled = false;
+          return setError(null, 'Can’t reach the server. Start Apache/PostgreSQL and open this page through http://localhost/… (not Live Server).');
         }
-        const good = p && c && (await hashPw(pwInput.value, c.salt)) === c.hash;
-        if (!good) {
+        if (!p) {
           const n = lock.tries() + 1;
           if (n >= MAX_TRIES) { lock.set(Date.now() + LOCK_MS); lock.setTries(0); } else { lock.setTries(n); }
           btn.disabled = false;
-          return setError(pwInput, 'Incorrect ID/email or password. First time signing in? Use “Forgot ID or password?” to set one up.');
+          return setError(pwInput, reason || 'Incorrect ID/email or password.');
         }
+        p.fn = p.fn || p.first_name || p.name || '';
         lock.setTries(0);
         if (!store.set(SESSION_KEY, String(p.id))) {
           btn.disabled = false;
           return setError(null, 'Your browser blocked saving the login. Allow site data for this page and try again.');
         }
+        // Hand the database patient to the portal (it reads this on startup)
+        store.set('healthbridge_server_user', JSON.stringify(serverUser(p)));
         if ($('#rem').checked) { store.set(REMEMBER_KEY, who); } else { store.del(REMEMBER_KEY); }
         $('#msg').style.color = 'var(--ok)';
         $('#msg').textContent = `Welcome, ${p.fn}. Opening your appointments…`;
@@ -406,6 +421,7 @@
             <div class="field"><label for="sfn">First name</label><input id="sfn" type="text" autocomplete="given-name" autocapitalize="words"></div>
             <div class="field"><label for="sln">Last name</label><input id="sln" type="text" autocomplete="family-name" autocapitalize="words"></div>
           </div>
+          <div class="field"><label for="sdb">Date of birth</label><input id="sdb" type="date" max="${new Date().toISOString().slice(0, 10)}" min="1900-01-01" autocomplete="bday"></div>
           <div class="field"><label for="sph">Mobile number</label><div class="phonebox"><span class="prefix">${FLAG}+63</span><input id="sph" type="tel" inputmode="numeric" placeholder="9171234567" autocomplete="tel-national"></div></div>
           <div class="field"><label for="sad">Address</label><input id="sad" type="text" autocomplete="street-address"></div>
           <div class="field"><label for="sem">Email</label><input id="sem" type="email" autocomplete="email" spellcheck="false" placeholder="name@email.com"></div>
@@ -421,29 +437,44 @@
       $('#sph').addEventListener('input', e => { e.target.value = phoneDigits(e.target.value); });
       wire($('#f'), async f => {
         const g = id => $('#' + id);
-        const fn = g('sfn'), ln = g('sln'), ph = g('sph'), ad = g('sad'), em = g('sem'), p1 = g('sp1'), p2 = g('sp2');
+        const fn = g('sfn'), ln = g('sln'), db = g('sdb'), ph = g('sph'), ad = g('sad'), em = g('sem'), p1 = g('sp1'), p2 = g('sp2');
         if (!fn.value.trim()) { return setError(fn, 'Please enter your first name.'); }
         if (!ln.value.trim()) { return setError(ln, 'Please enter your last name.'); }
+        if (!db.value || db.value > new Date().toISOString().slice(0, 10) || db.value < '1900-01-01') { return setError(db, 'Please enter your date of birth.'); }
         if (!/^9\d{9}$/.test(ph.value)) { return setError(ph, 'Enter a 10-digit mobile number starting with 9, for example 9171234567.'); }
         if (!ad.value.trim()) { return setError(ad, 'Please enter your address.'); }
         const emErr = emailProblem(em.value.trim());
         if (emErr) { return setError(em, emErr); }
-        if (emailTaken(em.value.trim(), null)) { return setError(em, 'That email already has an account. Try signing in instead.'); }
         if (p1.value.length < 8) { return setError(p1, 'Use at least 8 characters for your password.'); }
         if (isCommonPw(p1.value)) { return setError(p1, 'That password is too common. Choose something harder to guess.'); }
         if (p1.value !== p2.value) { return setError(p2, 'The two passwords don’t match.'); }
-        const exists = patients().find(x => sameText(x.fn, fn.value) && sameText(x.ln, ln.value) && phoneDigits(x.ph) === ph.value);
-        if (exists) { return setError(fn, 'A patient with this name and mobile number already exists. Use “Forgot ID or password?” on the sign-in page to set up your password.'); }
-        const salt = newSalt();
-        const rec = { fn: fn.value.trim(), ln: ln.value.trim(), ph: ph.value, ad: ad.value.trim(), em: em.value.trim(), salt, hash: await hashPw(p1.value, salt) };
-        if (!store.set(SIGNUP_KEY, JSON.stringify(rec))) { return setError(null, 'Your browser blocked saving. Allow site data for this page and try again.'); }
-        f.querySelector('button[type=submit]').disabled = true;
-        $('#msg').style.color = 'var(--ok)';
+        const btn = f.querySelector('button[type=submit]');
+        btn.disabled = true;
+        $('#msg').style.color = '';
         $('#msg').textContent = 'Creating your account…';
-        setTimeout(() => { location.href = PORTAL_URL; }, 500);
+        let created = null;
+        try {
+          const res = await fetch(API_SIGNUP, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: new URLSearchParams({ fn: fn.value.trim(), ln: ln.value.trim(), dob: db.value, ph: ph.value, ad: ad.value.trim(), em: em.value.trim(), password: p1.value })
+          });
+          const data = await res.json();
+          if (data && data.ok && data.patient) { created = data.patient; }
+          else { btn.disabled = false; return setError(res.status === 409 ? em : null, (data && data.error) || 'Could not create your account.'); }
+        } catch (err) {
+          btn.disabled = false;
+          return setError(null, 'Can’t reach the server. Start Apache/PostgreSQL and open this page through http://localhost/… (not Live Server).');
+        }
+        store.set('healthbridge_server_user', JSON.stringify(serverUser(created)));
+        if (!store.set(SESSION_KEY, String(created.id))) { btn.disabled = false; return setError(null, 'Your browser blocked saving the login. Allow site data for this page and try again.'); }
+        $('#msg').style.color = 'var(--ok)';
+        $('#msg').textContent = `Account created. Your patient ID is ${'HB-' + String(created.id).padStart(5, '0')}. Opening your appointments…`;
+        setTimeout(() => { location.href = PORTAL_URL; }, 900);
       });
       const early = t => t.startsWith('Did you mean');
-      liveField($('#sem'), v => emailProblem(v.trim()) || (emailTaken(v.trim(), null) ? 'That email already has an account. Try signing in instead.' : ''), { early });
+      liveField($('#sem'), v => emailProblem(v.trim()), { early });
       liveField($('#sph'), v => (/^9\d{9}$/.test(v) ? '' : 'Enter a 10-digit mobile number starting with 9, for example 9171234567.'));
       liveField($('#sp2'), v => (v === $('#sp1').value ? '' : 'The two passwords don’t match.'));
       $('#sp1').addEventListener('input', () => { if ($('#sp2').value) { $('#sp2')._run(); } });
@@ -459,103 +490,75 @@
         </form>
         <button type="button" class="link back" data-go="login">Back to sign in</button>`;
       $('#rid').addEventListener('input', e => { if (/^[\d\s+()-]*$/.test(e.target.value)) { e.target.value = phoneDigits(e.target.value); } });
-      wire($('#f'), () => {
+      wire($('#f'), async f => {
         const rid = $('#rid'), v = rid.value.trim();
         if (!v) { return setError(rid, 'Enter the email or mobile number on your account.'); }
-        let via, p = null, label;
+        let via, contact, label;
         if (v.includes('@')) {
           const err = emailProblem(v);
           if (err) { return setError(rid, err); }
-          via = 'email'; label = maskEmail(v);
-          const hit = Object.entries(creds()).find(([, x]) => sameText(x.em, v));
-          p = hit && patients().find(x => String(x.id) === String(hit[0]));
+          via = 'email'; contact = v; label = maskEmail(v);
         } else {
           const d = phoneDigits(v);
           if (!/^9\d{9}$/.test(d)) { return setError(rid, 'Enter a 10-digit mobile number starting with 9, or your email.'); }
-          via = 'phone'; label = maskPhone(d);
-          p = patients().find(x => phoneDigits(x.ph) === d);
+          via = 'phone'; contact = d; label = maskPhone(d);
         }
-        // Same screen whether or not an account matches, so the page doesn't reveal who is registered
-        reset = { pid: p ? p.id : null, code: newCode(), exp: Date.now() + CODE_TTL, tries: 0, via, target: v, label, sentAt: Date.now(), verified: false };
+        const btn = f.querySelector('button[type=submit]');
+        btn.disabled = true;
+        const r = await resetCall({ action: 'request', method: via, contact });
+        btn.disabled = false;
+        if (!r.ok) { return setError(rid, r.error); }
+        reset = { via, contact, label, sentAt: Date.now(), demo: r.demo_code || null };
         views.verify();
       });
       $('#rid').focus();
     },
     verify(note) {
       if (!reset) { return views.recover(); }
-      card.innerHTML = head('Enter your code', `We sent a 6-digit code to ${escapeHtml(reset.label)}. It expires in 5 minutes.`) +
-        (DEMO_SHOW_CODE ? `<div class="demo">Demo only: ${reset.pid ? `your code is <b>${reset.code}</b>. A real system sends this by SMS or email.` : 'no account matches that email or number. A real system would not say so.'}</div>` : '') +
+      card.innerHTML = head('Enter your code', `We sent a 6-digit code to ${escapeHtml(reset.label)}. It expires in 10 minutes.`) +
+        (reset.demo ? `<div class="demo">Demo mode: your code is <b>${escapeHtml(reset.demo)}</b>. Real codes are sent by email or SMS.</div>` : '') +
         `<form id="f" novalidate>
-          <div class="field"><label for="otp">Verification code</label><input id="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" style="text-align:center;font-size:20px;letter-spacing:.4em"></div>
+          <div class="field"><label for="otp">Verification code</label><input id="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" style="text-align:center;font-size:20px;letter-spacing:6px"></div>
+          ${pwField('np', 'New password', 'new-password', 'At least 8 characters.')}
+          ${pwField('np2', 'Confirm password', 'new-password')}
           <div class="msg" id="msg" role="alert"></div>
-          <button type="submit" class="primary">Verify</button>
+          <button type="submit" class="primary">Save new password</button>
         </form>
         <div class="links"><button type="button" class="link" id="resend"></button><button type="button" class="link" data-go="recover">Use a different email or number</button></div>`;
       if (note) { $('#msg').style.color = 'var(--ok)'; $('#msg').textContent = note; }
       const otp = $('#otp'), resend = $('#resend');
-      const check = () => {
-        if (Date.now() > reset.exp) { return setError(otp, 'This code expired. Tap “Resend code” to get a new one.'); }
-        if (reset.tries >= MAX_CODE_TRIES) { return setError(otp, 'Too many wrong codes. Tap “Resend code” to get a new one.'); }
+      otp.addEventListener('input', () => { otp.value = otp.value.replace(/\D/g, '').slice(0, 6); });
+      wire($('#f'), async f => {
+        const np = $('#np'), np2 = $('#np2');
         if (otp.value.length !== 6) { return setError(otp, 'Enter the 6-digit code.'); }
-        if (!reset.pid || otp.value !== reset.code) { reset.tries++; otp.select(); return setError(otp, 'That code isn’t right. Check it and try again.'); }
-        reset.verified = true;
-        views.setup(patients().find(x => x.id === reset.pid));
-      };
-      wire($('#f'), check);
-      otp.addEventListener('input', () => { otp.value = otp.value.replace(/\D/g, '').slice(0, 6); if (otp.value.length === 6) { check(); } });
+        if (np.value.length < 8) { return setError(np, 'Use at least 8 characters for your password.'); }
+        if (isCommonPw(np.value)) { return setError(np, 'That password is too common. Choose something harder to guess.'); }
+        if (np.value !== np2.value) { return setError(np2, 'The two passwords don’t match.'); }
+        const btn = f.querySelector('button[type=submit]');
+        btn.disabled = true;
+        const r = await resetCall({ action: 'reset', method: reset.via, contact: reset.contact, code: otp.value, password: np.value });
+        if (!r.ok) { btn.disabled = false; otp.select(); return setError(otp, r.error); }
+        // Password saved in the database. Send them to sign in (the server session starts at sign-in, not here).
+        clearInterval(codeTimer);
+        reset = null; lock.setTries(0);
+        store.set(REMEMBER_KEY, r.patient_code);
+        views.login({ id: r.patient_code });
+        $('#msg').style.color = 'var(--ok)';
+        $('#msg').textContent = `Password saved. Your patient ID is ${r.patient_code}. Sign in with it or your email.`;
+      });
       const tick = () => {
         const left = Math.ceil((RESEND_MS - (Date.now() - reset.sentAt)) / 1000);
         if (left > 0) { resend.disabled = true; resend.textContent = `Resend code in ${left}s`; } else { resend.disabled = false; resend.textContent = 'Resend code'; clearInterval(codeTimer); }
       };
       tick(); codeTimer = setInterval(tick, 1000);
-      resend.addEventListener('click', () => {
-        Object.assign(reset, { code: newCode(), exp: Date.now() + CODE_TTL, tries: 0, sentAt: Date.now() });
+      resend.addEventListener('click', async () => {
+        resend.disabled = true;
+        const r = await resetCall({ action: 'request', method: reset.via, contact: reset.contact });
+        if (!r.ok) { resend.disabled = false; return setError(null, r.error); }
+        reset.sentAt = Date.now(); reset.demo = r.demo_code || null;
         views.verify('A new code was sent.');
       });
       otp.focus();
-    },
-    setup(p) {
-      // Only reachable after the code was verified
-      if (!p || !reset || !reset.verified || reset.pid !== p.id) { return views.recover(); }
-      const c = creds()[p.id];
-      const needEmail = !(c && c.em);
-      card.innerHTML = head('Set a new password', 'You’re verified. Your patient ID is below. Sign in with it or your email.') +
-        `<div class="found"><span class="hint">Your patient ID</span><span class="big">${mrn(p.id)}</span></div>
-        <form id="f" novalidate>
-          ${needEmail ? '<div class="field"><label for="em">Email</label><input id="em" type="email" autocomplete="email" spellcheck="false" placeholder="name@email.com"><p class="hint">Add an email so you can sign in with it too.</p></div>' : ''}
-          ${pwField('np', 'New password', 'new-password', 'At least 8 characters.')}
-          ${pwField('np2', 'Confirm password', 'new-password')}
-          <div class="msg" id="msg" role="alert"></div>
-          <button type="submit" class="primary">Save and sign in</button>
-        </form>`;
-      wire($('#f'), async f => {
-        const em = $('#em'), np = $('#np'), np2 = $('#np2');
-        let email = c ? c.em : '';
-        if (needEmail) {
-          const emErr = emailProblem(em.value.trim());
-          if (emErr) { return setError(em, emErr); }
-          if (emailTaken(em.value.trim(), p.id)) { return setError(em, 'That email is already used by another patient.'); }
-          email = em.value.trim();
-        }
-        if (np.value.length < 8) { return setError(np, 'Use at least 8 characters for your password.'); }
-        if (isCommonPw(np.value)) { return setError(np, 'That password is too common. Choose something harder to guess.'); }
-        if (np.value !== np2.value) { return setError(np2, 'The two passwords don’t match.'); }
-        const salt = newSalt();
-        const ok = saveCred(p.id, { em: email, salt, hash: await hashPw(np.value, salt) }) && store.set(SESSION_KEY, String(p.id));
-        if (!ok) { return setError(null, 'Your browser blocked saving. Allow site data for this page and try again.'); }
-        store.set(REMEMBER_KEY, mrn(p.id));
-        reset = null; lock.setTries(0);
-        $('#msg').style.color = 'var(--ok)';
-        $('#msg').textContent = 'Password saved. Opening your appointments…';
-        f.querySelector('button[type=submit]').disabled = true;
-        setTimeout(() => { location.href = PORTAL_URL; }, 700);
-      });
-      if (needEmail) {
-        liveField($('#em'), v => emailProblem(v.trim()) || (emailTaken(v.trim(), p.id) ? 'That email is already used by another patient.' : ''), { early: t => t.startsWith('Did you mean') });
-      }
-      liveField($('#np2'), v => (v === $('#np').value ? '' : 'The two passwords don’t match.'));
-      $('#np').addEventListener('input', () => { if ($('#np2').value) { $('#np2')._run(); } });
-      (needEmail ? $('#em') : $('#np')).focus();
     },
     resume(p) {
       card.innerHTML = head('You’re signed in', 'Welcome back to HealthBridge.') +

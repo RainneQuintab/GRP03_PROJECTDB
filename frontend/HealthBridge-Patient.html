@@ -713,9 +713,11 @@
     transform: translateX(-50%);
     background: var(--ink);
     color: var(--bg);
-    padding: 9px 18px;
+    padding: 10px 18px;
     border-radius: 6px;
     font-weight: 500;
+    max-width: min(92vw, 520px);
+    text-align: center;
     opacity: 0;
     transition: opacity .2s;
     pointer-events: none;
@@ -864,6 +866,37 @@
     font-weight: 700;
     flex: none;
   }
+
+  .billcard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    border-left: 4px solid var(--warn);
+  }
+
+  .billcard .amt {
+    font-size: 26px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin: 6px 0 2px;
+  }
+
+  .pms { display: grid; gap: 8px; margin: 0 0 12px; }
+  .pm {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .pm:has(input:checked) { border-color: var(--warn); }
+  .pm input { margin: 0; width: auto; }
 
   .okbox {
     border-left: 4px solid var(--ok);
@@ -1156,17 +1189,41 @@
     const activeDr = () => DB.dr.filter(d => d.on);
 
     // ===== UI helpers =====
-    function toast(t) {
+    function toast(t, ms = 2400) {
       const e = $('#toast');
       e.textContent = t;
       e.classList.add('on');
       clearTimeout(toast.t);
-      toast.t = setTimeout(() => e.classList.remove('on'), 2400);
+      toast.t = setTimeout(() => e.classList.remove('on'), ms);
     }
     function modal(h) {
       const m = $('#modal');
       m.innerHTML = h ? `<div class="dlg">${h}</div>` : '';
       m.classList.toggle('on', !!h);
+    }
+    function payModal(ids) {
+      ids = ids.filter(id => { const a = appointmentById(id), n = a && billOf(id); return a && n && !n.paid && a.pt === state.me; });
+      if (!ids.length) return;
+      const total = ids.reduce((t, id) => t + Number(billOf(id).fee), 0);
+      modal(`<h3 style="margin:0 0 4px">Pay online</h3><div class="meta">${ids.length > 1 ? ids.length + ' visits' : 'Visit bill'}</div><div class="big" style="margin:8px 0 14px">${money(total)}</div><div class="pms">${['GCash', 'Maya', 'Credit / debit card'].map((m, i) => `<label class="pm"><input type="radio" name="pm" value="${m}" ${i ? '' : 'checked'}><span>${m}</span></label>`).join('')}</div><p class="meta" style="margin:0 0 14px">Demo checkout. No real money is charged.</p><div class="acts"><button class="btn p" data-a="paynow" data-id="${ids.join(',')}">Pay ${money(total)}</button><button class="btn" data-a="close">Cancel</button></div>`);
+    }
+    function payNow(ids) {
+      const via = (document.querySelector('#modal input[name=pm]:checked') || {}).value || 'Online';
+      const b = document.querySelector('#modal [data-a="paynow"]');
+      if (b) { b.disabled = true; b.textContent = 'Processing…'; }
+      setTimeout(() => {
+        let total = 0, count = 0;
+        ids.forEach(id => {
+          const a = appointmentById(id), n = a && billOf(id);
+          if (a && n && !n.paid && a.pt === state.me) { n.paid = 1; n.via = via; n.paidAt = new Date().toISOString(); total += Number(n.fee); count++; }
+        });
+        if (!count) { modal(''); return; }
+        logEvent(`Payment received from ${patientName(state.me)} (${money(total)}) online via ${via}`);
+        save();
+        modal('');
+        render();
+        toast('Payment received. Thank you!', 3200);
+      }, 1200);
     }
     const rno = id => 'RCPT-' + String(id).padStart(5, '0');
     const rxHtml = r => r.length ? `<ul class="rxl">${r.map(x => `<li><b>${escapeHtml(x.med)}</b>${x.dose ? ' · ' + escapeHtml(x.dose) : ''}${x.ins ? `<div class="meta">${escapeHtml(x.ins)}</div>` : ''}</li>`).join('')}</ul>` : '<div class="meta">No medication prescribed.</div>';
@@ -1290,14 +1347,14 @@
         const l = p ? DB.ap.filter(a => a.pt === p.id && (state.auth || (state.done && a.id === state.done.a))).sort((a, b) => b.date.localeCompare(a.date)) : [];
         const moreForm = p && state.more ? `<form class="panel pad grid" data-f="more" novalidate style="margin-bottom:16px"><div class="full"><b>Book a visit</b> <span class="meta">for ${escapeHtml(patientName(p.id))} (${mrn(p.id)}).</span></div><div><label for="nv1">Preferred date</label><div class="datebox"><input id="nv1" class="datetext" name="date_text" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy" autocomplete="off" required><button type="button" class="datebtn" data-a="pickdate" aria-label="Pick a date"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button></div></div><div class="full"><label for="nv2">Symptoms or reason for visit</label><textarea id="nv2" name="sym" required placeholder="Example: follow-up check, fever and cough for three days"></textarea></div><div class="full acts"><button class="btn p">Send request</button><button type="button" class="btn" data-a="cancelnew">Cancel</button></div></form>` : '';
         const sent = state.done && patientById(state.done.p);
-        const banner = sent ? `<div class="panel pad okbox" role="status" style="margin-bottom:16px"><b>Request sent. Clinic staff will review it and assign your doctor.</b>${state.auth ? '' : `<div class="meta" style="margin-top:6px">Your patient ID</div><div class="big">${mrn(sent.id)}</div><div>Keep this ID. Create a password to sign in and check your appointment later.</div>`}</div>` : '';
+        const banner = sent && !state.auth ? `<div class="panel pad okbox" role="status" style="margin-bottom:16px"><b>Request sent. Clinic staff will review it and assign your doctor.</b>${state.auth ? '' : `<div class="meta" style="margin-top:6px">Your patient ID</div><div class="big">${mrn(sent.id)}</div><div>Keep this ID. Create a password to sign in and check your appointment later.</div>`}</div>` : '';
         const unpaid = state.auth ? l.filter(x => { const n = billOf(x.id); return n && !n.paid; }) : [];
-        const billBanner = unpaid.length ? `<div class="panel pad okbox" role="status" style="margin-bottom:16px"><b>${unpaid.length > 1 ? 'You have ' + unpaid.length + ' unpaid bills' : 'Your bill is ready'}</b><div>Total due: <b>${money(unpaid.reduce((t, x) => t + Number(billOf(x.id).fee), 0))}</b>. Please settle it with clinic staff.</div></div>` : '';
+        const billBanner = unpaid.length ? `<div class="panel pad billcard" role="status"><div><span class="pill Pending">${unpaid.length > 1 ? unpaid.length + ' bills due' : 'Payment due'}</span><div class="amt">${money(unpaid.reduce((t, x) => t + Number(billOf(x.id).fee), 0))}</div><div class="meta">${unpaid.length > 1 ? 'For ' + unpaid.length + ' completed visits' : 'For your visit on ' + formatDate(unpaid[0].date) + (unpaid[0].dr ? ' with ' + escapeHtml(doctorName(unpaid[0].dr)) : '')}</div></div><div class="acts"><button class="btn p" data-a="pay" data-id="${unpaid.map(x => x.id).join(',')}">Pay online</button></div></div>` : '';
         const billBlock = a => {
           if (a.st !== 'Completed') return '';
           const n = billOf(a.id);
           if (!n) return '<div class="meta" style="margin-top:10px">Your bill is being prepared by clinic staff.</div>';
-          return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><div class="meta">Bill</div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>${money(n.fee)}</b>${n.paid ? '<span class="pill Completed">Paid</span>' : '<span class="pill Scheduled">Unpaid</span>'}${n.paid ? `<button class="btn" data-a="rcpt" data-id="${a.id}" style="margin-left:auto">View receipt</button>` : ''}</div></div>`;
+          return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><div class="meta">Bill</div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>${money(n.fee)}</b>${n.paid ? '<span class="pill Completed">Paid</span>' : '<span class="pill Pending">Due</span>'}${n.paid && n.via ? `<span class="meta">via ${escapeHtml(n.via)}</span>` : ''}<span style="margin-left:auto">${n.paid ? `<button class="btn" data-a="rcpt" data-id="${a.id}">View receipt</button>` : `<button class="btn p" data-a="pay" data-id="${a.id}">Pay online</button>`}</span></div></div>`;
         };
         return head('My appointment', state.auth ? 'Your visits and their status.' : 'Sign in to see all your appointments.') + banner + billBanner + (state.auth ? '' : signInBox(p)) +
           (p ? `<div class="sec"><div class="acts" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">${escapeHtml(patientName(p.id))} <span class="id">${mrn(p.id)}</span></h2>${(state.more || !state.auth) ? '' : '<button class="btn p" data-a="newvisit">Book a visit</button>'}</div>${moreForm}${l.length ? l.map(a => `<div class="panel rec"><div class="rh"><span><b>${formatDate(a.date)}</b> <span class="meta">${a.slot || 'Time to be confirmed'}</span></span>${pill(a.st)}</div><div class="pad"><div class="meta">Doctor</div><b>${a.dr ? escapeHtml(doctorName(a.dr)) : 'To be assigned by the clinic'}</b>${a.dr ? ` <span class="meta">${escapeHtml(specialtyById(doctorById(a.dr).sp).name)}</span>` : ''}<div class="meta" style="margin-top:10px">Reason for visit</div>${escapeHtml(a.sym)}${a.st === 'Pending' ? '<div class="meta" style="margin-top:10px">Clinic staff are reviewing your request.</div>' : ''}${a.st === 'Cancelled' ? '<div class="meta" style="margin-top:10px">This appointment was cancelled. You can send a new request.</div>' : ''}${billBlock(a)}</div></div>`).join('') : `<div class="panel">${empty('No appointments yet. Choose “Book a visit” to send your first request.')}</div>`}</div>` : '');
@@ -1360,8 +1417,11 @@
     const actions = {
       role: d => go(d.k),
       signout: () => {
-        try { localStorage.removeItem(SESSION_KEY); } catch (e) { }
-        location.href = LOGIN_URL;
+        try { localStorage.removeItem(SESSION_KEY); localStorage.removeItem('healthbridge_server_user'); } catch (e) { }
+        // end the PHP session too, then go to the login page whether or not the request worked
+        fetch('../backend/patient_logout.php', { method: 'POST', credentials: 'same-origin', keepalive: true })
+          .catch(() => { })
+          .finally(() => { location.href = LOGIN_URL; });
       },
       newvisit: () => {
         state.more = true;
@@ -1434,6 +1494,8 @@
       },
       close: () => modal(''),
       rcpt: d => rcptModal(+d.id),
+      pay: d => payModal(String(d.id).split(',').map(Number)),
+      paynow: d => payNow(String(d.id).split(',').map(Number)),
       prt: () => window.print(),
       walkin: () => DB.pt.length ? assignModal(0) : toast('No patients yet. They appear here once someone sends a request.'),
       assign: d => assignModal(d.id),
@@ -1780,7 +1842,7 @@
         logEvent(`${patientName(p.id)} submitted a request`);
         render();
         scrollTo(0, 0);
-        toast('Request sent');
+        toast('Request sent. Clinic staff will review it and assign your doctor.', 4200);
       },
       more(f, v) {
         const p = patientById(state.me);
@@ -1799,7 +1861,7 @@
         logEvent(`${patientName(p.id)} requested another visit`);
         render();
         scrollTo(0, 0);
-        toast('Request sent');
+        toast('Request sent. Clinic staff will review it and assign your doctor.', 4200);
       },
       editpt(f, v) {
         Object.assign(patientById(f.dataset.id), { fn: v.fn, ln: v.ln, ph: v.ph, ad: v.ad });
@@ -1929,12 +1991,31 @@
           state.welcome = np.id;
         }
       }
+      // 1b) Signed in through the database (login.php): make sure that patient exists in this page's data
+      try {
+        const dbu = JSON.parse(localStorage.getItem('healthbridge_server_user'));
+        if (dbu && dbu.id && String(localStorage.getItem(SESSION_KEY)) === String(dbu.id)) {
+          const ex = patientById(dbu.id);
+          if (ex) { ex.fn = dbu.fn || ex.fn; ex.ln = dbu.ln || ex.ln; if (dbu.ph) ex.ph = dbu.ph; if (dbu.ad) ex.ad = dbu.ad; }
+          else { DB.pt.push({ id: Number(dbu.id), fn: dbu.fn, ln: dbu.ln, ph: dbu.ph, ad: dbu.ad }); }
+          save();
+        }
+      } catch (e) { }
       // 2) Signed in? Open their appointments. Not signed in? Send them to the login page.
       let sid = null;
       try { sid = localStorage.getItem(SESSION_KEY); } catch (e) { }
       const sp = sid && patientById(sid);
       if (sp) {
         Object.assign(state, { me: sp.id, auth: true, view: 'mine' });
+        // The browser flag alone is not proof of sign-in: confirm the PHP session is alive (only a 401 signs them out)
+        fetch('../backend/patient_session.php', { credentials: 'same-origin', cache: 'no-store' })
+          .then(r => {
+            if (r.status === 401) {
+              try { localStorage.removeItem(SESSION_KEY); localStorage.removeItem('healthbridge_server_user'); } catch (e) { }
+              location.replace(LOGIN_URL);
+            }
+          })
+          .catch(() => { });
       } else {
         try { localStorage.removeItem(SESSION_KEY); } catch (e) { }
         location.replace(LOGIN_URL);
@@ -1975,4 +2056,5 @@
     });
   </script>
 </body>
+
 </html>

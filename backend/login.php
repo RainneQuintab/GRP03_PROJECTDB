@@ -33,35 +33,19 @@ try {
     }
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $col = null;
-    if ($row) {
-        foreach (['password_hash', 'password', 'pass'] as $c) {
-            if (array_key_exists($c, $row)) { $col = $c; break; }
-        }
-    }
-    if (!$row || !$col || $row[$col] === null || $row[$col] === '') {
-        fail('Incorrect ID/email or password.');
-    }
-
-    $stored = (string) $row[$col];
-    $ok = password_verify($password, $stored);
-    // Temporary: passwords are currently plain text in the table. Remove once hashed.
-    if (!$ok && !preg_match('/^\$(2y|argon2)/', $stored)) {
-        $ok = hash_equals($stored, $password);
-    }
-    if (!$ok) {
+    if (!$row || empty($row['password_hash']) || !password_verify($password, $row['password_hash'])) {
+        usleep(400000);                       // slow down guessing
         fail('Incorrect ID/email or password.');
     }
 
     session_regenerate_id(true);
     $_SESSION['patient_id'] = $row['patient_id'];
 
-    unset($row['password'], $row['password_hash'], $row['pass']);   // never send it back
+    unset($row['password_hash']);   // never send it back
     $row['id'] = $row['patient_id'];
     $row['fn'] = $row['first_name'] ?? '';
     echo json_encode(['ok' => true, 'patient' => $row]);
 } catch (PDOException $e) {
     error_log('login.php: ' . $e->getMessage());
-    fail('Server error: ' . $e->getMessage(), 500);
+    fail('Server error. Please try again.', 500);
 }
-

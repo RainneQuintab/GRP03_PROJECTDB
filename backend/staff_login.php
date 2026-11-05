@@ -42,6 +42,5 @@ try {
     ]);
 } catch (PDOException $e) {
     error_log('staff_login.php: ' . $e->getMessage());
-    fail('Server error: ' . $e->getMessage(), 500);
+    fail('Server error. Please try again.', 500);
 }
-

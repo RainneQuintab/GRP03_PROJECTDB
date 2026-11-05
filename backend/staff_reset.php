@@ -5,14 +5,14 @@
 ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-require_once 'db.php';
+require_once 'db.php';       // defines $pdo and $cfg
+require_once 'notify.php';
 
 // ===== Settings =====
-const DEMO_MODE      = true;   // true = no email/SMS is sent; the code is returned to the page. SET TO false BEFORE REAL USE.
+define('DEMO_MODE', !empty($cfg['demo_mode']));   // true = no email/SMS is sent; the code is returned to the page. Set in config.php; keep false for real use.
 const CODE_MINUTES   = 10;     // how long a code works
 const MAX_ATTEMPTS   = 5;      // wrong guesses allowed per code
 const MAX_REQUESTS   = 3;      // codes per account per 15 minutes
-const MAIL_FROM      = 'no-reply@healthbridge.com';
 
 function out($arr, $code = 200) { http_response_code($code); echo json_encode($arr); exit; }
 function fail($msg, $code = 400) { out(['ok' => false, 'error' => $msg], $code); }
@@ -54,15 +54,9 @@ function findUser(PDO $pdo, $method, $c) {
     return $s->fetch(PDO::FETCH_ASSOC);
 }
 
-function deliver($method, $user, $contact, $code) {
+function deliver(array $cfg, $method, $user, $contact, $code) {
     $msg = "Your HealthBridge password reset code is $code. It expires in " . CODE_MINUTES . " minutes. If you didn't ask for it, ignore this message.";
-    if ($method === 'email') {
-        // Needs a working mail setup (XAMPP: configure sendmail/SMTP in php.ini). Replace with PHPMailer if you prefer.
-        return @mail($user['email'], 'HealthBridge password reset code', $msg, 'From: ' . MAIL_FROM);
-    }
-    // SMS: plug your provider here (e.g. Semaphore / Twilio) and send $msg to '0' . $contact.
-    error_log('staff_reset.php: SMS provider not configured; code for 0' . $contact . ' not sent.');
-    return false;
+    return send_code($cfg, $method, $method === 'email' ? $user['email'] : $contact, 'HealthBridge password reset code', $msg);
 }
 
 try {
@@ -84,7 +78,7 @@ try {
                 ->execute(['u' => $user['user_id'], 'h' => password_hash($code, PASSWORD_DEFAULT), 'm' => $method]);
 
             if (DEMO_MODE) { $res['demo_code'] = $code; }
-            else { deliver($method, $user, $contact, $code); }
+            else { deliver($cfg, $method, $user, $contact, $code); }
         } elseif (DEMO_MODE) {
             // be honest in demo mode so a wrong email/number is obvious while testing
             fail('No staff account uses that ' . ($method === 'email' ? 'email' : 'mobile number') . '.', 404);
@@ -127,6 +121,5 @@ try {
 } catch (PDOException $e) {
     if ($pdo->inTransaction()) { $pdo->rollBack(); }
     error_log('staff_reset.php: ' . $e->getMessage());
-    fail('Server error. Did you run database/staff_reset.sql?', 500);
+    fail('Server error. Check that database/schema.sql and roles.sql were applied.', 500);
 }
-
