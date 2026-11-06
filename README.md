@@ -101,6 +101,8 @@ In pgAdmin, create an **empty** database named `grp03_projectdb`. Open the Query
 7. `database/create_views.sql`
 8. `database/demo_accounts.sql`
 
+   **Important:** run `roles.sql` before `update_billing.sql`, otherwise the billing table will not be granted to `hb_staff`.
+
 `update_appointments.sql`, `update_backup.sql` and `update_patient_reset.sql` are **not** needed on a new database (`schema.sql` and `roles.sql` already include them). Run them only to upgrade a database that was built before those changes.
 
 ### 4. Connect the backend
