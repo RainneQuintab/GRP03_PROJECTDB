@@ -1,14 +1,29 @@
-# Database User and Role Setup Guide
+# Database User and Role Setup
 
-Run these commands in PostgreSQL as a superuser to configure the database groups and access levels for the HealthBridge system.
+These roles are created by `database/roles.sql` (run it as `postgres` after `schema.sql` and `seed.sql`).
+Replace `CHANGE_ME` in that file with your own password. No real passwords are committed.
 
-## 1. Create Group Roles
+| Database role | Type | Purpose | Privileges |
+| --- | --- | --- | --- |
+| `hb_admin` | Group role (NOLOGIN, not a superuser) | Elevated administrative role | ALL on all tables and sequences in `public` (and default privileges on future tables) |
+| `hb_staff` | Group role (NOLOGIN) | Day-to-day clinic operations | SELECT/INSERT/UPDATE/DELETE on `patients`, `appointments`, `medical_notes`, `prescriptions`, `billing`; SELECT only on `doctors`, `specialties`; SELECT/UPDATE on `staff_users`; SELECT/INSERT/UPDATE on both password-reset tables; SELECT/INSERT/UPDATE/DELETE on `deleted_records`; USAGE on sequences |
+| `hb_app` | Login account (runtime) | The account `backend/config.php` uses to connect | Member of `hb_staff` (inherits its privileges); no superuser rights |
+
+## Setup commands (already in roles.sql)
 ```sql
-CREATE ROLE app_runtime_grp;
-CREATE ROLE app_admin_grp;
+CREATE ROLE hb_admin;
+CREATE ROLE hb_staff;
+CREATE USER hb_app WITH PASSWORD 'CHANGE_ME';   -- replace before running
 
-CREATE USER healthbridge_app_user WITH PASSWORD 'placeholder_secure_password';
-GRANT app_runtime_grp TO healthbridge_app_user;
+GRANT CONNECT ON DATABASE grp03_projectdb TO hb_admin, hb_staff, hb_app;
+GRANT USAGE ON SCHEMA public TO hb_admin, hb_staff, hb_app;
+GRANT hb_staff TO hb_app;
+```
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_runtime_grp;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app_runtime_grp;
+## Notes
+- `billing` is granted to `hb_staff` by `update_billing.sql`, so run `roles.sql` **before** `update_billing.sql`.
+- End users (patients, staff, doctors, admins) do **not** have PostgreSQL logins. They sign in through the app
+  (`patients` / `staff_users` tables), and the backend always connects as `hb_app`.
+- `hb_admin` is created for the elevated administrative role. Currently the backend connects only as `hb_app`.
+  Admin-only actions (view backup, restore, delete forever) are enforced in the PHP layer.
+  Activity 4 can tighten this by giving admin sessions their own login.
