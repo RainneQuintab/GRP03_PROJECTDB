@@ -5,7 +5,8 @@
 //   POST action=save  appointment_id amount            staff/admin: create or change a bill
 //        (only for a Completed appointment, and only while the bill is still Unpaid)
 //   POST action=paid  appointment_id payment_method    staff/admin: record a payment (cash at the desk, etc.)
-//   POST action=pay   appointment_id payment_method    patient: pay their own bill online (demo checkout)
+//   POST action=pay   appointment_id payment_method    patient: pay their own bill(s) online (demo checkout);
+//        appointment_id may be several ids like "12,15" - they are paid together or not at all
 // The amount always comes from the database, never from the browser, when a payment is recorded.
 ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
@@ -41,8 +42,13 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') { fail('Unknown action.', 405); }
     $action = $_POST['action'] ?? '';
-    $id     = (int) ($_POST['appointment_id'] ?? 0);
-    if ($id <= 0 || !in_array($action, ['save', 'paid', 'pay'], true)) { fail('Bad request.'); }
+    // appointment_id is one id, or (for action=pay only) several ids separated by commas: "12,15,18"
+    $raw = trim((string) ($_POST['appointment_id'] ?? ''));
+    if (!preg_match('/^\d+(,\d+)*$/', $raw) || !in_array($action, ['save', 'paid', 'pay'], true)) { fail('Bad request.'); }
+    $ids = array_values(array_unique(array_filter(array_map('intval', explode(',', $raw)), fn($v) => $v > 0)));
+    if (!$ids || count($ids) > 50) { fail('Bad request.'); }
+    if ($action !== 'pay' && count($ids) !== 1) { fail('Bad request.'); }
+    $id = $ids[0];
 
     // ---------- staff / admin: create or change a bill ----------
     if ($action === 'save') {
@@ -78,13 +84,28 @@ try {
     }
     if (!in_array($method, $allowed, true)) { fail('Choose a payment method.'); }
 
-    $sql = "UPDATE billing b SET status = 'Paid', payment_method = :m, paid_at = CURRENT_TIMESTAMP
-            FROM appointments a
-            WHERE b.appointment_id = :a AND a.appointment_id = b.appointment_id AND b.status = 'Unpaid'";
-    $args = ['m' => $method, 'a' => $id];
-    if ($action === 'pay') { $sql .= ' AND a.patient_id = :p'; $args['p'] = (int) $pid; }
-    $u = $pdo->prepare($sql);
-    $u->execute($args);
+    // patient pays one or several of their own bills: all of them or none (one transaction)
+    if ($action === 'pay') {
+        $in = implode(',', array_fill(0, count($ids), '?'));
+        $pdo->beginTransaction();
+        $u = $pdo->prepare("UPDATE billing b SET status = 'Paid', payment_method = ?, paid_at = CURRENT_TIMESTAMP
+                            FROM appointments a
+                            WHERE a.appointment_id = b.appointment_id AND b.status = 'Unpaid'
+                              AND a.patient_id = ? AND b.appointment_id IN ($in)");
+        $u->execute(array_merge([$method, (int) $pid], $ids));
+        if ($u->rowCount() !== count($ids)) {
+            $pdo->rollBack();
+            fail(count($ids) > 1 ? 'One of those bills can no longer be paid. Nothing was charged.' : 'There is no unpaid bill for that visit.', 409);
+        }
+        $pdo->commit();
+        out(['ok' => true, 'paid' => count($ids)]);
+    }
+
+    // staff / admin record a payment for one bill
+    $u = $pdo->prepare("UPDATE billing b SET status = 'Paid', payment_method = :m, paid_at = CURRENT_TIMESTAMP
+                        FROM appointments a
+                        WHERE b.appointment_id = :a AND a.appointment_id = b.appointment_id AND b.status = 'Unpaid'");
+    $u->execute(['m' => $method, 'a' => $id]);
     if ($u->rowCount() !== 1) { fail('There is no unpaid bill for that visit.', 409); }
     out(['ok' => true]);
 } catch (PDOException $e) {
