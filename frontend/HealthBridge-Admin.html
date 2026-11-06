@@ -481,7 +481,7 @@ function recModal(id){
 }
 function rcptModal(id){
  const a=AP(id);if(!a)return;const n=DB.nt.find(y=>y.ap===a.id),r=DB.rx.filter(x=>x.ap===a.id),d=D(a.dr);
- modal(`<div class="rcpt"><div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div style="display:flex;align-items:center;gap:12px"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" style="flex:none;-webkit-print-color-adjust:exact;print-color-adjust:exact"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B8CFF"/><stop offset="1" stop-color="#0B5CAD"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lg)"/><path d="M8 27a12 12 0 0 1 24 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M6 28.5h28" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M20 15v9M15.5 19.5h9" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg><div><h3 style="margin:0">HealthBridge</h3><div class="meta">Visit receipt</div></div></div><div style="text-align:right"><b>${rno(a.id)}</b><div class="meta">${fdate(a.date)}</div></div></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="grid"><div><div class="meta">Patient</div><b>${esc(pn(a.pt))}</b><div class="meta">${mrn(a.pt)}</div></div><div><div class="meta">Doctor</div><b>${esc(dn(a.dr))}</b><div class="meta">${d?esc(SP(d.sp).name):''}</div></div><div><div class="meta">Appointment</div>${fdate(a.date)}<div class="meta">${a.slot}</div></div><div><div class="meta">Diagnosis</div>${esc(n?n.dx:'—')}</div></div><div class="meta" style="margin-top:14px">Prescription</div>${rxHtml(r)}<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><div style="display:flex;justify-content:space-between;font-size:18px"><b>Consultation fee</b><b>${money(n&&n.fee)}</b></div><div class="meta" style="display:flex;justify-content:space-between;margin-top:6px"><span>Payment status</span><b>${n&&n.paid?'Paid':'Unpaid'}</b></div><div class="acts noprint" style="margin-top:18px"><button class="btn p" data-a="prt">Print receipt</button><button class="btn" data-a="close">Close</button></div></div>`);
+ modal(`<div class="rcpt"><div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div style="display:flex;align-items:center;gap:12px"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" style="flex:none;-webkit-print-color-adjust:exact;print-color-adjust:exact"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B8CFF"/><stop offset="1" stop-color="#0B5CAD"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lg)"/><path d="M8 27a12 12 0 0 1 24 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M6 28.5h28" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M20 15v9M15.5 19.5h9" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg><div><h3 style="margin:0">HealthBridge</h3><div class="meta">Visit receipt</div></div></div><div style="text-align:right"><b>${rno(a.id)}</b><div class="meta">${fdate(a.date)}</div></div></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="grid"><div><div class="meta">Patient</div><b>${esc(pn(a.pt))}</b><div class="meta">${mrn(a.pt)}</div></div><div><div class="meta">Doctor</div><b>${esc(dn(a.dr))}</b><div class="meta">${d?esc(SP(d.sp).name):''}</div></div><div><div class="meta">Appointment</div>${fdate(a.date)}<div class="meta">${a.slot}</div></div><div><div class="meta">Diagnosis</div>${esc(n?n.dx:'—')}</div></div><div class="meta" style="margin-top:14px">Prescription</div>${rxHtml(r)}<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><div style="display:flex;justify-content:space-between;font-size:18px"><b>Consultation fee</b><b>${money(n&&n.fee)}</b></div><div class="meta" style="display:flex;justify-content:space-between;margin-top:6px"><span>Payment status</span><b>${n&&n.paid?'Paid'+(n.pm?' · '+esc(n.pm):''):'Unpaid'}</b></div><div class="acts noprint" style="margin-top:18px"><button class="btn p" data-a="prt">Print receipt</button><button class="btn" data-a="close">Close</button></div></div>`);
 }
 function billModal(id){
  const a=AP(id),n=DB.nt.find(y=>y.ap===id);if(!a||!n)return;
@@ -701,6 +701,16 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
         id: +r.prescription_id, ap: +r.appointment_id, med: r.medication_name, dose: r.dosage, ins: r.instructions
       }));
     }
+    // Bills and payments come from the billing table
+    const bl = await call('billing.php');
+    if (bl.ok && DB.nt) {
+      DB.nt.forEach(n => {
+        const b = bl.j.bills.find(x => +x.appointment_id === n.ap);
+        n.fee = b ? +b.amount : null;
+        n.paid = b && b.status === 'Paid' ? 1 : 0;
+        n.pm = (b && b.payment_method) || '';
+      });
+    }
         const bk = await call('backup.php');
     if (bk.ok) {
       const iso = s => new Date(String(s).replace(' ', 'T').slice(0, 19)).toISOString();
@@ -711,7 +721,7 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
           name: r.label, ref: +r.ref_id,
           pt: p ? { id: +p.patient_id, fn: p.first_name, ln: p.last_name, ph: p.contact_number || '', ad: p.address || '', reg: 1 } : null,
           ap: (pl.appointments || []).map(x => ({ id: +x.appointment_id, pt: +x.patient_id, dr: +x.doctor_id, date: x.appointment_date.slice(0, 10), slot: slotFor(x.appointment_date.slice(11, 16)), st: x.status, sym: x.reason || '' })),
-          nt: (pl.notes || []).map(n => ({ id: +n.note_id, ap: +n.appointment_id, dx: n.diagnosis, ob: n.clinical_observations || '', fee: null, paid: 0 })),
+          nt: (pl.notes || []).map(n => { const b = (pl.billing || []).find(x => +x.appointment_id === +n.appointment_id); return { id: +n.note_id, ap: +n.appointment_id, dx: n.diagnosis, ob: n.clinical_observations || '', fee: b ? +b.amount : null, paid: b && b.status === 'Paid' ? 1 : 0, pm: (b && b.payment_method) || '' }; }),
           rx: (pl.prescriptions || []).map(x => ({ id: +x.prescription_id, ap: +x.appointment_id, med: x.medication_name, dose: x.dosage, ins: x.instructions }))
         };
       });
@@ -765,6 +775,37 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
     await bridgeLoad();
     toast('Permanently deleted');
   };
+  // Billing: bills and payments are saved in PostgreSQL (table: billing)
+  const bcall = p => call('billing.php', { method: 'POST', body: new URLSearchParams(p) });
+  let billForm = null;
+  document.addEventListener('submit', e => {
+    const f = e.target;
+    billForm = f.dataset && f.dataset.f === 'bill' ? { id: +f.dataset.id, fee: (f.elements.fee || {}).value } : null;
+  }, true);
+  document.addEventListener('submit', async () => {
+    if (!billForm) return;
+    const { id, fee } = billForm;
+    billForm = null;
+    const r = await bcall({ action: 'save', appointment_id: id, amount: fee });
+    return r.ok ? bridgeLoad() : fail(r);
+  });
+  // "Mark as paid": ask how the patient paid, then record it
+  const PAY_METHODS = ['Cash', 'GCash', 'Maya', 'Credit / debit card'];
+  A.paid = d => {
+    const n = DB.nt.find(y => y.ap === +d.id), a = AP(d.id);
+    if (!a || !n || n.fee == null || n.paid) return;
+    modal(`<h3>Record payment</h3><div class="meta" style="margin-bottom:4px">${esc(pn(a.pt))} · ${mrn(a.pt)}</div><div style="font-size:22px;font-weight:650;margin:10px 0 14px">${money(n.fee)}</div><label for="pm1">Payment method</label><select id="pm1">${PAY_METHODS.map(m => `<option>${m}</option>`).join('')}</select><div class="acts" style="margin-top:16px"><button class="btn p" data-a="paidgo" data-id="${a.id}">Confirm payment</button><button class="btn" data-a="close">Cancel</button></div>`);
+  };
+  A.paidgo = async (d, t) => {
+    const m = document.getElementById('pm1').value;
+    t.disabled = true;
+    const r = await bcall({ action: 'paid', appointment_id: d.id, payment_method: m });
+    modal('');
+    if (!r.ok) return fail(r);
+    toast('Marked as paid');
+    await bridgeLoad();
+  };
+
   // Refresh every 15 seconds (not while a form is open)
   setInterval(() => {
     const f = document.activeElement;

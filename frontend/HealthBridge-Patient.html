@@ -1207,23 +1207,28 @@
       const total = ids.reduce((t, id) => t + Number(billOf(id).fee), 0);
       modal(`<h3 style="margin:0 0 4px">Pay online</h3><div class="meta">${ids.length > 1 ? ids.length + ' visits' : 'Visit bill'}</div><div class="big" style="margin:8px 0 14px">${money(total)}</div><div class="pms">${['GCash', 'Maya', 'Credit / debit card'].map((m, i) => `<label class="pm"><input type="radio" name="pm" value="${m}" ${i ? '' : 'checked'}><span>${m}</span></label>`).join('')}</div><p class="meta" style="margin:0 0 14px">Demo checkout. No real money is charged.</p><div class="acts"><button class="btn p" data-a="paynow" data-id="${ids.join(',')}">Pay ${money(total)}</button><button class="btn" data-a="close">Cancel</button></div>`);
     }
-    function payNow(ids) {
-      const via = (document.querySelector('#modal input[name=pm]:checked') || {}).value || 'Online';
+    async function payNow(ids) {
+      const via = (document.querySelector('#modal input[name=pm]:checked') || {}).value || 'GCash';
       const b = document.querySelector('#modal [data-a="paynow"]');
       if (b) { b.disabled = true; b.textContent = 'Processing…'; }
-      setTimeout(() => {
-        let total = 0, count = 0;
-        ids.forEach(id => {
-          const a = appointmentById(id), n = a && billOf(id);
-          if (a && n && !n.paid && a.pt === state.me) { n.paid = 1; n.via = via; n.paidAt = new Date().toISOString(); total += Number(n.fee); count++; }
-        });
-        if (!count) { modal(''); return; }
+      let total = 0, count = 0, err = '';
+      for (const id of ids) {
+        const a = appointmentById(id), n = a && billOf(id);
+        if (!(a && n && !n.paid && a.pt === state.me)) continue;
+        try {
+          // the payment is recorded in the database; the amount is read from the bill there
+          const r = await api('billing.php', { method: 'POST', body: new URLSearchParams({ action: 'pay', appointment_id: id, payment_method: via }) });
+          if (r.ok) { total += Number(n.fee); count++; }
+          else { err = (r.j && r.j.error) || 'The payment could not be completed. Please try again.'; break; }
+        } catch (e) { err = 'The payment could not be completed. Please try again.'; break; }
+      }
+      await bridgeLoad();
+      modal('');
+      if (count) {
         logEvent(`Payment received from ${patientName(state.me)} (${money(total)}) online via ${via}`);
-        save();
-        modal('');
-        render();
         toast('Payment received. Thank you!', 3200);
-      }, 1200);
+      }
+      if (err) toast(err, 4200);
     }
     const rno = id => 'RCPT-' + String(id).padStart(5, '0');
     const rxHtml = r => r.length ? `<ul class="rxl">${r.map(x => `<li><b>${escapeHtml(x.med)}</b>${x.dose ? ' · ' + escapeHtml(x.dose) : ''}${x.ins ? `<div class="meta">${escapeHtml(x.ins)}</div>` : ''}</li>`).join('')}</ul>` : '<div class="meta">No medication prescribed.</div>';
@@ -2078,6 +2083,7 @@
       const m = await api('appointments.php?action=mine');
       const vn = await api('visit_notes.php');
       if (vn.ok) { records = { notes: vn.j.notes, rx: vn.j.prescriptions }; }
+      const bl = await api('billing.php');
       if (m.ok) {
         const mine = m.j.appointments.map(x => ({
           id: +x.appointment_id, pt: state.me, dr: +x.doctor_id,
@@ -2085,6 +2091,21 @@
           st: x.status, sym: x.reason || ''
         }));
         DB.ap = DB.ap.filter(a => a.pt !== state.me).concat(mine);
+        // bills and prescriptions for my visits come from the database
+        const mineIds = new Set(mine.map(a => a.id));
+        DB.rx = DB.rx.filter(x => !mineIds.has(x.ap)).concat(records.rx.map(r => ({
+          id: +r.prescription_id, ap: +r.appointment_id, med: r.medication_name, dose: r.dosage, ins: r.instructions
+        })));
+        if (bl.ok) {
+          DB.nt = DB.nt.filter(n => !mineIds.has(n.ap));
+          bl.j.bills.forEach(b => {
+            const n = records.notes.find(x => +x.appointment_id === +b.appointment_id);
+            DB.nt.push({
+              id: -(+b.bill_id), ap: +b.appointment_id, dx: n ? n.diagnosis : '', ob: n ? (n.clinical_observations || '') : '',
+              fee: +b.amount, paid: b.status === 'Paid' ? 1 : 0, via: b.payment_method || '', paidAt: b.paid_at || ''
+            });
+          });
+        }
         save();
         render();
       }
@@ -2158,6 +2179,14 @@
       const key = f.querySelector('[name=dr]').value + '|' + f.querySelector('[name=date_text]').value;
       if (key !== lastKey) { lastKey = key; refreshTaken(f); }
     }, 500);
+    // Pick up a new bill (or a payment made at the desk) every 15 seconds, but not while a form is open
+    setInterval(async () => {
+      const f = document.activeElement;
+      if (!state.auth || state.more || $('#modal').classList.contains('on') || (f && /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName))) return;
+      const before = myBilledIds();
+      await bridgeLoad();
+      if (myBilledIds().some(id => !before.includes(id))) toast('Your bill is ready. See My appointment.');
+    }, 15000);
     bridgeLoad();
   </script>
 </body>
