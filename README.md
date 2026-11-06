@@ -89,8 +89,13 @@ In pgAdmin, create an **empty** database named `grp03_projectdb`. Open the Query
 2. `database/seed.sql`
 3. `database/roles.sql` (first replace `CHANGE_ME` with a password of your choice)
 4. `database/update_reason.sql`
-5. `database/create_views.sql`
-6. `database/demo_accounts.sql`
+5. `database/update_appointments.sql`
+6. `database/update_backup.sql`
+7. `database/update_note_unique.sql`
+8. `database/update_patient_reset.sql`
+9. `database/update_billing.sql`
+10. `database/create_views.sql`
+11. `database/demo_accounts.sql`
 
 ### 4. Connect the backend
 
