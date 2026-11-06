@@ -33,14 +33,16 @@ HealthBridge is a clinic management system. Patients request appointments online
 
 ## Database
 
-**Tables:** `specialties`, `doctors`, `patients`, `appointments`, `medical_notes`, `prescriptions`, `staff_users`, `staff_password_resets`, `patient_password_resets`, `deleted_records`
+**Tables:** `specialties`, `doctors`, `patients`, `appointments`, `medical_notes`, `prescriptions`, `billing`, `staff_users`, `staff_password_resets`, `patient_password_resets`, `deleted_records`
 
 **Roles:** `hb_admin` (full access), `hb_staff` (clinical data, limited), `hb_app` (the login the PHP backend uses; inherits `hb_staff`)
 
 **Rules enforced by the database:**
 
 - A doctor cannot have two active appointments at the same time (cancelled ones free the slot).
-- Every delete is copied to `deleted_records` first, inside one transaction, so nothing is half-deleted.
+- Every appointment has at most one visit note and at most one bill.
+- A bill is either Unpaid or Paid, and only a Paid bill has a payment time.
+- Every delete (including the appointment's bill) is copied to `deleted_records` first, inside one transaction, so nothing is half-deleted.
 
 ---
 
@@ -55,9 +57,14 @@ GRP03_PROJECTDB/
 │   ├── schema.sql          tables and constraints
 │   ├── seed.sql            sample doctors, patients, starter logins
 │   ├── roles.sql           database roles and permissions
-│   ├── update_reason.sql   adds the appointment "reason" column
-│   ├── create_views.sql    reporting views
-│   ├── demo_accounts.sql   test accounts (all passwords: password123)
+│   ├── update_reason.sql        adds the appointment "reason" column
+│   ├── update_note_unique.sql   one visit note per appointment
+│   ├── update_billing.sql       billing table (bills and payments)
+│   ├── create_views.sql         reporting views
+│   ├── demo_accounts.sql        test accounts (all passwords: password123)
+│   ├── update_appointments.sql  upgrade only: doctor time-slot rule (already in schema.sql)
+│   ├── update_backup.sql        upgrade only: backup/delete permissions (already in roles.sql)
+│   ├── update_patient_reset.sql upgrade only: patient password reset (already in schema.sql)
 │   └── legacy/             old one-time scripts, not needed for a new install
 ├── docs/           database documentation and role guides
 ├── frontend/       the five pages (Login, StaffLogin, Patient, Staff, Admin)
@@ -89,8 +96,12 @@ In pgAdmin, create an **empty** database named `grp03_projectdb`. Open the Query
 2. `database/seed.sql`
 3. `database/roles.sql` (first replace `CHANGE_ME` with a password of your choice)
 4. `database/update_reason.sql`
-5. `database/create_views.sql`
-6. `database/demo_accounts.sql`
+5. `database/update_note_unique.sql`
+6. `database/update_billing.sql`
+7. `database/create_views.sql`
+8. `database/demo_accounts.sql`
+
+`update_appointments.sql`, `update_backup.sql` and `update_patient_reset.sql` are **not** needed on a new database (`schema.sql` and `roles.sql` already include them). Run them only to upgrade a database that was built before those changes.
 
 ### 4. Connect the backend
 
