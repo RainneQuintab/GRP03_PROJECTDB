@@ -29,6 +29,17 @@ try {
         $s->execute(['p' => $pid]);
         out(['ok' => true, 'appointments' => $s->fetchAll(PDO::FETCH_ASSOC)]);
     }
+        if ($verb === 'GET' && $action === 'taken') {
+        $doctorId = (int) ($_GET['doctor_id'] ?? 0);
+        $day      = trim($_GET['date'] ?? '');
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $day)) { fail('Pick a valid date.'); }
+        $s = $pdo->prepare("SELECT to_char(appointment_date, 'HH24:MI') AS t
+                            FROM appointments
+                            WHERE doctor_id = :d AND appointment_date::date = CAST(:day AS date)
+                              AND status <> 'Cancelled'");
+        $s->execute(['d' => $doctorId, 'day' => $day]);
+        out(['ok' => true, 'taken' => $s->fetchAll(PDO::FETCH_COLUMN)]);
+    }
 
     if ($verb !== 'POST') { fail('Unknown action.', 405); }
 

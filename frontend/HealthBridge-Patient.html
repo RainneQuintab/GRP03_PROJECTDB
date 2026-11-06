@@ -2113,6 +2113,30 @@
       await bridgeLoad();
       toast('Appointment requested. Clinic staff will confirm it.', 4200);
     };
+        // Grey out time slots that this doctor already has booked on the chosen date
+    async function refreshTaken(f) {
+      const dr = f.querySelector('[name=dr]').value;
+      const dt = parseDmy(f.querySelector('[name=date_text]').value);
+      const sel = f.querySelector('[name=slot]');
+      [...sel.options].forEach(o => { if (o.value) { o.disabled = false; o.textContent = o.value; } });
+      if (!dr || !dt) return;
+      const r = await api('appointments.php?action=taken&doctor_id=' + dr + '&date=' + dt);
+      if (!r.ok) return;
+      [...sel.options].forEach(o => {
+        if (o.value && r.j.taken.includes(o.value.slice(0, 5))) {
+          o.disabled = true;
+          o.textContent = o.value + ' (booked)';
+          if (sel.value === o.value) sel.value = '';
+        }
+      });
+    }
+    let lastKey = '';
+    setInterval(() => {
+      const f = document.querySelector('form[data-f=more]');
+      if (!f) { lastKey = ''; return; }
+      const key = f.querySelector('[name=dr]').value + '|' + f.querySelector('[name=date_text]').value;
+      if (key !== lastKey) { lastKey = key; refreshTaken(f); }
+    }, 500);
     bridgeLoad();
   </script>
 </body>
