@@ -28,3 +28,8 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO hb_staff;
 GRANT hb_staff TO hb_app;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO hb_admin;
+
+-- staff may delete clinical records; every delete is backed up first (see deleted_records)
+GRANT DELETE ON patients, appointments, medical_notes, prescriptions TO hb_staff;
+GRANT SELECT, INSERT, UPDATE, DELETE ON deleted_records TO hb_staff;
+GRANT USAGE, SELECT ON SEQUENCE deleted_records_record_id_seq TO hb_staff;

@@ -701,6 +701,25 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
     cc(d);
     await bridgeLoad();
   };
+  
+  // Delete appointment / patient: remove from PostgreSQL (a copy goes to deleted_records first)
+  const delCall = (type, id) => call('staff_delete.php', { method: 'POST', body: new URLSearchParams({ type, id }) });
+  const dap = A.delap2;
+  A.delap2 = async d => {
+    const a = AP(d.id), pid = a && a.pt;
+    const r = await delCall('appointment', +d.id);
+    if (!r.ok) { modal(''); return fail(r); }
+    dap(d);
+    await bridgeLoad();
+    if (pid) editPt(pid);
+  };
+  const dpt = A.delpt2;
+  A.delpt2 = async d => {
+    const r = await delCall('patient', +d.id);
+    if (!r.ok) { modal(''); return fail(r); }
+    dpt(d);
+    await bridgeLoad();
+  };
 
   // Pick up new patient requests every 15 seconds (not while a form is open)
   setInterval(() => {
