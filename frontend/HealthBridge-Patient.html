@@ -2076,6 +2076,8 @@
         }));
       }
       const m = await api('appointments.php?action=mine');
+      const vn = await api('visit_notes.php');
+      if (vn.ok) { records = { notes: vn.j.notes, rx: vn.j.prescriptions }; }
       if (m.ok) {
         const mine = m.j.appointments.map(x => ({
           id: +x.appointment_id, pt: state.me, dr: +x.doctor_id,
@@ -2098,7 +2100,7 @@
       const times = SLOTS.map(s => `<option value="${s}">${s}</option>`).join('');
       const extra = `<div><label for="nv3">Doctor</label><select id="nv3" name="dr"><option value="">Choose a doctor</option>${docs}</select></div>` +
         `<div><label for="nv4">Time slot</label><select id="nv4" name="slot"><option value="">Choose a time</option>${times}</select></div>`;
-      return html.replace('<div class="full"><label for="nv2">', extra + '<div class="full"><label for="nv2">');
+            return html.replace('<div class="full"><label for="nv2">', extra + '<div class="full"><label for="nv2">') + recordsHtml();
     };
     // Send the booking to the database instead of the browser
     submitHandlers.more = async function (f, v) {
@@ -2113,6 +2115,25 @@
       await bridgeLoad();
       toast('Appointment requested. Clinic staff will confirm it.', 4200);
     };
+        // Diagnosis + prescriptions shown under "My appointment"
+    let records = { notes: [], rx: [] };
+    function recordsHtml() {
+      const done = DB.ap
+        .filter(a => a.pt === state.me && a.st === 'Completed' && records.notes.some(n => +n.appointment_id === a.id))
+        .sort((x, y) => y.date.localeCompare(x.date));
+      if (!done.length) return '';
+      return '<h2 style="margin:28px 0 12px">My visit records</h2>' + done.map(a => {
+        const n = records.notes.find(x => +x.appointment_id === a.id);
+        const rx = records.rx.filter(x => +x.appointment_id === a.id);
+        return '<div class="panel pad" style="margin-bottom:12px">' +
+          `<div><b>${formatDate(a.date)}</b> <span class="meta">${a.slot} · ${escapeHtml(doctorName(a.dr))}</span></div>` +
+          `<div class="meta" style="margin-top:10px">Diagnosis</div><div><b>${escapeHtml(n.diagnosis)}</b></div>` +
+          (n.clinical_observations ? `<div class="meta" style="margin-top:10px">Doctor's notes</div><div>${escapeHtml(n.clinical_observations)}</div>` : '') +
+          (rx.length ? '<div class="meta" style="margin-top:10px">Prescription</div>' +
+            rx.map(r => `<div>${escapeHtml(r.medication_name)} ${escapeHtml(r.dosage)}<div class="meta">${escapeHtml(r.instructions)}</div></div>`).join('') : '') +
+          '</div>';
+      }).join('');
+    }
         // Grey out time slots that this doctor already has booked on the chosen date
     async function refreshTaken(f) {
       const dr = f.querySelector('[name=dr]').value;
