@@ -37,10 +37,12 @@ try {
         $name = $pt ? $pt[0]['first_name'] . ' ' . $pt[0]['last_name'] : 'Patient ' . $pid;
         $nt   = rows($pdo, 'SELECT * FROM medical_notes WHERE appointment_id = :a', ['a' => $id]);
         $rx   = rows($pdo, 'SELECT * FROM prescriptions WHERE appointment_id = :a', ['a' => $id]);
+        $bl   = rows($pdo, 'SELECT * FROM billing WHERE appointment_id = :a', ['a' => $id]);
 
         $pdo->prepare('INSERT INTO deleted_records (rec_type, ref_id, label, payload, deleted_by) VALUES (:t, :r, :l, :p, :b)')
             ->execute(['t' => 'appointment', 'r' => $pid, 'l' => $name,
-                       'p' => json_encode(['appointments' => $ap, 'notes' => $nt, 'prescriptions' => $rx]), 'b' => $role]);
+                       'p' => json_encode(['appointments' => $ap, 'notes' => $nt, 'prescriptions' => $rx, 'billing' => $bl]), 'b' => $role]);
+        $pdo->prepare('DELETE FROM billing WHERE appointment_id = :a')->execute(['a' => $id]);
         $pdo->prepare('DELETE FROM prescriptions WHERE appointment_id = :a')->execute(['a' => $id]);
         $pdo->prepare('DELETE FROM medical_notes WHERE appointment_id = :a')->execute(['a' => $id]);
         $pdo->prepare('DELETE FROM appointments  WHERE appointment_id = :a')->execute(['a' => $id]);
@@ -52,10 +54,12 @@ try {
         $ap   = rows($pdo, 'SELECT * FROM appointments WHERE patient_id = :p', ['p' => $id]);
         $nt   = rows($pdo, 'SELECT n.* FROM medical_notes n JOIN appointments a ON a.appointment_id = n.appointment_id WHERE a.patient_id = :p', ['p' => $id]);
         $rx   = rows($pdo, 'SELECT r.* FROM prescriptions r JOIN appointments a ON a.appointment_id = r.appointment_id WHERE a.patient_id = :p', ['p' => $id]);
+        $bl   = rows($pdo, 'SELECT b.* FROM billing b JOIN appointments a ON a.appointment_id = b.appointment_id WHERE a.patient_id = :p', ['p' => $id]);
 
         $pdo->prepare('INSERT INTO deleted_records (rec_type, ref_id, label, payload, deleted_by) VALUES (:t, :r, :l, :p, :b)')
             ->execute(['t' => 'patient', 'r' => $id, 'l' => $name,
-                       'p' => json_encode(['patient' => $safe, 'appointments' => $ap, 'notes' => $nt, 'prescriptions' => $rx]), 'b' => $role]);
+            'p' => json_encode(['patient' => $safe, 'appointments' => $ap, 'notes' => $nt, 'prescriptions' => $rx, 'billing' => $bl]), 'b' => $role]);
+        $pdo->prepare('DELETE FROM billing WHERE appointment_id IN (SELECT appointment_id FROM appointments WHERE patient_id = :p)')->execute(['p' => $id]);
         $pdo->prepare('DELETE FROM prescriptions WHERE appointment_id IN (SELECT appointment_id FROM appointments WHERE patient_id = :p)')->execute(['p' => $id]);
         $pdo->prepare('DELETE FROM medical_notes WHERE appointment_id IN (SELECT appointment_id FROM appointments WHERE patient_id = :p)')->execute(['p' => $id]);
         $pdo->prepare('DELETE FROM appointments WHERE patient_id = :p')->execute(['p' => $id]);

@@ -62,6 +62,7 @@ try {
     foreach (($p['appointments'] ?? []) as $r)  { insertRow($pdo, 'appointments', $r); }
     foreach (($p['notes'] ?? []) as $r)         { insertRow($pdo, 'medical_notes', $r); }
     foreach (($p['prescriptions'] ?? []) as $r) { insertRow($pdo, 'prescriptions', $r); }
+    foreach (($p['billing'] ?? []) as $r)       { insertRow($pdo, 'billing', $r); }
 
     $pdo->prepare('DELETE FROM deleted_records WHERE record_id = :i')->execute(['i' => $id]);
     $pdo->commit();
