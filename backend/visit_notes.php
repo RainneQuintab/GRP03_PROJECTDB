@@ -8,7 +8,7 @@
 ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-session_start();
+require_once __DIR__ . '/session.php';
 require_once 'db.php';
 
 function out($arr, $code = 200) { http_response_code($code); echo json_encode($arr); exit; }

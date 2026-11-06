@@ -2,7 +2,7 @@
 // backend/login.php - JSON login endpoint (PostgreSQL)
 ini_set('display_errors', '0');          // keep the response pure JSON
 header('Content-Type: application/json; charset=utf-8');
-session_start();
+require_once __DIR__ . '/session.php';
 require_once 'db.php';                   // defines $pdo (pgsql)
 
 function fail($msg, $code = 401) {
