@@ -103,3 +103,14 @@ CREATE TABLE patient_password_resets (
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX patient_password_resets_idx ON patient_password_resets (patient_id, created_at DESC);
+
+-- backup copy of deleted patients / appointments (used by backend/staff_delete.php and backup.php)
+CREATE TABLE deleted_records (
+    record_id  SERIAL PRIMARY KEY,
+    rec_type   VARCHAR(20)  NOT NULL CHECK (rec_type IN ('patient', 'appointment')),
+    ref_id     INT          NOT NULL,
+    label      VARCHAR(150) NOT NULL,
+    payload    JSONB        NOT NULL,
+    deleted_by VARCHAR(10),
+    deleted_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

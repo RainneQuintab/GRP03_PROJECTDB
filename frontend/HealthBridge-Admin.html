@@ -652,5 +652,127 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
   } catch (e) { location.replace(LOGIN); }
 })();
 </script>
+<script>
+/* DB bridge (admin): load appointments from PostgreSQL and make changes real */
+(function () {
+  const API = '../backend/';
+  async function call(file, opts) {
+    try {
+      const r = await fetch(API + file, Object.assign({ credentials: 'same-origin', cache: 'no-store' }, opts));
+      let j = null;
+      try { j = await r.json(); } catch (e) { }
+      return { ok: !!(r.ok && j && (j.ok || j.success)), status: r.status, j };
+    } catch (e) { return { ok: false, status: 0, j: null }; }
+  }
+  const slotFor = hhmm => SLOTS.find(s => s.startsWith(hhmm)) || hhmm;
+  const post = p => call('staff_appointments.php', { method: 'POST', body: new URLSearchParams(Object.assign({ action: 'update' }, p)) });
+  const delCall = (type, id) => call('staff_delete.php', { method: 'POST', body: new URLSearchParams({ type, id }) });
+
+  async function bridgeLoad() {
+    const ses = await call('staff_session.php');
+    if (!ses.ok) return;
+    const [docs, apps] = await Promise.all([call('get_doctors.php'), call('staff_appointments.php')]);
+    if (!apps.ok) return;
+    if (docs.ok) {
+      const names = [...new Set(docs.j.doctors.map(x => x.specialty_name || 'General'))];
+      DB.sp = names.map((n, i) => ({ id: i + 1, name: n }));
+      DB.dr = docs.j.doctors.map(x => ({
+        id: +x.doctor_id, sp: names.indexOf(x.specialty_name || 'General') + 1,
+        fn: x.first_name, ln: x.last_name, em: x.email || '', on: 1
+      }));
+    }
+    const seen = {};
+    apps.j.appointments.forEach(x => {
+      seen[x.patient_id] = { id: +x.patient_id, fn: x.patient_first, ln: x.patient_last, ph: x.contact_number || '', ad: '', reg: 1 };
+    });
+    DB.pt = Object.values(seen);
+    DB.ap = apps.j.appointments.map(x => ({
+      id: +x.appointment_id, pt: +x.patient_id, dr: +x.doctor_id,
+      date: x.appointment_date.slice(0, 10), slot: slotFor(x.appointment_date.slice(11, 16)),
+      st: x.status, sym: x.reason || ''
+    }));
+    const vn = await call('visit_notes.php');
+    if (vn.ok) {
+      const oldNt = DB.nt || [];
+      DB.nt = vn.j.notes.map(n => Object.assign({ fee: null, paid: 0 }, oldNt.find(o => o.ap === +n.appointment_id) || {}, {
+        id: +n.note_id, ap: +n.appointment_id, dx: n.diagnosis, ob: n.clinical_observations || ''
+      }));
+      DB.rx = vn.j.prescriptions.map(r => ({
+        id: +r.prescription_id, ap: +r.appointment_id, med: r.medication_name, dose: r.dosage, ins: r.instructions
+      }));
+    }
+        const bk = await call('backup.php');
+    if (bk.ok) {
+      const iso = s => new Date(String(s).replace(' ', 'T').slice(0, 19)).toISOString();
+      DB.arc = bk.j.records.map(r => {
+        const pl = r.payload || {}, p = pl.patient;
+        return {
+          id: +r.record_id, at: iso(r.deleted_at), by: r.deleted_by || 'staff', type: r.rec_type,
+          name: r.label, ref: +r.ref_id,
+          pt: p ? { id: +p.patient_id, fn: p.first_name, ln: p.last_name, ph: p.contact_number || '', ad: p.address || '', reg: 1 } : null,
+          ap: (pl.appointments || []).map(x => ({ id: +x.appointment_id, pt: +x.patient_id, dr: +x.doctor_id, date: x.appointment_date.slice(0, 10), slot: slotFor(x.appointment_date.slice(11, 16)), st: x.status, sym: x.reason || '' })),
+          nt: (pl.notes || []).map(n => ({ id: +n.note_id, ap: +n.appointment_id, dx: n.diagnosis, ob: n.clinical_observations || '', fee: null, paid: 0 })),
+          rx: (pl.prescriptions || []).map(x => ({ id: +x.prescription_id, ap: +x.appointment_id, med: x.medication_name, dose: x.dosage, ins: x.instructions }))
+        };
+      });
+    }
+    render();
+  }
+  const fail = async r => {
+    toast((r.j && r.j.error) || 'Could not save to the database. Please try again.', 4200);
+    await bridgeLoad();
+  };
+
+  // Cancel / decline
+  const cc = A.confirmCancel;
+  A.confirmCancel = async d => {
+    const r = await post({ appointment_id: +d.id, status: 'Cancelled' });
+    if (!r.ok) { modal(''); return fail(r); }
+    cc(d);
+    await bridgeLoad();
+  };
+
+  // Delete appointment / patient (a copy goes to deleted_records first)
+  const dap = A.delap2;
+  A.delap2 = async d => {
+    const a = AP(d.id), pid = a && a.pt;
+    const r = await delCall('appointment', +d.id);
+    if (!r.ok) { modal(''); return fail(r); }
+    dap(d);
+    await bridgeLoad();
+    if (pid) editPt(pid);
+  };
+  const dpt = A.delpt2;
+  A.delpt2 = async d => {
+    const r = await delCall('patient', +d.id);
+    if (!r.ok) { modal(''); return fail(r); }
+    dpt(d);
+    await bridgeLoad();
+  };
+    // Backup: Restore and Delete forever now use the database
+  const bkPost = (action, id) => call('backup.php', { method: 'POST', body: new URLSearchParams({ action, id }) });
+  A.restore = async d => {
+    const r = await bkPost('restore', +d.id);
+    modal('');
+    if (!r.ok) { toast((r.j && r.j.error) || 'Could not restore.', 4200); return; }
+    await bridgeLoad();
+    toast('Restored from backup');
+  };
+  A.purge2 = async d => {
+    const r = await bkPost('purge', +d.id);
+    modal('');
+    if (!r.ok) { toast((r.j && r.j.error) || 'Could not delete the backup.', 4200); return; }
+    await bridgeLoad();
+    toast('Permanently deleted');
+  };
+  // Refresh every 15 seconds (not while a form is open)
+  setInterval(() => {
+    const f = document.activeElement;
+    if ($('#modal').classList.contains('on') || (f && /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName))) return;
+    bridgeLoad();
+  }, 15000);
+  bridgeLoad();
+})();
+</script>
 </body>
 </html>

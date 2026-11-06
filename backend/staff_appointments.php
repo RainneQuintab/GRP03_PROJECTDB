@@ -36,7 +36,7 @@ try {
             $where[] = 'a.appointment_date >= CAST(:d0 AS date) AND a.appointment_date < CAST(:d1 AS date) + 1';
             $args['d0'] = $date; $args['d1'] = $date;
         }
-        $sql = "SELECT a.appointment_id, a.appointment_date, a.status,
+            $sql = "SELECT a.appointment_id, a.appointment_date, a.status, a.reason,
                        p.patient_id, p.first_name AS patient_first, p.last_name AS patient_last, p.contact_number,
                        d.doctor_id, d.first_name AS doctor_first, d.last_name AS doctor_last, sp.specialty_name
                 FROM appointments a
