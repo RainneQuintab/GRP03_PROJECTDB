@@ -54,7 +54,8 @@ try {
     if ($action === 'save') {
         if (!$isDesk) { fail('Only staff or admin can create bills.', 403); }
         $amount = trim($_POST['amount'] ?? '');
-        if (!preg_match('/^\d{1,8}(\.\d{1,2})?$/', $amount)) { fail('Enter a fee between 0 and 99,999,999.99.'); }
+        if (!preg_match('/^\d{1,8}(\.\d{1,2})?$/', $amount)) { fail('Enter a fee between 0.01 and 99,999,999.99.'); }
+        if ((float) $amount <= 0) { fail('The fee must be greater than 0.'); }
 
         $pdo->beginTransaction();
         $q = $pdo->prepare('SELECT status FROM appointments WHERE appointment_id = :a FOR UPDATE');
