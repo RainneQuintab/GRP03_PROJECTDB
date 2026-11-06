@@ -603,5 +603,98 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
   } catch (e) { location.replace(LOGIN); }
 })();
 </script>
+<script>
+/* DB bridge (staff, admin and doctor accounts): appointments live in PostgreSQL */
+(function () {
+  const API = '../backend/';
+  async function call(file, opts) {
+    try {
+      const r = await fetch(API + file, Object.assign({ credentials: 'same-origin', cache: 'no-store' }, opts));
+      let j = null;
+      try { j = await r.json(); } catch (e) { }
+      return { ok: !!(r.ok && j && (j.ok || j.success)), status: r.status, j };
+    } catch (e) { return { ok: false, status: 0, j: null }; }
+  }
+  const slotFor = hhmm => SLOTS.find(s => s.startsWith(hhmm)) || hhmm;
+  const post = p => call('staff_appointments.php', { method: 'POST', body: new URLSearchParams(Object.assign({ action: 'update' }, p)) });
+
+  async function bridgeLoad() {
+    const ses = await call('staff_session.php');
+    if (!ses.ok) return;                         // the sign-in guard sends them to the login page
+    const [docs, apps] = await Promise.all([call('get_doctors.php'), call('staff_appointments.php')]);
+    if (!apps.ok) return;
+    if (docs.ok) {
+      const names = [...new Set(docs.j.doctors.map(x => x.specialty_name || 'General'))];
+      DB.sp = names.map((n, i) => ({ id: i + 1, name: n }));
+      DB.dr = docs.j.doctors.map(x => ({
+        id: +x.doctor_id, sp: names.indexOf(x.specialty_name || 'General') + 1,
+        fn: x.first_name, ln: x.last_name, em: x.email || '', on: 1
+      }));
+    }
+    const seen = {};
+    apps.j.appointments.forEach(x => {
+      seen[x.patient_id] = { id: +x.patient_id, fn: x.patient_first, ln: x.patient_last, ph: x.contact_number || '', ad: '', reg: 1 };
+    });
+    DB.pt = Object.values(seen);
+    DB.ap = apps.j.appointments.map(x => ({
+      id: +x.appointment_id, pt: +x.patient_id, dr: +x.doctor_id,
+      date: x.appointment_date.slice(0, 10), slot: slotFor(x.appointment_date.slice(11, 16)),
+      st: x.status, sym: x.reason || ''
+    }));
+    DB.nt = (DB.nt || []).filter(n => DB.ap.some(a => a.id === n.ap));
+    DB.rx = (DB.rx || []).filter(n => DB.ap.some(a => a.id === n.ap));
+    if (ses.j.role === 'doctor' && ses.j.doctor_id) {
+      S.did = +ses.j.doctor_id;
+      const st = document.createElement('style');
+      st.textContent = '#who{display:none !important}';
+      document.head.appendChild(st);
+    }
+    render();
+  }
+  const fail = async r => {
+    toast((r.j && r.j.error) || 'Could not save to the database. Please try again.', 4200);
+    await bridgeLoad();
+  };
+
+  // Assign (Pending -> Scheduled) and complete a visit (Scheduled -> Completed)
+  let before = null;
+  document.addEventListener('submit', e => {
+    const f = e.target, id = +f.dataset.id, a = id ? AP(id) : null;
+    before = a && (f.dataset.f === 'assign' || f.dataset.f === 'note') ? { k: f.dataset.f, id, st: a.st } : null;
+  }, true);
+  document.addEventListener('submit', async () => {
+    if (!before) return;
+    const { k, id, st } = before;
+    before = null;
+    const a = AP(id);
+    if (!a) return;
+    if (k === 'assign' && st === 'Pending' && a.st === 'Scheduled') {
+      const r = await post({ appointment_id: id, doctor_id: a.dr, date: a.date + ' ' + a.slot.slice(0, 5), status: 'Scheduled' });
+      return r.ok ? bridgeLoad() : fail(r);
+    }
+    if (k === 'note' && st === 'Scheduled' && a.st === 'Completed') {
+      const r = await post({ appointment_id: id, status: 'Completed' });
+      return r.ok ? bridgeLoad() : fail(r);
+    }
+  });
+
+  // Decline / cancel
+  const cc = A.confirmCancel;
+  A.confirmCancel = async d => {
+    const r = await post({ appointment_id: +d.id, status: 'Cancelled' });
+    if (!r.ok) { modal(''); return fail(r); }
+    cc(d);
+    await bridgeLoad();
+  };
+
+  // Pick up new patient requests every 15 seconds (not while a form is open)
+  setInterval(() => {
+    const f = document.activeElement;
+    if ($('#modal').classList.contains('on') || (f && /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName))) return;
+    bridgeLoad();
+  }, 15000);
+  bridgeLoad();
+})();
+</script>
 </body>
 </html>
