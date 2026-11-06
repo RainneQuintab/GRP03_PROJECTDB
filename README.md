@@ -133,7 +133,7 @@ All test passwords are `password123`. They are public in this repo, so never reu
 | Doctor (General Practice) | maria.santos@healthbridge.com           | password123 |
 | Doctor (Pediatrics)       | juan.reyes@healthbridge.com             | password123 |
 | Doctor (Cardiology)       | carlo.dizon@healthbridge.com            | password123 |
-| Patient                   | ana.cruz@example.com (or ID `HB-00001`) | password123 |
+| Patient                   | liamjam@gmail.com (or ID `HB-00005`) | @password123 |
 
 Patients sign in on `HealthBridge-Login.html`. Staff, admin and doctors sign in on `HealthBridge-StaffLogin.html`.
 
