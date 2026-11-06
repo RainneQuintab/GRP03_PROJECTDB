@@ -3,7 +3,7 @@
 ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-session_start();
+require_once __DIR__ . '/session.php';
 
 if (empty($_SESSION['patient_id'])) {
     http_response_code(401);

@@ -1213,15 +1213,19 @@
       const b = document.querySelector('#modal [data-a="paynow"]');
       if (b) { b.disabled = true; b.textContent = 'Processing…'; }
       let total = 0, count = 0, err = '';
+      const payIds = [];
       for (const id of ids) {
         const a = appointmentById(id), n = a && billOf(id);
         if (!(a && n && !n.paid && a.pt === state.me)) continue;
+        payIds.push(id); total += Number(n.fee);
+      }
+      if (payIds.length) {
         try {
-          // the payment is recorded in the database; the amount is read from the bill there
-          const r = await api('billing.php', { method: 'POST', body: new URLSearchParams({ action: 'pay', appointment_id: id, payment_method: via }) });
-          if (r.ok) { total += Number(n.fee); count++; }
-          else { err = (r.j && r.j.error) || 'The payment could not be completed. Please try again.'; break; }
-        } catch (e) { err = 'The payment could not be completed. Please try again.'; break; }
+          // one request: every selected bill is paid together or none is; the amounts are read from the bills in the database
+          const r = await api('billing.php', { method: 'POST', body: new URLSearchParams({ action: 'pay', appointment_id: payIds.join(','), payment_method: via }) });
+          if (r.ok) { count = payIds.length; }
+          else { total = 0; err = (r.j && r.j.error) || 'The payment could not be completed. Please try again.'; }
+        } catch (e) { total = 0; err = 'The payment could not be completed. Please try again.'; }
       }
       await bridgeLoad();
       modal('');

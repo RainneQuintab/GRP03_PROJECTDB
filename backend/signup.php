@@ -2,7 +2,7 @@
 // backend/signup.php - creates a patient in PostgreSQL and signs them in
 ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
-session_start();
+require_once __DIR__ . '/session.php';
 require_once 'db.php';
 
 function fail($msg, $code = 400) {
