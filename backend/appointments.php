@@ -19,7 +19,7 @@ $action = $verb === 'POST' ? ($_POST['action'] ?? '') : ($_GET['action'] ?? 'min
 
 try {
     if ($verb === 'GET' && $action === 'mine') {
-        $s = $pdo->prepare('SELECT a.appointment_id, a.appointment_date, a.status,
+        $s = $pdo->prepare('SELECT a.appointment_id, a.appointment_date, a.status, a.reason,
                                    d.doctor_id, d.first_name AS doctor_first, d.last_name AS doctor_last, sp.specialty_name
                             FROM appointments a
                             JOIN doctors d ON d.doctor_id = a.doctor_id
@@ -34,6 +34,8 @@ try {
 
     if ($action === 'book') {
         $doctorId = (int) ($_POST['doctor_id'] ?? 0);
+        $reason   = trim($_POST['reason'] ?? '');
+    if (strlen($reason) > 500) { fail('Reason is too long.'); }
         $norm     = str_replace('T', ' ', trim($_POST['date'] ?? ''));
         $tz       = new DateTimeZone('Asia/Manila');
         $when     = DateTime::createFromFormat('Y-m-d H:i', $norm, $tz);
@@ -47,9 +49,9 @@ try {
         if (!$d->fetchColumn()) { fail('Choose a doctor.'); }
 
         // appointments_doctor_slot (unique index) stops two bookings for the same doctor and time
-        $ins = $pdo->prepare("INSERT INTO appointments (patient_id, doctor_id, appointment_date, status)
-                              VALUES (:p, :d, :t, 'Pending') RETURNING appointment_id");
-        $ins->execute(['p' => $pid, 'd' => $doctorId, 't' => $when->format('Y-m-d H:i:00')]);
+       $ins = $pdo->prepare("INSERT INTO appointments (patient_id, doctor_id, appointment_date, status, reason)
+                      VALUES (:p, :d, :t, 'Pending', :r) RETURNING appointment_id");
+$ins->execute(['p' => $pid, 'd' => $doctorId, 't' => $when->format('Y-m-d H:i:00'), 'r' => $reason]);
         out(['ok' => true, 'appointment_id' => (int) $ins->fetchColumn(), 'status' => 'Pending'], 201);
     }
 
