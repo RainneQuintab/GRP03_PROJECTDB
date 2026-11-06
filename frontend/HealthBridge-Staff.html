@@ -641,8 +641,19 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
       date: x.appointment_date.slice(0, 10), slot: slotFor(x.appointment_date.slice(11, 16)),
       st: x.status, sym: x.reason || ''
     }));
-    DB.nt = (DB.nt || []).filter(n => DB.ap.some(a => a.id === n.ap));
-    DB.rx = (DB.rx || []).filter(n => DB.ap.some(a => a.id === n.ap));
+       const vn = await call('visit_notes.php');
+    if (vn.ok) {
+      const oldNt = DB.nt || [];
+      DB.nt = vn.j.notes.map(n => Object.assign({ fee: null, paid: 0 }, oldNt.find(o => o.ap === +n.appointment_id) || {}, {
+        id: +n.note_id, ap: +n.appointment_id, dx: n.diagnosis, ob: n.clinical_observations || ''
+      }));
+      DB.rx = vn.j.prescriptions.map(r => ({
+        id: +r.prescription_id, ap: +r.appointment_id, med: r.medication_name, dose: r.dosage, ins: r.instructions
+      }));
+    } else {
+      DB.nt = (DB.nt || []).filter(n => DB.ap.some(a => a.id === n.ap));
+      DB.rx = (DB.rx || []).filter(n => DB.ap.some(a => a.id === n.ap));
+    }
     if (ses.j.role === 'doctor' && ses.j.doctor_id) {
       S.did = +ses.j.doctor_id;
       const st = document.createElement('style');
@@ -672,8 +683,12 @@ window.addEventListener('storage',e=>{if(e.key!==KEY)return;const f=document.act
       const r = await post({ appointment_id: id, doctor_id: a.dr, date: a.date + ' ' + a.slot.slice(0, 5), status: 'Scheduled' });
       return r.ok ? bridgeLoad() : fail(r);
     }
-    if (k === 'note' && st === 'Scheduled' && a.st === 'Completed') {
-      const r = await post({ appointment_id: id, status: 'Completed' });
+        if (k === 'note' && st === 'Scheduled' && a.st === 'Completed') {
+      const n = DB.nt.find(x => x.ap === id) || {};
+      const rx = DB.rx.filter(x => x.ap === id).map(x => ({ med: x.med, dose: x.dose, ins: x.ins }));
+      const r = await call('visit_notes.php', { method: 'POST', body: new URLSearchParams({
+        action: 'save', appointment_id: id, diagnosis: n.dx || '', observations: n.ob || '', rx: JSON.stringify(rx)
+      }) });
       return r.ok ? bridgeLoad() : fail(r);
     }
   });
