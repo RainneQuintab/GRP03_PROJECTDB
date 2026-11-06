@@ -1,38 +1,16 @@
-# HealthBridge – Application User Roles Documentation
+# HealthBridge - Application User Roles
 
-## 1. Overview
-HealthBridge is a Clinic Management System with four application user roles: Administrator, Staff, Doctor, and Patient. Each role has defined responsibilities, functions, and access restrictions within the application.
+HealthBridge has four application roles. Application roles describe what a person can do after logging in.
+Database roles describe what a PostgreSQL account can do. They are not the same thing: end users have no
+database login, and the backend connects through the runtime account `hb_app`.
 
-## 2. Application User Roles
-
-| Application Role | Responsibilities in the Application | Functions and Data Access | Intended Database Role |
+| Application role | Responsibilities in the application | Functions and data access | Intended database role |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | Manages user accounts, doctor profiles, system settings, and clinic operations. | Create, view, update, and delete user accounts as authorized; manage clinic services and specialties; oversee appointments and records; view reports and audit logs. | `app_admin_grp` |
-| **Staff** | Assists with appointment scheduling, queue management, and daily clinic front-desk operations. | Create and view appointments; update appointment statuses; manage patient information and clinic queues according to assigned permissions. Access to protected medical records is restricted. | `app_runtime_grp` |
-| **Doctor** | Handles medical consultations and maintains patient health and prescription records. | View assigned appointments and patient information; create and update medical notes; record diagnoses, clinical observations, and digital prescriptions. | `app_runtime_grp` |
-| **Patient** | Manages personal demographics, registered profiles, and clinic appointments. | Register and manage personal profile; book, reschedule, and cancel appointments; view appointment history and relevant medical records and prescriptions. | `app_runtime_grp` |
+| **Administrator** | Oversees the clinic and the deleted-records backup. | Everything Staff can do, plus view the Backup, restore deleted records, or delete them permanently; dashboard overview and recent activity. | `hb_admin` (elevated group role, not a superuser) |
+| **Staff (front desk)** | Reviews appointment requests and runs the daily queue. | Review requests, assign doctor and time slot, cancel appointments, view/edit patients, add bills and record payments, delete Completed/Cancelled appointments and patients (copied to Backup first). | `hb_staff` |
+| **Doctor** | Conducts consultations. | See own queue only; complete a visit with a diagnosis and prescriptions. | `hb_staff` |
+| **Patient** | Manages own profile and bookings. | Sign up, sign in, request an appointment, view own visits, prescriptions and bills, pay online, reset password. | `hb_staff` |
+| **Application runtime (system account)** | Account the PHP backend uses to connect. | Only the queries the backend needs. | `hb_app` (member of `hb_staff`) |
 
-### Intended Database Roles
-`app_runtime_grp` is the proposed PostgreSQL group role for routine backend database operations, with access limited to the permissions required by the application. `app_admin_grp` is the proposed group role for authorized elevated database operations; these database roles are distinct from application login roles and do not automatically grant PostgreSQL superuser access.
-
-## 3. Application Role Restrictions
-
-### Administrator
-* User account creation, viewing, updating, and deletion are limited to authorized actions.
-* Oversees appointments, doctor profiles, and records, and can view reports and audit logs.
-
-### Staff
-* Manages appointments, patient information, and clinic services according to assigned permissions.
-* Access to protected medical records is restricted.
-
-### Doctor
-* Views assigned appointments and patient information.
-* Creates and updates medical records, diagnoses, and prescriptions.
-
-### Patient
-* Manages their own personal information and profile details.
-* Books, reschedules, and cancels appointments.
-* Views appointment history and relevant medical and prescription records for their own visits.
-
-## 4. Summary
-HealthBridge uses four application roles to organize access to clinic functions and information. Administrators oversee accounts and clinic operations; Staff assist with appointments and clinic records; Doctors manage consultations and medical information; and Patients manage their appointments and view their relevant records. Access is subject to the permissions and limitations described above.
+Patient, Doctor and Staff actions all reach the database through `hb_app`; the PHP code limits each user to
+their own data (for example, a patient only sees their own appointments).
