@@ -2054,6 +2054,66 @@
         }
       }
     });
+        // ===== DB bridge: the signed-in patient's appointments live in PostgreSQL =====
+    const API = '../backend/';
+    const slotFor = hhmm => SLOTS.find(s => s.startsWith(hhmm)) || hhmm;
+    async function api(file, opts) {
+      const r = await fetch(API + file, Object.assign({ credentials: 'same-origin', cache: 'no-store' }, opts));
+      let j = null;
+      try { j = await r.json(); } catch (e) { }
+      if (r.status === 401) { location.replace(LOGIN_URL); }
+      return { ok: !!(r.ok && j && (j.ok || j.success)), status: r.status, j };
+    }
+    async function bridgeLoad() {
+      if (!state.auth || !state.me) return;
+      const d = await api('get_doctors.php');
+      if (d.ok) {
+        const names = [...new Set(d.j.doctors.map(x => x.specialty_name || 'General'))];
+        DB.sp = names.map((n, i) => ({ id: i + 1, name: n }));
+        DB.dr = d.j.doctors.map(x => ({
+          id: +x.doctor_id, sp: names.indexOf(x.specialty_name || 'General') + 1,
+          fn: x.first_name, ln: x.last_name, em: x.email || '', on: 1
+        }));
+      }
+      const m = await api('appointments.php?action=mine');
+      if (m.ok) {
+        const mine = m.j.appointments.map(x => ({
+          id: +x.appointment_id, pt: state.me, dr: +x.doctor_id,
+          date: x.appointment_date.slice(0, 10), slot: slotFor(x.appointment_date.slice(11, 16)),
+          st: x.status, sym: x.reason || ''
+        }));
+        DB.ap = DB.ap.filter(a => a.pt !== state.me).concat(mine);
+        save();
+        render();
+      }
+    }
+    // Add doctor + time slot fields to the "Book a visit" form
+    const mineOrig = views.mine;
+    views.mine = function () {
+      const html = mineOrig();
+      const docs = DB.dr.filter(d => d.on).map(d => {
+        const sp = specialtyById(d.sp);
+        return `<option value="${d.id}">${escapeHtml(doctorName(d.id))}${sp ? ' (' + escapeHtml(sp.name) + ')' : ''}</option>`;
+      }).join('');
+      const times = SLOTS.map(s => `<option value="${s}">${s}</option>`).join('');
+      const extra = `<div><label for="nv3">Doctor</label><select id="nv3" name="dr"><option value="">Choose a doctor</option>${docs}</select></div>` +
+        `<div><label for="nv4">Time slot</label><select id="nv4" name="slot"><option value="">Choose a time</option>${times}</select></div>`;
+      return html.replace('<div class="full"><label for="nv2">', extra + '<div class="full"><label for="nv2">');
+    };
+    // Send the booking to the database instead of the browser
+    submitHandlers.more = async function (f, v) {
+      if (!v.dr || !v.slot) { toast('Choose a doctor and a time slot.', 3200); return; }
+      const body = new URLSearchParams({
+        action: 'book', doctor_id: v.dr,
+        date: parseDmy(v.date_text) + ' ' + v.slot.slice(0, 5), reason: v.sym
+      });
+      const r = await api('appointments.php', { method: 'POST', body });
+      if (!r.ok) { toast((r.j && r.j.error) || 'Could not book. Please try again.', 4200); return; }
+      state.more = false;
+      await bridgeLoad();
+      toast('Appointment requested. Clinic staff will confirm it.', 4200);
+    };
+    bridgeLoad();
   </script>
 </body>
 
