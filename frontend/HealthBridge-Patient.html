@@ -1093,6 +1093,7 @@
     };
     const { roles: ROLES, start: START } = MODES[MODE];
     const ICONS = {
+      bill: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
       ov: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
       docs: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
       spec: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
@@ -1135,7 +1136,7 @@
       log: []
     };
     // Patients who signed in see only their own page; the nav shrinks to one tab
-    const navFor = r => (MODE === 'client' && state.auth && r === 'patient') ? [['mine', 'My appointment']] : NAV[r];
+    const navFor = r => (MODE === 'client' && state.auth && r === 'patient') ? [['mine', 'My appointments'], ['records', 'Visit records'], ['billing', 'Billing']] : NAV[r];
     function load() {
       try {
         const j = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -1207,23 +1208,28 @@
       const total = ids.reduce((t, id) => t + Number(billOf(id).fee), 0);
       modal(`<h3 style="margin:0 0 4px">Pay online</h3><div class="meta">${ids.length > 1 ? ids.length + ' visits' : 'Visit bill'}</div><div class="big" style="margin:8px 0 14px">${money(total)}</div><div class="pms">${['GCash', 'Maya', 'Credit / debit card'].map((m, i) => `<label class="pm"><input type="radio" name="pm" value="${m}" ${i ? '' : 'checked'}><span>${m}</span></label>`).join('')}</div><p class="meta" style="margin:0 0 14px">Demo checkout. No real money is charged.</p><div class="acts"><button class="btn p" data-a="paynow" data-id="${ids.join(',')}">Pay ${money(total)}</button><button class="btn" data-a="close">Cancel</button></div>`);
     }
-    function payNow(ids) {
-      const via = (document.querySelector('#modal input[name=pm]:checked') || {}).value || 'Online';
+    async function payNow(ids) {
+      const via = (document.querySelector('#modal input[name=pm]:checked') || {}).value || 'GCash';
       const b = document.querySelector('#modal [data-a="paynow"]');
       if (b) { b.disabled = true; b.textContent = 'Processing…'; }
-      setTimeout(() => {
-        let total = 0, count = 0;
-        ids.forEach(id => {
-          const a = appointmentById(id), n = a && billOf(id);
-          if (a && n && !n.paid && a.pt === state.me) { n.paid = 1; n.via = via; n.paidAt = new Date().toISOString(); total += Number(n.fee); count++; }
-        });
-        if (!count) { modal(''); return; }
+      let total = 0, count = 0, err = '';
+      for (const id of ids) {
+        const a = appointmentById(id), n = a && billOf(id);
+        if (!(a && n && !n.paid && a.pt === state.me)) continue;
+        try {
+          // the payment is recorded in the database; the amount is read from the bill there
+          const r = await api('billing.php', { method: 'POST', body: new URLSearchParams({ action: 'pay', appointment_id: id, payment_method: via }) });
+          if (r.ok) { total += Number(n.fee); count++; }
+          else { err = (r.j && r.j.error) || 'The payment could not be completed. Please try again.'; break; }
+        } catch (e) { err = 'The payment could not be completed. Please try again.'; break; }
+      }
+      await bridgeLoad();
+      modal('');
+      if (count) {
         logEvent(`Payment received from ${patientName(state.me)} (${money(total)}) online via ${via}`);
-        save();
-        modal('');
-        render();
         toast('Payment received. Thank you!', 3200);
-      }, 1200);
+      }
+      if (err) toast(err, 4200);
     }
     const rno = id => 'RCPT-' + String(id).padStart(5, '0');
     const rxHtml = r => r.length ? `<ul class="rxl">${r.map(x => `<li><b>${escapeHtml(x.med)}</b>${x.dose ? ' · ' + escapeHtml(x.dose) : ''}${x.ins ? `<div class="meta">${escapeHtml(x.ins)}</div>` : ''}</li>`).join('')}</ul>` : '<div class="meta">No medication prescribed.</div>';
@@ -1249,7 +1255,7 @@
     function chrome() {
       const cur = state.view === 'consult' ? 'queue' : state.view;
       const nav = navFor(state.role);
-      const ic = k => ICONS[k] || ICONS[{ visit: 'book', avail: 'docs', mine: 'rec' }[k]];
+      const ic = k => ICONS[k] || ICONS[{ visit: 'book', avail: 'docs', mine: 'sched', records: 'rec', billing: 'bill' }[k]];
       $('#roles').innerHTML = ROLES.map(([k, l]) => `<button data-a="role" data-k="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
       $('#who').innerHTML = state.role === 'doctor' ? `<select aria-label="Doctor" data-a="pick" data-t="did">${activeDr().map(d => `<option value="${d.id}" ${d.id === state.did ? 'selected' : ''}>${escapeHtml(doctorName(d.id))}</option>`).join('')}</select>` : (MODE === 'client' ? accountBox() : '');
       $('#nav').innerHTML = nav.map(([k, l]) => `<button data-a="view" data-k="${k}" ${cur === k ? 'aria-current="page"' : ''}><svg viewBox="0 0 24 24" aria-hidden="true">${ic(k)}</svg>${l}</button>`).join('');
@@ -1349,15 +1355,15 @@
         const sent = state.done && patientById(state.done.p);
         const banner = sent && !state.auth ? `<div class="panel pad okbox" role="status" style="margin-bottom:16px"><b>Request sent. Clinic staff will review it and assign your doctor.</b>${state.auth ? '' : `<div class="meta" style="margin-top:6px">Your patient ID</div><div class="big">${mrn(sent.id)}</div><div>Keep this ID. Create a password to sign in and check your appointment later.</div>`}</div>` : '';
         const unpaid = state.auth ? l.filter(x => { const n = billOf(x.id); return n && !n.paid; }) : [];
-        const billBanner = unpaid.length ? `<div class="panel pad billcard" role="status"><div><span class="pill Pending">${unpaid.length > 1 ? unpaid.length + ' bills due' : 'Payment due'}</span><div class="amt">${money(unpaid.reduce((t, x) => t + Number(billOf(x.id).fee), 0))}</div><div class="meta">${unpaid.length > 1 ? 'For ' + unpaid.length + ' completed visits' : 'For your visit on ' + formatDate(unpaid[0].date) + (unpaid[0].dr ? ' with ' + escapeHtml(doctorName(unpaid[0].dr)) : '')}</div></div><div class="acts"><button class="btn p" data-a="pay" data-id="${unpaid.map(x => x.id).join(',')}">Pay online</button></div></div>` : '';
+        const billBanner = unpaid.length ? `<div class="panel pad billcard" role="status"><div><span class="pill Pending">${unpaid.length > 1 ? unpaid.length + ' bills due' : 'Payment due'}</span><div class="meta" style="margin-top:6px">You have ${money(unpaid.reduce((t, x) => t + Number(billOf(x.id).fee), 0))} waiting in Billing.</div></div><div class="acts"><button class="btn p" data-a="view" data-k="billing">View billing</button></div></div>` : '';
         const billBlock = a => {
           if (a.st !== 'Completed') return '';
           const n = billOf(a.id);
           if (!n) return '<div class="meta" style="margin-top:10px">Your bill is being prepared by clinic staff.</div>';
           return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><div class="meta">Bill</div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>${money(n.fee)}</b>${n.paid ? '<span class="pill Completed">Paid</span>' : '<span class="pill Pending">Due</span>'}${n.paid && n.via ? `<span class="meta">via ${escapeHtml(n.via)}</span>` : ''}<span style="margin-left:auto">${n.paid ? `<button class="btn" data-a="rcpt" data-id="${a.id}">View receipt</button>` : `<button class="btn p" data-a="pay" data-id="${a.id}">Pay online</button>`}</span></div></div>`;
         };
-        return head('My appointment', state.auth ? 'Your visits and their status.' : 'Sign in to see all your appointments.') + banner + billBanner + (state.auth ? '' : signInBox(p)) +
-          (p ? `<div class="sec"><div class="acts" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">${escapeHtml(patientName(p.id))} <span class="id">${mrn(p.id)}</span></h2>${(state.more || !state.auth) ? '' : '<button class="btn p" data-a="newvisit">Book a visit</button>'}</div>${moreForm}${l.length ? l.map(a => `<div class="panel rec"><div class="rh"><span><b>${formatDate(a.date)}</b> <span class="meta">${a.slot || 'Time to be confirmed'}</span></span>${pill(a.st)}</div><div class="pad"><div class="meta">Doctor</div><b>${a.dr ? escapeHtml(doctorName(a.dr)) : 'To be assigned by the clinic'}</b>${a.dr ? ` <span class="meta">${escapeHtml(specialtyById(doctorById(a.dr).sp).name)}</span>` : ''}<div class="meta" style="margin-top:10px">Reason for visit</div>${escapeHtml(a.sym)}${a.st === 'Pending' ? '<div class="meta" style="margin-top:10px">Clinic staff are reviewing your request.</div>' : ''}${a.st === 'Cancelled' ? '<div class="meta" style="margin-top:10px">This appointment was cancelled. You can send a new request.</div>' : ''}${billBlock(a)}</div></div>`).join('') : `<div class="panel">${empty('No appointments yet. Choose “Book a visit” to send your first request.')}</div>`}</div>` : '');
+        return head('My appointments', state.auth ? 'Your visits and their status.' : 'Sign in to see all your appointments.') + banner + billBanner + (state.auth ? '' : signInBox(p)) +
+          (p ? `<div class="sec"><div class="acts" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">${escapeHtml(patientName(p.id))} <span class="id">${mrn(p.id)}</span></h2>${(state.more || !state.auth) ? '' : '<button class="btn p" data-a="newvisit">Book a visit</button>'}</div>${moreForm}${l.length ? l.map(a => `<div class="panel rec"><div class="rh"><span><b>${formatDate(a.date)}</b> <span class="meta">${a.slot || 'Time to be confirmed'}</span></span>${pill(a.st)}</div><div class="pad"><div class="meta">Doctor</div><b>${a.dr ? escapeHtml(doctorName(a.dr)) : 'To be assigned by the clinic'}</b>${a.dr ? ` <span class="meta">${escapeHtml(specialtyById(doctorById(a.dr).sp).name)}</span>` : ''}<div class="meta" style="margin-top:10px">Reason for visit</div>${escapeHtml(a.sym)}${a.st === 'Pending' ? '<div class="meta" style="margin-top:10px">Clinic staff are reviewing your request.</div>' : ''}${a.st === 'Cancelled' ? '<div class="meta" style="margin-top:10px">This appointment was cancelled. You can send a new request.</div>' : ''}</div></div>`).join('') : `<div class="panel">${empty('No appointments yet. Choose “Book a visit” to send your first request.')}</div>`}</div>` : '');
       }
     };
 
@@ -2048,7 +2054,7 @@
       main();
       if (state.auth) {
         if (myBilledIds().some(id => !before.includes(id))) {
-          toast('Your bill is ready. See My appointment.');
+          toast('Your bill is ready. See Billing.');
         } else if (DB.ap.filter(x => x.pt === state.me && (billOf(x.id) || {}).paid).length > paidBefore) {
           toast('Payment received. Thank you!');
         }
@@ -2078,6 +2084,7 @@
       const m = await api('appointments.php?action=mine');
       const vn = await api('visit_notes.php');
       if (vn.ok) { records = { notes: vn.j.notes, rx: vn.j.prescriptions }; }
+      const bl = await api('billing.php');
       if (m.ok) {
         const mine = m.j.appointments.map(x => ({
           id: +x.appointment_id, pt: state.me, dr: +x.doctor_id,
@@ -2085,6 +2092,21 @@
           st: x.status, sym: x.reason || ''
         }));
         DB.ap = DB.ap.filter(a => a.pt !== state.me).concat(mine);
+        // bills and prescriptions for my visits come from the database
+        const mineIds = new Set(mine.map(a => a.id));
+        DB.rx = DB.rx.filter(x => !mineIds.has(x.ap)).concat(records.rx.map(r => ({
+          id: +r.prescription_id, ap: +r.appointment_id, med: r.medication_name, dose: r.dosage, ins: r.instructions
+        })));
+        if (bl.ok) {
+          DB.nt = DB.nt.filter(n => !mineIds.has(n.ap));
+          bl.j.bills.forEach(b => {
+            const n = records.notes.find(x => +x.appointment_id === +b.appointment_id);
+            DB.nt.push({
+              id: -(+b.bill_id), ap: +b.appointment_id, dx: n ? n.diagnosis : '', ob: n ? (n.clinical_observations || '') : '',
+              fee: +b.amount, paid: b.status === 'Paid' ? 1 : 0, via: b.payment_method || '', paidAt: b.paid_at || ''
+            });
+          });
+        }
         save();
         render();
       }
@@ -2100,7 +2122,7 @@
       const times = SLOTS.map(s => `<option value="${s}">${s}</option>`).join('');
       const extra = `<div><label for="nv3">Doctor</label><select id="nv3" name="dr"><option value="">Choose a doctor</option>${docs}</select></div>` +
         `<div><label for="nv4">Time slot</label><select id="nv4" name="slot"><option value="">Choose a time</option>${times}</select></div>`;
-            return html.replace('<div class="full"><label for="nv2">', extra + '<div class="full"><label for="nv2">') + recordsHtml();
+            return html.replace('<div class="full"><label for="nv2">', extra + '<div class="full"><label for="nv2">');
     };
     // Send the booking to the database instead of the browser
     submitHandlers.more = async function (f, v) {
@@ -2122,7 +2144,7 @@
         .filter(a => a.pt === state.me && a.st === 'Completed' && records.notes.some(n => +n.appointment_id === a.id))
         .sort((x, y) => y.date.localeCompare(x.date));
       if (!done.length) return '';
-      return '<h2 style="margin:28px 0 12px">My visit records</h2>' + done.map(a => {
+      return done.map(a => {
         const n = records.notes.find(x => +x.appointment_id === a.id);
         const rx = records.rx.filter(x => +x.appointment_id === a.id);
         return '<div class="panel pad" style="margin-bottom:12px">' +
@@ -2134,7 +2156,28 @@
           '</div>';
       }).join('');
     }
-        // Grey out time slots that this doctor already has booked on the chosen date
+        views.records = function () {
+      return head('Visit records', 'The diagnosis, doctor’s notes and prescriptions from your completed visits.') +
+        (recordsHtml() || `<div class="panel">${empty('No visit records yet. They appear here after a doctor completes your visit.')}</div>`);
+    };
+    // Billing tab: what is due, what was paid, receipts
+    views.billing = function () {
+      const done = DB.ap.filter(a => a.pt === state.me && a.st === 'Completed').sort((x, y) => y.date.localeCompare(x.date));
+      const billed = done.filter(a => billOf(a.id)), waiting = done.filter(a => !billOf(a.id));
+      const due = billed.filter(a => !billOf(a.id).paid), paid = billed.filter(a => billOf(a.id).paid);
+      const card = a => {
+        const n = billOf(a.id);
+        const when = n.paid ? 'Paid' + (n.via ? ' via ' + escapeHtml(n.via) : '') + (n.paidAt ? ' on ' + formatDate(String(n.paidAt).slice(0, 10)) : '') : 'Consultation fee';
+        return `<div class="panel pad" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><b>${formatDate(a.date)}</b> <span class="meta">${a.slot} · ${escapeHtml(doctorName(a.dr))}</span><div class="meta" style="margin-top:6px">${escapeHtml(n.dx || 'Consultation')}</div></div><div style="text-align:right"><b style="font-size:18px">${money(n.fee)}</b><div style="margin-top:4px">${n.paid ? '<span class="pill Completed">Paid</span>' : '<span class="pill Pending">Due</span>'}</div></div></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><span class="meta">${when}</span><span style="margin-left:auto">${n.paid ? `<button class="btn" data-a="rcpt" data-id="${a.id}">View receipt</button>` : `<button class="btn p" data-a="pay" data-id="${a.id}">Pay online</button>`}</span></div></div>`;
+      };
+      const banner = due.length ? `<div class="panel pad billcard" role="status"><div><span class="pill Pending">${due.length > 1 ? due.length + ' bills due' : 'Payment due'}</span><div class="amt">${money(due.reduce((t, x) => t + Number(billOf(x.id).fee), 0))}</div><div class="meta">${due.length > 1 ? 'For ' + due.length + ' completed visits' : 'For your visit on ' + formatDate(due[0].date)}</div></div><div class="acts"><button class="btn p" data-a="pay" data-id="${due.map(x => x.id).join(',')}">${due.length > 1 ? 'Pay all online' : 'Pay online'}</button></div></div>` : '';
+      const wait = waiting.length ? `<div class="panel pad" style="margin-bottom:16px"><div class="meta">${waiting.length > 1 ? waiting.length + ' completed visits are' : 'Your visit on ' + formatDate(waiting[0].date) + ' is'} waiting for a bill. Clinic staff are preparing it.</div></div>` : '';
+      return head('Billing', 'Your bills, payments and receipts.') + banner + wait +
+        (due.length ? '<h2 style="margin:20px 0 12px">Due</h2>' + due.map(card).join('') : '') +
+        (paid.length ? '<h2 style="margin:20px 0 12px">Paid</h2>' + paid.map(card).join('') : '') +
+        (!billed.length && !waiting.length ? `<div class="panel">${empty('No bills yet. A bill appears here after your visit is completed.')}</div>` : '');
+    };
+    // Grey out time slots that this doctor already has booked on the chosen date
     async function refreshTaken(f) {
       const dr = f.querySelector('[name=dr]').value;
       const dt = parseDmy(f.querySelector('[name=date_text]').value);
@@ -2158,6 +2201,14 @@
       const key = f.querySelector('[name=dr]').value + '|' + f.querySelector('[name=date_text]').value;
       if (key !== lastKey) { lastKey = key; refreshTaken(f); }
     }, 500);
+    // Pick up a new bill (or a payment made at the desk) every 15 seconds, but not while a form is open
+    setInterval(async () => {
+      const f = document.activeElement;
+      if (!state.auth || state.more || $('#modal').classList.contains('on') || (f && /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName))) return;
+      const before = myBilledIds();
+      await bridgeLoad();
+      if (myBilledIds().some(id => !before.includes(id))) toast('Your bill is ready. See Billing.');
+    }, 15000);
     bridgeLoad();
   </script>
 </body>

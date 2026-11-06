@@ -24,8 +24,8 @@ HealthBridge is a clinic management system. Patients request appointments online
 
 | Role                   | What they can do                                                                                                                                                  |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Patient**            | Sign up, sign in, request an appointment, view their visits and prescriptions, reset a forgotten password                                                         |
-| **Staff (front desk)** | Review requests, assign a doctor and time slot, cancel appointments, edit patients, delete Completed/Cancelled appointments and patients (copied to Backup first) |
+| **Patient**            | Sign up, sign in, request an appointment, view their visits and prescriptions, see their bills and pay online, reset a forgotten password                                                         |
+| **Staff (front desk)** | Review requests, assign a doctor and time slot, cancel appointments, edit patients, add bills and record payments, delete Completed/Cancelled appointments and patients (copied to Backup first) |
 | **Doctor**             | See their own queue, complete a visit with a diagnosis and prescriptions                                                                                          |
 | **Admin**              | Everything staff can do, plus view the Backup, restore deleted records, or delete them forever                                                                    |
 
