@@ -1,0 +1,1 @@
+ALTER TABLE medical_notes ADD CONSTRAINT one_note_per_visit UNIQUE (appointment_id);
